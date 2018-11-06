@@ -1,2 +1,3 @@
 ### Crossmap soft
-for file in files
+for file in files:
+	print file
