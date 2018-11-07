@@ -1,8 +1,61 @@
 '''
 
 ### Crossmap soft
-### The best soft ever
+
 '''
+
+
+import os
+import re
+import sys
+import argparse
+import subprocess 
+
+
+## Default values for certain variables
+default_cores = 1
+standard_rlen=["25", "50", "75", "100", "125", "150", "300"]
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-m", "--mode", type = str, choices=["DNA","RNA"], default = "DNA",
+    help = "Specify whether to simulate DNA or RNA reads")
+
+parser.add_argument("-G", "--genomes",type=str, nargs=2, required=True,
+	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
+	+ "NOTE: Keep the same order of listing for gtf/gff files")
+	
+parser.add_argument("-A", "--annotations",type=str, nargs=2, required=True,
+	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
+	+ "NOTE: Keep the same order of listing for genome files")
+
+parser.add_argument("-rlay", "--read_layout", type = str, choices=["SE","PE","both"], default = "SE"
+    help = "Specify the read configuration - single-end (SE), paired-end (PE), or both (both)." 
+		+ " If chosen 'both', the software will make separate analysis with each configuration")
+
+parser.add_argument("-rlen", "--read_length", type=str, default="50",
+	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines:"
+		+ "25, 50, 75, 100, 125, 150, 300. The user can either enter a specific length, or specify a comma-separated"
+		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
+		+ "values separatelly and will report mapping statistics in a form of a graph")
+		### we can check if input if correct with
+		###	if set(rlen).issubset(standard_rlen)
+
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument("-N", "--N_read", type = int, nargs=2,
+    help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
+
+group.add_argument("-C", "--coverage", type = int, nargs=2,
+    help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
+		+ "C = N*rlen/L, " 
+		+ "where L is the length of the genome/transcriptome")
+		
+parser.add_argument("-t", "--threads", type=int, default = 1,
+	help = "Number of cores to be used for all multicore-supporting steps")
+	
+
+
+
 
 
 ### Gffread command
