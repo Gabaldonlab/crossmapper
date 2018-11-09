@@ -83,8 +83,6 @@ parser.add_argument("-rlen", "--read_length", type=str, default="50",
 		+ "25, 50, 75, 100, 125, 150, 300. The user can either enter a specific length, or specify a comma-separated"
 		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
 		+ "values separatelly and will report mapping statistics in a form of a graph")
-		### we can check if input if correct with
-		###	if set(rlen).issubset(standard_rlen)
 		
 parser.add_argument("-r", "--mut_rate", type=float, default = 0.001,
 	help = "Mutation rate.")
@@ -112,8 +110,13 @@ parsedArgs =  parser.parse_args()
 #print(parsedArgs)
 #~ print(len(parsedArgs.annotations))
 
-## Check if rlen numbers are correct
+####### Check if rlen numbers are correct
 print(parsedArgs.read_length.split(","))
+
+try:
+    list(map(int,parsedArgs.read_length.split(",")))
+except Exception:
+    sys.exit("Hmm, seems you have strings in read length values. Trying to find a bug?")
 
 ## convert list of strings to list of integers
 input_rlen=list(map(int,parsedArgs.read_length.split(",")))
