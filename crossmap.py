@@ -115,11 +115,14 @@ parsedArgs =  parser.parse_args()
 ## Check if rlen numbers are correct
 print(parsedArgs.read_length.split(","))
 
+## convert list of strings to list of integers
 input_rlen=list(map(int,parsedArgs.read_length.split(",")))
 
+## check if there are duplicated lengths
 if not len(set(input_rlen)) == len(input_rlen):
     sys.exit("Error: read lengths shoud not be duplicated!")    
 
+## check if any length is not standard
 for length in input_rlen:
     #print(length)
     if not length in standard_rlen:
