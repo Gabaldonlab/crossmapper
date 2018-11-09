@@ -78,7 +78,7 @@ parser.add_argument("-rlay", "--read_layout", type = str, choices=["SE","PE","bo
     help = "Specify the read configuration - single-end (SE), paired-end (PE), or both (both)." 
 		+ " If chosen 'both', the software will make separate analysis with each configuration")
 
-parser.add_argument("-rlen", "--read_length", type=str, default="50",
+parser.add_argument("-rlen", "--read_length", type=int, nargs = "*", default=50,
 	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines:"
 		+ "25, 50, 75, 100, 125, 150, 300. The user can either enter a specific length, or specify a comma-separated"
 		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
@@ -111,22 +111,14 @@ parsedArgs =  parser.parse_args()
 #~ print(len(parsedArgs.annotations))
 
 ####### Check if rlen numbers are correct
-print(parsedArgs.read_length.split(","))
-
-try:
-    list(map(int,parsedArgs.read_length.split(",")))
-except Exception:
-    sys.exit("Hmm, seems you have strings in read length values. Trying to find a bug?")
-
-## convert list of strings to list of integers
-input_rlen=list(map(int,parsedArgs.read_length.split(",")))
+print(parsedArgs.read_length)
 
 ## check if there are duplicated lengths
-if not len(set(input_rlen)) == len(input_rlen):
+if not len(set(parsedArgs.read_length)) == len(parsedArgs.read_length):
     sys.exit("Error: read lengths shoud not be duplicated!")    
 
 ## check if any length is not standard
-for length in input_rlen:
+for length in parsedArgs.read_length:
     #print(length)
     if not length in standard_rlen:
         sys.exit("Error: input read length %s is not a standard Illumina read length."%(length)
