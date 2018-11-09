@@ -1,5 +1,7 @@
+#!/usr/bin/python
+
 '''
-NANANAN
+
 ### Crossmap soft
 
 '''
@@ -35,7 +37,6 @@ parser_RNA = subparsers.add_parser("RNA", help = "Simulate RNA data", formatter_
 parser_RNA.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="Int",
 	help = "From STAR manual: "
 	+ " alignment will be output only if it has no more mismatches than this value")
-
 
 parser.add_argument("-g", "--genomes",type=str, nargs=2, required=True,
 	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
@@ -115,17 +116,18 @@ if len(sys.argv) == 1:
    parser.print_help()
    sys.exit(1)
 
-
-if parsedArgs.Simulation_type == "RNA":
-    print("Simulating RNA")
-	 
-else:
-	print("Simulating DNA")
 	
-
+###TODO : check if genome files are in fasta format
+    
+    
 def getBaseName(filename):
-	basename = '.'.join(filename.split(".")[0:-1])
-	return basename
+    if len(filename.split("."))>1:
+        basename = '.'.join(filename.split(".")[0:-1])
+    else:
+        sys.exit("Error: please check the extensions of your input files."
+                 +"\nGenome files should have .fa, .fasta or .fsa extensions."
+                 +"\nGenome annotations should have .gtf or .gff extensions.")
+    return basename
 	
 def extractTranscriptome():
     transcriptome_names=[]
@@ -134,17 +136,17 @@ def extractTranscriptome():
             print("Annotation file %s detected as gtf. Continuing."%(i+1))
             #get the transcriptome name
             transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
-            
+
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
             
             # add the name to list
             transcriptome_names.append(transcriptome_name)
-            print(transcriptome_names)
+            #print(transcriptome_names)
             
         elif parsedArgs.annotations[i].split(".")[-1] == "gff":
 			
-            print("Annotation file %s detected as gff. Converting to gtf using gffread"%(i+1))
+            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(i+1))
             
             #converting to gtf
             gtf_name = getBaseName(parsedArgs.genomes[i])+".gtf"
@@ -162,31 +164,23 @@ def extractTranscriptome():
             
             # add the name to list
             transcriptome_names.append(transcriptome_name)
-            print(transcriptome_names)
+
 
         else:
-            sys.exit("Error: annotation file %s is neither in gtf nor in gff format. Please check the annotation file."%(i))
-            
+            sys.exit("Error: annotation file %s is neither in gtf nor in gff format. Please check the annotation file."%(i+1))
+    print(transcriptome_names)       
     return transcriptome_names
-    print(transcriptome_names)
+
+def readSimulation():
     
-#print transcriptome_names
 	
 
 if parsedArgs.Simulation_type == "RNA":
-   extractTranscriptome()
-
-
-
-#~ ### Gffread command
-#~ #genome1
-
-#~ gffread -w output_transcripts1.fasta -g reference_genome1.fasta annotations1.gtf
-
-#~ #genome2
-
-#~ gffread -w output_transcripts2.fasta -g reference_genome2.fasta annotations2.gtf
-
+    print("Simulating RNA")
+    extractTranscriptome()
+	 
+else:
+	print("Simulating DNA")
 
 
 #~ ###Simulate reads
