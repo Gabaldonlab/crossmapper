@@ -21,6 +21,9 @@ desc = """
 
 soft_version = "0.1"
 
+
+standard_rlen = [25, 50, 75, 100, 125, 150, 300]
+
 ###Create top level parser
 
 #formatter_class=argparse.RawTextHelpFormatter - with this the text in help is free of formating
@@ -49,8 +52,6 @@ parser.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
 parser.add_argument("-t", "--threads", type=int, default = 1,
 	help = "Number of cores to be used for all multicore-supporting steps")
 	
-
-
 
 #### WGSIM parameters
 
@@ -108,7 +109,25 @@ parser.add_argument("-v", "--version", action = "version", \
 
 
 parsedArgs =  parser.parse_args()
+#print(parsedArgs)
 #~ print(len(parsedArgs.annotations))
+
+## Check if rlen numbers are correct
+print(parsedArgs.read_length.split(","))
+
+input_rlen=list(map(int,parsedArgs.read_length.split(",")))
+
+if not len(set(input_rlen)) == len(input_rlen):
+    sys.exit("Error: read lengths shoud not be duplicated!")    
+
+for length in input_rlen:
+    #print(length)
+    if not length in standard_rlen:
+        sys.exit("Error: input read length %s is not a standard Illumina read length."%(length)
+                 + "\nPlease refer to our help page (crossmap -h) to find standard read lengths.")
+        
+        
+    
 
 
 ## If no arguments are given, just show the help and finish
@@ -130,26 +149,22 @@ def getBaseName(filename):
     return basename
 	
 def extractTranscriptome():
-    transcriptome_names=[]
     for i in range(0,len(parsedArgs.annotations)):
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
-            print("Annotation file %s detected as gtf. Continuing."%(i+1))
+            print("Annotation %s detected as gtf. Continuing."%(parsedArgs.annotations[i]))
             #get the transcriptome name
             transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
 
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
-            
-            # add the name to list
-            transcriptome_names.append(transcriptome_name)
-            #print(transcriptome_names)
+            print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
             
         elif parsedArgs.annotations[i].split(".")[-1] == "gff":
 			
-            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(i+1))
+            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(parsedArgs.annotations[i]))
             
             #converting to gtf
-            gtf_name = getBaseName(parsedArgs.genomes[i])+".gtf"
+            gtf_name = getBaseName(parsedArgs.annotations[i])+".gtf"
             
             #gffread parsedArgs.annotations[i] -T -o gtf_name
             
@@ -160,28 +175,72 @@ def extractTranscriptome():
             
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] gtf_name
-            
-            
-            # add the name to list
-            transcriptome_names.append(transcriptome_name)
-
-
+            print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
         else:
-            sys.exit("Error: annotation file %s is neither in gtf nor in gff format. Please check the annotation file."%(i+1))
-    print(transcriptome_names)       
-    return transcriptome_names
+            sys.exit("Error: annotation file %s is neither gtf nor in gff. Please check the annotation file."%(parsedArgs.annotations[i]))
 
-def readSimulation():
-    
-	
 
+
+
+fasta_names=[]
 if parsedArgs.Simulation_type == "RNA":
-    print("Simulating RNA")
-    extractTranscriptome()
-	 
+    for i in range(0,len(parsedArgs.annotations)):
+        transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
+        fasta_names.append(transcriptome_name)
 else:
-	print("Simulating DNA")
+    for i in range(0,len(parsedArgs.genomes)):
+        fasta_names.append(parsedArgs.genomes[i])
+#print(fasta_names)
 
+
+    
+
+
+def readSimulation(fasta_list):
+    if parsedArgs.Simulation_type == "RNA":
+        extractTranscriptome()
+        for rlen in input_rlen:
+            print(rlen)
+            if parsedArgs.read_layout == "SE":
+                print("simulate data and remove mate2")
+            elif parsedArgs.read_layout == "PE":
+                print("simulate both mates")
+            else:
+                print("simulate both mates, map with both mates, and only with one mate")
+            
+# =============================================================================
+#         for fasta in fasta_list():
+#             cmd = """
+#         wgsim \
+# -e {0} \
+# -d {1} \
+# -s 30 \
+# -N 10000000 \
+# -1 50 \
+# -2 50 \
+# -r 0.001 \
+# -R 0.01 \
+# -X 0.1 \
+# -S 134254 \
+# -A 0.01 \
+# input1.fasta org1_read1.fastq org1_read2.fastq
+# """.format(parsedArgs.error)
+#     print(cmd)
+# 
+# =============================================================================
+
+
+readSimulation(fasta_names)
+
+# =============================================================================
+# if parsedArgs.Simulation_type == "RNA":
+#     print("Simulating RNA")
+#     extractTranscriptome()
+# 	 
+# else:
+# 	print("Simulating DNA")
+# 
+# =============================================================================
 
 #~ ###Simulate reads
 #~ #input1
