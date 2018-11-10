@@ -30,9 +30,10 @@ standard_rlen = [25, 50, 75, 100, 125, 150, 300]
 #formatter_class=argparse.ArgumentDefaultsHelpFormatter - this adds default values in help. Should be in all subparsers.
 
 parser = argparse.ArgumentParser(prog = "crossmap.py",description = desc, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-subparsers = parser.add_subparsers(help="sub_command help", dest = "Simulation_type")
+subparsers = parser.add_subparsers(help="Simulation type. Choose to simulate either DNA or RNA data", dest = "Simulation_type")
+subparsers.required = True
 
-parser_DNA = subparsers.add_parser("DNA", help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser_DNA.add_argument("-specific to bwa", "--specific", type=int, default=5,
 	help = "Help message")
 	
@@ -78,9 +79,9 @@ parser.add_argument("-rlay", "--read_layout", type = str, choices=["SE","PE","bo
     help = "Specify the read configuration - single-end (SE), paired-end (PE), or both (both)." 
 		+ " If chosen 'both', the software will make separate analysis with each configuration")
 
-parser.add_argument("-rlen", "--read_length", type=int, nargs = "*", default=50,
+parser.add_argument("-rlen", "--read_length", type=str, default="50",
 	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines:"
-		+ "25, 50, 75, 100, 125, 150, 300. The user can either enter a specific length, or specify a comma-separated"
+		+ "25,50,75,100,125,150,300. The user can either enter a specific length, or specify a COMMA-SEPARATED (!)(no spaces are allowed between commas)"
 		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
 		+ "values separatelly and will report mapping statistics in a form of a graph")
 		
@@ -111,21 +112,42 @@ parsedArgs =  parser.parse_args()
 #~ print(len(parsedArgs.annotations))
 
 ####### Check if rlen numbers are correct
-print(parsedArgs.read_length)
+#print(parsedArgs.read_length.split(","))
+
+### how to catch if there is a space????
+# =============================================================================
+# if len(parsedArgs.read_length.split(" "))>1:
+#     print("use comas no space")
+# =============================================================================
+
+## check if not all values can be converted to int
+try:
+    list(map(int,parsedArgs.read_length.split(",")))
+except Exception:
+    sys.exit("Hmm, seems you have strings or floats in read length values. Trying to find a bug?")
+
+## convert list of strings to list of integers
+input_rlen=list(map(int,parsedArgs.read_length.split(",")))
+print(input_rlen)
 
 ## check if there are duplicated lengths
-if not len(set(parsedArgs.read_length)) == len(parsedArgs.read_length):
+if not len(set(input_rlen)) == len(input_rlen):
     sys.exit("Error: read lengths shoud not be duplicated!")    
 
 ## check if any length is not standard
-for length in parsedArgs.read_length:
+for length in input_rlen:
     #print(length)
     if not length in standard_rlen:
         sys.exit("Error: input read length %s is not a standard Illumina read length."%(length)
                  + "\nPlease refer to our help page (crossmap -h) to find standard read lengths.")
         
         
-    
+#### Check in no Simulation_type is specified
+# =============================================================================
+# if parsedArgs.Simulation_type == None:
+#     sys.exit("Please specify what type of data to simulate, i.e. use -DNA or -RNA")     
+#     
+# =============================================================================
 
 
 ## If no arguments are given, just show the help and finish
@@ -151,9 +173,16 @@ def extractTranscriptome():
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
             print("Annotation %s detected as gtf. Continuing."%(parsedArgs.annotations[i]))
             #get the transcriptome name
-            transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
+            transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
 
             # extract the transcript
+            
+            cmd_gffread_extract = f"gffread " \
+            f"-w {transcriptome_name} " \
+            f"-g {parsedArgs.genomes[i]} " \
+            f"{parsedArgs.annotations[i]}"
+            
+            print(cmd_gffread_extract)
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
             print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
             
@@ -164,13 +193,25 @@ def extractTranscriptome():
             #converting to gtf
             gtf_name = getBaseName(parsedArgs.annotations[i])+".gtf"
             
+            cmd_gffread_convert = f"gffread " \
+            f"{parsedArgs.annotations[i]} " \
+            f"-T -o {gtf_name}"
+            print(cmd_gffread_convert)
+            
             #gffread parsedArgs.annotations[i] -T -o gtf_name
             
-            print("GFF --> GTF conversion is done")
+            print("GFF --> GTF conversion is done. Proceeding to transriptome extraction.")
             
             #get the transcriptome name
-            transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
+            transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
             
+            
+            cmd_gffread_extract = f"gffread " \
+            f"-w {transcriptome_name} " \
+            f"-g {parsedArgs.genomes[i]} " \
+            f"{gtf_name}"
+            
+            print(cmd_gffread_extract)
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] gtf_name
             print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
@@ -182,96 +223,177 @@ def extractTranscriptome():
 
 fasta_names=[]
 if parsedArgs.Simulation_type == "RNA":
-    for i in range(0,len(parsedArgs.annotations)):
-        transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome_%s"%(i+1)+".fasta"
+    for i in range(0,len(parsedArgs.genomes)):
+        transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
         fasta_names.append(transcriptome_name)
 else:
     for i in range(0,len(parsedArgs.genomes)):
         fasta_names.append(parsedArgs.genomes[i])
-#print(fasta_names)
+print(fasta_names)
+
+#N_reads=59
+def readSimulation(fasta_name,file_number,read_len):
+    fasta_len=100
+# =============================================================================
+#     with open(fasta_name,"r+") as fasta_file:
+#         for line in fasta_file.readlines():
+#             if not line.startswith(">"):
+#                 fasta_len=fasta_len + len(line.rstrip()
+# =============================================================================
+
+    ## if possible to assign, calculate N_reads, based on C, else use input value
+    try:
+        N_reads = round(parsedArgs.coverage[file_number]*fasta_len/read_len)
+    except Exception:
+        N_reads = parsedArgs.N_read[file_number]
+        
+    wgsim_cmd = f"wgsim " \
+f"-e {parsedArgs.error} " \
+f"-d {parsedArgs.outer_dist} " \
+f"-s {parsedArgs.s_dev} " \
+f"-N {N_reads} " \
+f"-1 {read_len} " \
+f"-2 {read_len} " \
+f"-r {parsedArgs.mut_rate} " \
+f"-R {parsedArgs.indel_fraction} " \
+f"-X {parsedArgs.indel_extend} " \
+f"-S {parsedArgs.random_seed} " \
+f"-A {parsedArgs.discard_ambig} " \
+f"{fasta_name}.fasta {fasta_name}_{read_len}_read1.fastq {fasta_name}_{read_len}_read2.fastq"
+    print(wgsim_cmd)
+    return wgsim_cmd
+
+        
+        
 
 
-    
-
-
-def readSimulation(fasta_list):
+def simulateData(fasta_list):
+    file_num=0
     if parsedArgs.Simulation_type == "RNA":
         extractTranscriptome()
+    for each_file in fasta_list:
+        each_file = getBaseName(each_file)
+        #print(each_file,"ffffffffff")
         for rlen in input_rlen:
-            print(rlen)
-            if parsedArgs.read_layout == "SE":
-                print("simulate data and remove mate2")
-            elif parsedArgs.read_layout == "PE":
-                print("simulate both mates")
-            else:
-                print("simulate both mates, map with both mates, and only with one mate")
+            #print(file_num,rlen,each_file)
+            readSimulation(each_file,file_num,rlen)
+        file_num+=1
+    
+                
+simulateData(fasta_names)        
+                
+
+
+## concatenate reference genomes
+genome_list=[]
+
+for i in range(0,len(parsedArgs.genomes)):
+    genome_list.append(parsedArgs.genomes[i])    
+genome_concat=' '.join(genome_list)
+
+
+cmd_genome_concat = genome_concat + ' > ' + 'concat.fasta'
+print(cmd_genome_concat)
+
+## concatenate fastq files
+
+for rlen in input_rlen:
+    genome_list_r1=[]
+    genome_list_r2=[]
+    for i in range(0,len(parsedArgs.genomes)):
+        if parsedArgs.Simulation_type == "RNA":
+            read_1=getBaseName(parsedArgs.genomes[i])+"_transcriptome"+str(i+1)+"_"+str(rlen)+"_read1.fastq"
+            genome_list_r1.append(read_1)
+        
+            read_2=getBaseName(parsedArgs.genomes[i])+"_transcriptome"+str(i+1)+"_"+str(rlen)+"_read2.fastq"
+            genome_list_r2.append(read_2)
+        #print(genome_list_r2)
+        else:
+            read_1=getBaseName(parsedArgs.genomes[i])+"_"+str(rlen)+"_read1.fastq"
+            genome_list_r1.append(read_1)
             
-# =============================================================================
-#         for fasta in fasta_list():
-#             cmd = """
-#         wgsim \
-# -e {0} \
-# -d {1} \
-# -s 30 \
-# -N 10000000 \
-# -1 50 \
-# -2 50 \
-# -r 0.001 \
-# -R 0.01 \
-# -X 0.1 \
-# -S 134254 \
-# -A 0.01 \
-# input1.fasta org1_read1.fastq org1_read2.fastq
-# """.format(parsedArgs.error)
-#     print(cmd)
-# 
-# =============================================================================
+            read_2=getBaseName(parsedArgs.genomes[i])+"_"+str(rlen)+"_read2.fastq"
+            genome_list_r2.append(read_2)
+        
+    genome_concat1=' '.join(genome_list_r1)
+
+    cmd_read1_concat = "cat " + genome_concat1 + ' > ' + "concat_"+str(rlen)+'_read1.fastq'
+    print(cmd_read1_concat)
+    
+    
+    genome_concat2=' '.join(genome_list_r2)
+    cmd_read2_concat ="cat " + genome_concat2 + ' > ' + "concat_"+str(rlen)+'_read2.fastq'
+    print(cmd_read2_concat)
 
 
-readSimulation(fasta_names)
+###Mapping
+    
+def starIndex():
 
-# =============================================================================
-# if parsedArgs.Simulation_type == "RNA":
-#     print("Simulating RNA")
-#     extractTranscriptome()
-# 	 
-# else:
-# 	print("Simulating DNA")
-# 
-# =============================================================================
+    
+def bwaIndex():
 
-#~ ###Simulate reads
-#~ #input1
+    
+def starMapping():
 
-#~ wgsim \
-#~ -e 0.02 \
-#~ -d 300 \
-#~ -s 30 \
-#~ -N 10000000 \
-#~ -1 50 \
-#~ -2 50 \
-#~ -r 0.001 \
-#~ -R 0.01 \
-#~ -X 0.1 \
-#~ -S 134254 \
-#~ -A 0.01 \
-#~ input1.fasta org1_read1.fastq org1_read2.fastq
+    
+def bwaMapping():
+    
+    
+def mapping():
+    if parsedArgs.Simulation_type == "RNA":
+        starIndex()
+        for rlen in input_rlen:
+            se_mapping = "concat_" + str(rlen) + "_read1.fastq"
+            pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
+            if parsedArgs.read_layout == "SE":
+                cmd_remove_read2= "rm *_read2.fastq"
+                starMapping(se_mapping)
+            elif parsedArgs.read_layout == "PE":
+                starMapping(pe_mapping)
+            else:
+                starMapping(se_mapping)
+                starMapping(pe_mapping)
+    else:
+        bwaIndex()
+        for rlen in input_rlen:
+            se_mapping = "concat_" + str(rlen) + "_read1.fastq"
+            pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
+            if parsedArgs.read_layout == "SE":
+                cmd_remove_read2= "rm *_read2.fastq"
+                bwaMapping(se_mapping)
+            elif parsedArgs.read_layout == "PE":
+                bwaMapping(pe_mapping)
+            else:
+                bwaMapping(se_mapping)
+                bwaMapping(pe_mapping)
+            
+            
+#~ bwa index -p concat concat_reference_genome.fasta
+
+#~ if gneomesize is larger than 3 GB , use -a bwtsw
+
+#~ #Mapping
+#~ bwa mem -t 6 concat concat_read1.fastq concat_read2.fastq | samtools sort -@6 -o concat.bam -
+
+#~ samtools index concat.bam
+            
+### Mapping with STAR
+#~ #Indexing
+#~ mkdir STAR_index
+#~ STAR --runThreadN 3 --runMode genomeGenerate --genomeDir ./STAR_index --genomeFastaFiles concat_reference_genome.fasta --genomeSAindexNbases 10
+
+#~ define  --genomeSAindexNbases as min(14, log2(GenomeLength)/2 - 1)
 
 
-#~ #input2
-#~ wgsim \
-#~ -e 0.02 \
-#~ -d 300 \
-#~ -s 30 \
-#~ -N 10000000 \
-#~ -1 50 \
-#~ -2 50 \
-#~ -r 0.001 \
-#~ -R 0.01 \
-#~ -X 0.1 \
-#~ -S 134254 \
-#~ -A 0.01 \
-#~ input1.fasta org2_read1.fastq org2_read2.fastq
+#~ #Mapping
+#~ STAR --runThreadN 10 --genomeDir STAR_index --sjdbGTFfile GTF_file --sjdbOverhang 49 \
+#~ --readFilesIn concat_read1.fastq concat_read2.fastq.gz \
+#~ --readFilesCommand cat --outSAMtype BAM Unsorted --outFileNamePrefix  \
+#~ --outTmpDir ~/TMP/TMPs --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000
+
+#~ samtools sort -@6 -o concat.bam Aligned.out.bam
+
 
 
 #~ #Options: -e FLOAT      base error rate [0.020]
@@ -361,15 +483,6 @@ readSimulation(fasta_names)
 #~ -H 	Use hard clipping ’H’ in the SAM output. This option may dramatically reduce the redundancy of output when mapping long contig or BAC sequences.
 #~ -M 	Mark shorter split hits as secondary (for Picard compatibility).
 #~ -v INT 	Control the verbose level of the output. This option has not been fully supported throughout BWA. Ideally, a value 0 for disabling all the output to stderr; 1 for outputting errors only; 2 for warnings and errors; 3 for all normal messages; 4 or higher for debugging. When this option takes value 4, the output is not SAM. [3] 
-
-
-#~ ### STAR parameters, For now I will use only basic parameters:
-
-#~ ## For indexing
-
-#~ ## For mapping
-
-
 
 
 
