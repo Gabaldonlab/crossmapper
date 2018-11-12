@@ -59,7 +59,7 @@ setup(
     url=URL,
     packages=find_packages(exclude=('tests',)),
     entry_points={ ## we might not need this :: we could use conda bin ??
-         'console_scripts': ['crossmap=crossmap:crossmap'],
+         'console_scripts': ['crossmapping=crossmap:crossmap'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,
