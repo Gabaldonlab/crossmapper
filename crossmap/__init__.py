@@ -1,3 +1,3 @@
 from .countUtil import *
-from .exteralExec import *
+from .externalExec import *
 from .crossmap import *
