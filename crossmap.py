@@ -11,6 +11,8 @@ import re
 import sys
 import argparse
 import subprocess 
+import math
+#from Bio import SeqIO
 
 
 
@@ -23,6 +25,8 @@ soft_version = "0.1"
 
 
 standard_rlen = [25, 50, 75, 100, 125, 150, 300]
+
+#TODO: Now the subparses only can appear as the last argumnet, need to fix it
 
 ###Create top level parser
 
@@ -103,11 +107,15 @@ parser.add_argument("-A", "--discard_ambig", type=float, default = 0.05,
 parser.add_argument("-hapl", "--haplotype_mode", action = "store_true", default = False,
 	help = "Haplotype mode. If specified, the haploid mutations will be simulated instead of diploid.")
 	
+
+parser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str,
+                   help = "Specify the output directory for crossmap output files.")
+
 parser.add_argument("-v", "--version", action = "version", \
     version = "%(prog)s \"v" + soft_version + "\"")
 
 
-parsedArgs =  parser.parse_args()
+parsedArgs = parser.parse_args()
 #print(parsedArgs)
 #~ print(len(parsedArgs.annotations))
 
@@ -161,41 +169,61 @@ if len(sys.argv) == 1:
     
 def getBaseName(filename):
     if len(filename.split("."))>1:
-        basename = '.'.join(filename.split(".")[0:-1])
+        
+        basename = '.'.join(os.path.basename(filename).split(".")[0:-1])
     else:
         sys.exit("Error: please check the extensions of your input files."
                  +"\nGenome files should have .fa, .fasta or .fsa extensions."
                  +"\nGenome annotations should have .gtf or .gff extensions.")
     return basename
-	
+
+
+if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
+    print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
+else:
+    cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+    
+    
+fasta_names=[]
+if parsedArgs.Simulation_type == "RNA":
+    for i in range(0,len(parsedArgs.genomes)):
+        transcriptome_name = getBaseName(parsedArgs.genomes[i]) + "_transcriptome%s"%(i+1) + ".fasta"
+        fasta_names.append(os.path.abspath(transcriptome_name))
+else:
+    for i in range(0,len(parsedArgs.genomes)):
+        fasta_names.append(os.path.abspath(parsedArgs.genomes[i]))
+print(fasta_names)
+
+
+
 def extractTranscriptome():
     for i in range(0,len(parsedArgs.annotations)):
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
-            print("Annotation %s detected as gtf. Continuing."%(parsedArgs.annotations[i]))
+            print("Annotation %s detected as gtf. Proceeding to transriptome extraction."%(os.path.basename(parsedArgs.annotations[i])))
             #get the transcriptome name
             transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
 
             # extract the transcript
             
             cmd_gffread_extract = f"gffread " \
-            f"-w {transcriptome_name} " \
+            f"-w {parsedArgs.out_dir}/{transcriptome_name} " \
             f"-g {parsedArgs.genomes[i]} " \
             f"{parsedArgs.annotations[i]}"
             
             print(cmd_gffread_extract)
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
-            print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
+            print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
             
         elif parsedArgs.annotations[i].split(".")[-1] == "gff":
 			
-            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(parsedArgs.annotations[i]))
+            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(os.path.basename(parsedArgs.annotations[i])))
             
             #converting to gtf
             gtf_name = getBaseName(parsedArgs.annotations[i])+".gtf"
             
             cmd_gffread_convert = f"gffread " \
             f"{parsedArgs.annotations[i]} " \
-            f"-T -o {gtf_name}"
+            f"-T -o {parsedArgs.out_dir}/{gtf_name}"
             print(cmd_gffread_convert)
             
             #gffread parsedArgs.annotations[i] -T -o gtf_name
@@ -207,32 +235,23 @@ def extractTranscriptome():
             
             
             cmd_gffread_extract = f"gffread " \
-            f"-w {transcriptome_name} " \
+            f"-w {parsedArgs.out_dir}/{transcriptome_name} " \
             f"-g {parsedArgs.genomes[i]} " \
-            f"{gtf_name}"
+            f"{parsedArgs.out_dir}/{gtf_name}"
             
             print(cmd_gffread_extract)
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] gtf_name
-            print("Transcriptome extracted for %s"%(parsedArgs.genomes[i]))
+            print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
         else:
-            sys.exit("Error: annotation file %s is neither gtf nor in gff. Please check the annotation file."%(parsedArgs.annotations[i]))
+            sys.exit("Error: annotation file %s is neither gtf nor in gff. Please check the annotation file."%(os.path.basename(parsedArgs.annotations[i])))
 
 
 
 
-fasta_names=[]
-if parsedArgs.Simulation_type == "RNA":
-    for i in range(0,len(parsedArgs.genomes)):
-        transcriptome_name=getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
-        fasta_names.append(transcriptome_name)
-else:
-    for i in range(0,len(parsedArgs.genomes)):
-        fasta_names.append(parsedArgs.genomes[i])
-print(fasta_names)
 
 #N_reads=59
-def readSimulation(fasta_name,file_number,read_len):
+def readSimulation(fasta_name,fasta_basename,file_number,read_len):
     fasta_len=100
 # =============================================================================
 #     with open(fasta_name,"r+") as fasta_file:
@@ -247,6 +266,7 @@ def readSimulation(fasta_name,file_number,read_len):
     except Exception:
         N_reads = parsedArgs.N_read[file_number]
         
+        
     wgsim_cmd = f"wgsim " \
 f"-e {parsedArgs.error} " \
 f"-d {parsedArgs.outer_dist} " \
@@ -259,7 +279,7 @@ f"-R {parsedArgs.indel_fraction} " \
 f"-X {parsedArgs.indel_extend} " \
 f"-S {parsedArgs.random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
-f"{fasta_name}.fasta {fasta_name}_{read_len}_read1.fastq {fasta_name}_{read_len}_read2.fastq"
+f"{fasta_name} {fasta_name}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_name}_{read_len}_read2.fastq"
     print(wgsim_cmd)
     return wgsim_cmd
 
@@ -270,13 +290,15 @@ f"{fasta_name}.fasta {fasta_name}_{read_len}_read1.fastq {fasta_name}_{read_len}
 def simulateData(fasta_list):
     file_num=0
     if parsedArgs.Simulation_type == "RNA":
-        extractTranscriptome()
+        extractTranscriptome()        
     for each_file in fasta_list:
-        each_file = getBaseName(each_file)
+        fasta_basename = getBaseName(each_file)
+        #each_file = getBaseName(each_file)
         #print(each_file,"ffffffffff")
         for rlen in input_rlen:
             #print(file_num,rlen,each_file)
-            readSimulation(each_file,file_num,rlen)
+            readSimulation(each_file,fasta_basename,file_num,rlen)
+            
         file_num+=1
     
                 
@@ -292,7 +314,7 @@ for i in range(0,len(parsedArgs.genomes)):
 genome_concat=' '.join(genome_list)
 
 
-cmd_genome_concat = genome_concat + ' > ' + 'concat.fasta'
+cmd_genome_concat = f"{genome_concat} > {parsedArgs.out_dir}/concat.fasta"
 print(cmd_genome_concat)
 
 ## concatenate fastq files
@@ -302,73 +324,89 @@ for rlen in input_rlen:
     genome_list_r2=[]
     for i in range(0,len(parsedArgs.genomes)):
         if parsedArgs.Simulation_type == "RNA":
-            read_1=getBaseName(parsedArgs.genomes[i])+"_transcriptome"+str(i+1)+"_"+str(rlen)+"_read1.fastq"
+            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
             genome_list_r1.append(read_1)
         
-            read_2=getBaseName(parsedArgs.genomes[i])+"_transcriptome"+str(i+1)+"_"+str(rlen)+"_read2.fastq"
+            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read2.fastq"
             genome_list_r2.append(read_2)
         #print(genome_list_r2)
         else:
-            read_1=getBaseName(parsedArgs.genomes[i])+"_"+str(rlen)+"_read1.fastq"
+            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read1.fastq"
             genome_list_r1.append(read_1)
             
-            read_2=getBaseName(parsedArgs.genomes[i])+"_"+str(rlen)+"_read2.fastq"
+            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read2.fastq"
             genome_list_r2.append(read_2)
         
     genome_concat1=' '.join(genome_list_r1)
-
-    cmd_read1_concat = "cat " + genome_concat1 + ' > ' + "concat_"+str(rlen)+'_read1.fastq'
+    cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
     print(cmd_read1_concat)
     
     
     genome_concat2=' '.join(genome_list_r2)
-    cmd_read2_concat ="cat " + genome_concat2 + ' > ' + "concat_"+str(rlen)+'_read2.fastq'
+    cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.out_dir}/concat_{rlen}_read2.fastq"
     print(cmd_read2_concat)
 
 
 ###Mapping
-    
-def starIndex():
-
-    
-def bwaIndex():
-
-    
-def starMapping():
-
-    
-def bwaMapping():
-    
-    
-def mapping():
-    if parsedArgs.Simulation_type == "RNA":
-        starIndex()
-        for rlen in input_rlen:
-            se_mapping = "concat_" + str(rlen) + "_read1.fastq"
-            pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
-            if parsedArgs.read_layout == "SE":
-                cmd_remove_read2= "rm *_read2.fastq"
-                starMapping(se_mapping)
-            elif parsedArgs.read_layout == "PE":
-                starMapping(pe_mapping)
-            else:
-                starMapping(se_mapping)
-                starMapping(pe_mapping)
-    else:
-        bwaIndex()
-        for rlen in input_rlen:
-            se_mapping = "concat_" + str(rlen) + "_read1.fastq"
-            pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
-            if parsedArgs.read_layout == "SE":
-                cmd_remove_read2= "rm *_read2.fastq"
-                bwaMapping(se_mapping)
-            elif parsedArgs.read_layout == "PE":
-                bwaMapping(pe_mapping)
-            else:
-                bwaMapping(se_mapping)
-                bwaMapping(pe_mapping)
-            
-            
+# =============================================================================
+#     
+# def starIndex():
+#     #calcualte concat.fasta genome size
+#     genome_len=0
+#     for rec in SeqIO.parse("concat.fasta", 'fasta'):
+#         genome_len+=len(rec.seq)
+#     if genome_size > 3000000000:
+#         print("Warning: concatenated genome size is larged than 3GB. You will need >30 GB of RAM for STAR mapping" )
+#     
+#     SA_index_size = min(14, round(math.log(26,2)/2) - 1)
+#     print("genomeSAindexNbases = %s"%(SA_index_size))
+#     print("Starting genome indexing with STAR.")
+#     if os.path.isdir("./STAR_index") == True:
+#         print("STAR_index directory exists. Generating index files.")
+#     else:
+#         print("Creating ./STAR_index directory. Writing index files to STAR_index.")
+#     cmd_star_index = f""
+#     
+#     
+# def bwaIndex():
+# 
+#     
+# def starMapping():
+# 
+#     
+# def bwaMapping():
+#     
+#     
+# def mapping():
+#     if parsedArgs.Simulation_type == "RNA":
+#         starIndex()
+#         for rlen in input_rlen:
+#             se_mapping = "concat_" + str(rlen) + "_read1.fastq"
+#             pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
+#             if parsedArgs.read_layout == "SE":
+#                 cmd_remove_read2= "rm *_read2.fastq"
+#                 starMapping(se_mapping)
+#             elif parsedArgs.read_layout == "PE":
+#                starMapping(pe_mapping)
+#             else:
+#                 starMapping(se_mapping)
+#                 starMapping(pe_mapping)
+#     else:
+#         bwaIndex()
+#         for rlen in input_rlen:
+#             se_mapping = "concat_" + str(rlen) + "_read1.fastq"
+#             pe_mapping = "concat_" + str(rlen) + "_read1.fastq " + "concat_"+ str(rlen) + "_read2.fastq"
+#             if parsedArgs.read_layout == "SE":
+#                 cmd_remove_read2= "rm *_read2.fastq"
+#                 bwaMapping(se_mapping)
+#             elif parsedArgs.read_layout == "PE":
+#                 bwaMapping(pe_mapping)
+#             else:
+#                 bwaMapping(se_mapping)
+#                 bwaMapping(pe_mapping)
+#             
+#             
+# =============================================================================
 #~ bwa index -p concat concat_reference_genome.fasta
 
 #~ if gneomesize is larger than 3 GB , use -a bwtsw
