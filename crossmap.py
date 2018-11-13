@@ -283,7 +283,7 @@ def simulateData(fasta_list):
         file_num+=1
     
                 
-simulateData(fasta_names)        
+simulateData(fasta_names)
                 
 
 
