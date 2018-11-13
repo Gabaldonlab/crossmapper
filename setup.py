@@ -13,7 +13,7 @@ DESCRIPTION = 'Crossmap.'
 URL = 'https://github.com/GrantHov/crossmap'
 EMAIL = 'grant.hovhannisyan@crg.eu '
 AUTHOR = 'Grant'
-REQUIRES_PYTHON = '>=3.0.0'
+REQUIRES_PYTHON = '>=3.6.0'
 VERSION = None
 
 # What packages are required for this module to be executed?
@@ -59,7 +59,7 @@ setup(
     url=URL,
     packages=find_packages(exclude=('tests',)),
     entry_points={ ## we might not need this :: we could use conda bin ??
-         'console_scripts': ['crossmapping=crossmap:crossmap'],
+         'console_scripts': ['crossmapping=crossmap:crossmap.crossmapMain'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,

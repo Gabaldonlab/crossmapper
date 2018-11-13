@@ -2,8 +2,8 @@
 ## add local module dir for easy import 
 
 import sys
-sys.path.append("/home/ahmed/git/crossmap/crossmap")
-import crossmap
+sys.path.append("/home/ahmed/git/crossmap")
+import crossmap 
 
 #%%
 ## to reload module with new changes
@@ -14,29 +14,26 @@ importlib.reload(crossmap)
 #%% 
 testCases = [
         "crossmap.py DNA  -h",
-        "crossmap.py RNA -g ../human.fasta ../../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir"
+        "crossmap.py DNA -g ../human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir"
         ]
 def getArgv(i = 0):
     return testCases[i].split(' ')
 
 #%% just test parser creatation
 def testCreateArgumentParser():
-    sys.argv =  getArgv(1)
+    sys.argv =  getArgv(0)
     parser = crossmap.createArgumentParser()
     parsedArgs = parser.parse_args()
     print(parsedArgs)
 
 
-#%tb
+def testRunCrossmap():
+    sys.argv =  getArgv(1)
+    crossmap.crossmapMain()
+
+
 #testCreateArgumentParser()
-sys.argv =  getArgv(1)
-parser = crossmap.createArgumentParser()
-#parser = crossmap.ca()
-try :    
-    parsedArgs = crossmap.parseArgument(parser)
-except Exception as ex:
-    print("exit" , ex)
-print(parsedArgs)
+testRunCrossmap()
 
 #exit(0)
 

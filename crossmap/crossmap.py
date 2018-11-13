@@ -7,6 +7,11 @@ import argparse
 import subprocess 
 import math
 
+from crossmap.helpers import getBaseName
+from crossmap.simulateReads import simulateData
+from crossmap.mapping import prepareGenome
+from crossmap.mapping import mapping
+
 
 ## temp allocation
 
@@ -20,16 +25,6 @@ soft_version = "0.1"
 
 
 standard_rlen = [25, 50, 75, 100, 125, 150, 300]
-###################### HELPER Methods #########################################
-def getBaseName(filename):
-    if len(filename.split("."))>1:
-        
-        basename = '.'.join(os.path.basename(filename).split(".")[0:-1])
-    else:
-        sys.exit("Error: please check the extensions of your input files."
-                 +"\nGenome files should have .fa, .fasta or .fsa extensions."
-                 +"\nGenome annotations should have .gtf or .gff extensions.")
-    return basename    
 
 
 ###############################################################################
@@ -155,7 +150,7 @@ def createArgumentParser():
 
 
 def parseArgument(argumentParser):
-    parsedArgs = parser.parse_args()
+    parsedArgs = argumentParser.parse_args()
 
     if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
         print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
@@ -167,19 +162,57 @@ def parseArgument(argumentParser):
     if parsedArgs.Simulation_type == "RNA":
         for i in range(0,len(parsedArgs.genomes)):
             transcriptome_name = getBaseName(parsedArgs.genomes[i]) + "_transcriptome%s"%(i+1) + ".fasta"
-            parsedArgs.fasta_names.append(os.path.abspath(transcriptome_name))
+#            parsedArgs.fasta_names.append(os.path.abspath(transcriptome_name))
+            parsedArgs.fasta_names.append( os.path.join(parsedArgs.out_dir,transcriptome_name))
+            
     else:
         for i in range(0,len(parsedArgs.genomes)):
             parsedArgs.fasta_names.append(os.path.abspath(parsedArgs.genomes[i]))
     print(parsedArgs.fasta_names)
+    
+    ## convert list of strings to list of integers
+    input_rlen=list(map(int,parsedArgs.read_length.split(",")))
+    print(input_rlen)
+    
+    ## check if there are duplicated lengths
+    if not len(set(input_rlen)) == len(input_rlen):
+        sys.exit("Error: read lengths shoud not be duplicated!")    
+    
+    ## check if any length is not standard
+    for length in input_rlen:
+        #print(length)
+        if not length in standard_rlen:
+            sys.exit("Error: input read length %s is not a standard Illumina read length."%(length)
+                     + "\nPlease refer to our help page (crossmap -h) to find standard read lengths.")    
+    
+    
+    parsedArgs.input_rlen = input_rlen
+    
+    
+    
+    
+    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
+        print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
+    else:
+        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+    
+    
+    
     return parsedArgs
 
 ## Main Script Entry Point
-def crossmap():
+def crossmapMain():
     #print("Corssmap Test Run ...")
     #print(sys.argv)
     parser =  createArgumentParser()
     
+    ## parse and check argument , also TODO :: may it would agood idea to prepare all parapmeters here if needed
     parsedArgs = parseArgument(parser)
+
+    simulateData(parsedArgs)
+    
+    
+    prepareGenome(parsedArgs)
+    mapping(parsedArgs)
 
     return
