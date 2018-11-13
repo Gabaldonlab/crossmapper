@@ -240,7 +240,7 @@ def extractTranscriptome():
 #N_reads=59
 def readSimulation(fasta_name,fasta_basename,file_number,read_len):
     fasta_len=0
-    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+    for rec in SeqIO.parse(fasta_name, 'fasta'):
         fasta_len+=len(rec.seq)
 
     ## if possible to assign, calculate N_reads, based on C, else use input value
@@ -348,10 +348,11 @@ for rlen in input_rlen:
     
 def starIndex():
     #calcualte concat.fasta genome size
-    genome_len=99999999999990
-    #for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-     #   genome_len+=len(rec.seq)
-        
+    genome_len=0
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
+    print(genome_len) 
+    
     if genome_len > 3000000000:
         print("WARNING: concatenated genome size is larged than 3GB! " 
               +"\nMore than 30 GB of RAM will be required for STAR mapping." )
@@ -378,11 +379,12 @@ def starIndex():
 
 def bwaIndex():
     algo = ""
-        #calcualte concat.fasta genome size
+    #calcualte concat.fasta genome size
     genome_len=0
-   # for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-       # genome_len+=len(rec.seq)
-        
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
+    print(genome_len)    
+    
     if genome_len > 3000000000:
         print("Concatenated genome size is larged than 3GB. Using bwtsw algorithm for index generation" )
         algo = "-a bwtsw"
