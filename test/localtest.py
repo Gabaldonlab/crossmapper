@@ -9,6 +9,7 @@ crossmapMuduleDir = os.path.abspath(os.path.dirname(os.path.realpath(__file__) )
 ## or set it manually if running in spyder or ipython console 
 ## crossmapMuduleDir = "/home/ahmed/git/crossmap"
 sys.path.append(crossmapMuduleDir)
+
 import crossmap 
 
 
@@ -22,8 +23,12 @@ importlib.reload(crossmap)
 testCases = [
         "crossmap.py DNA  -h",
         "crossmap.py RNA -g ../human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres"
+        "crossmap.py"
         ]
-def getArgv(i = 0):
+
+
+def getArgv(i):
+    print(testCases[i].split(' '))
     return testCases[i].split(' ')
 
 #%% just test parser creatation
@@ -35,8 +40,10 @@ def testCreateArgumentParser():
     #print(parsedArgs)
 
 
+
 def testRunCrossmap():
     sys.argv =  getArgv(1)
+    #print(sys.argv)
     crossmap.crossmapMain()
 
 #testCreateArgumentParser()
@@ -54,3 +61,16 @@ parsedArgs = crossmap.crossmap.parseArgument(parser)
 #crossmap.crossmap()
 
 #%%
+
+import crossmap.externalExec
+
+
+
+cmd=["cd",".."]
+
+print(cmd)
+crossmap.externalExec.execute("ls .. && ls . ","star1")
+cmd=["ls","."]
+
+#crossmap.externalExec.execute("ls .")
+
