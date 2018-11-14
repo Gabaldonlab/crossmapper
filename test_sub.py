@@ -14,11 +14,8 @@ cmd_error = "grep '>' no_file"
 
 
 
-try:
-    subprocess.run(cmd_error, shell = True)
-except Exception:
-    print("NO FILE HERE")
-    sys.exit()
+subprocess.run(cmd_error, shell = True, capture_output=True)
+
 
 subprocess.run(cmd_norm, shell = True)
 

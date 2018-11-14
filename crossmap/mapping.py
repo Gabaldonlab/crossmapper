@@ -1,6 +1,8 @@
 import os
 import math
+from Bio import SeqIO
 from crossmap.helpers import getBaseName
+
 
 
 
@@ -36,17 +38,18 @@ def prepareGenome(parsedArgs):
     
 def starIndex(parsedArgs):
     #calcualte concat.fasta genome size
-    genome_len=99999999999990
+    genome_len=0
     #for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
      #   genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
         print("WARNING: concatenated genome size is larged than 3GB! " 
-              +"\nMore than 30 GB of RAM will be required for STAR mapping." )
+              +"\nMore than 30000 GB of RAM will be required for STAR mapping." )
     
-    SA_index_size = min(14, round(math.log(26,2)/2) - 1)
+    SA_index_size = min(14, round(math.log(genome_len,2)/2) - 1)
     print("genomeSAindexNbases = %s"%(SA_index_size))
     print("Starting genome indexing with STAR.")
+    
     if os.path.isdir(f"{parsedArgs.out_dir}/STAR_index") == True:
         print("STAR_index directory exists. Generating index files.")
     else:
@@ -68,8 +71,8 @@ def bwaIndex(parsedArgs):
     algo = ""
         #calcualte concat.fasta genome size
     genome_len=0
-   # for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-       # genome_len+=len(rec.seq)
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
         print("Concatenated genome size is larged than 3GB. Using bwtsw algorithm for index generation" )
@@ -82,16 +85,13 @@ def bwaIndex(parsedArgs):
         print(f"Creating {parsedArgs.out_dir}/BWA_index directory. Writing index files to BWA_index.")
         
         ### FOR SHELL
-        #mkdir {parsedArgs.out_dir}/BWA_index
-        #cd {parsedArgs.out_dir}/BWA_index
+        #mkdir {parsedArgs.out_dir}/BWA_index        
         
     cmd_bwa_index = "bwa index " \
-    f"-p concat_BWA " \
+    f"-p {parsedArgs.out_dir}/BWA_index/concat_BWA " \
     f"{algo} " \
-    f"../concat.fasta"
-    
-    ### for shell
-    #cd ..
+    f"{parsedArgs.out_dir}/concat.fasta"
+
     print(cmd_bwa_index)
     print("Genome index for BWA is generated.")
 
@@ -109,7 +109,7 @@ f"--readFilesIn {reads} " \
 "--readFilesCommand cat --outSAMtype BAM Unsorted " \
 f"--outFileNamePrefix concat_{rlen}_{read_layout}_ " \
 f"--outFilterMismatchNmax {parsedArgs.outFilterMismatchNmax} " \
-f"--outFilterMultimapNmax 10000" \
+f"--outFilterMultimapNmax 10000 " \
 "--outTmpDir ~/TMP/TMPs"
 
     print(cmd_star_mapping)

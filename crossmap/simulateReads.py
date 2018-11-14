@@ -3,13 +3,14 @@ from crossmap.helpers import getBaseName
 import os
 import sys
 from Bio import SeqIO
+import subprocess
 
 def extractTranscriptome(parsedArgs):
     for i in range(0,len(parsedArgs.annotations)):
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
             print("Annotation %s detected as gtf. Proceeding to transriptome extraction."%(os.path.basename(parsedArgs.annotations[i])))
             #get the transcriptome name
-            transcriptome_name= getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
+            transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
 
             # extract the transcript
             
@@ -58,6 +59,8 @@ def extractTranscriptome(parsedArgs):
 
 
 #N_reads=59
+            
+subprocess.run("pwd", shell=True)            
 def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
     fasta_len=0
     for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
@@ -82,7 +85,7 @@ f"-R {parsedArgs.indel_fraction} " \
 f"-X {parsedArgs.indel_extend} " \
 f"-S {parsedArgs.random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
-f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq"
+f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq "
     print(wgsim_cmd)
     return wgsim_cmd
 

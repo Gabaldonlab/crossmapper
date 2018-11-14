@@ -55,9 +55,7 @@ def createArgumentParser():
     shardParser = argparse.ArgumentParser(add_help=False)
     
     
-    requirdSharedArgument =  shardParser.add_argument_group("Required Arguments")
-
-    
+    requirdSharedArgument = shardParser.add_argument_group("Required Arguments")
 
     requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs=2, required=True,
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
@@ -123,15 +121,7 @@ def createArgumentParser():
     
     shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str,
                        help = "Specify the output directory for crossmap output files.")
-    
-    
-    #parsedArgs
-    #parsedArgs = parser.parse_args()
-    
-    
-    
-    
-    
+
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
     dnaSharedGroup = parser_DNA.add_argument_group("Mapper Arguments","Arguments specific to BWA Mapper")
@@ -152,10 +142,14 @@ def createArgumentParser():
 def parseArgument(argumentParser):
     parsedArgs = argumentParser.parse_args()
 
-    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-        print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
-    else:
-        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+
+#DUPLICATE downstream???
+# =============================================================================
+#     if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
+#         print("%s already exists. Continuing."%(parsedArgs.out_dir))
+#     else:
+#         cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+# =============================================================================
         
         
     parsedArgs.fasta_names=[]
@@ -163,12 +157,19 @@ def parseArgument(argumentParser):
         for i in range(0,len(parsedArgs.genomes)):
             transcriptome_name = getBaseName(parsedArgs.genomes[i]) + "_transcriptome%s"%(i+1) + ".fasta"
 #            parsedArgs.fasta_names.append(os.path.abspath(transcriptome_name))
-            parsedArgs.fasta_names.append( os.path.join(parsedArgs.out_dir,transcriptome_name))
+            parsedArgs.fasta_names.append(os.path.join(parsedArgs.out_dir,transcriptome_name))
             
     else:
         for i in range(0,len(parsedArgs.genomes)):
             parsedArgs.fasta_names.append(os.path.abspath(parsedArgs.genomes[i]))
     print(parsedArgs.fasta_names)
+    
+    
+    ## check if not all values can be converted to int
+    try:
+        list(map(int,parsedArgs.read_length.split(",")))
+    except Exception:
+        sys.exit("There are strings or floats in read length values. Please use only standard read lengths!")
     
     ## convert list of strings to list of integers
     input_rlen=list(map(int,parsedArgs.read_length.split(",")))
@@ -189,10 +190,8 @@ def parseArgument(argumentParser):
     parsedArgs.input_rlen = input_rlen
     
     
-    
-    
     if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-        print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
+        print("%s already exists. Continuing."%(parsedArgs.out_dir))
     else:
         cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
     
