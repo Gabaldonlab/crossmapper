@@ -143,13 +143,10 @@ def parseArgument(argumentParser):
     parsedArgs = argumentParser.parse_args()
 
 
-#DUPLICATE downstream???
-# =============================================================================
-#     if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-#         print("%s already exists. Continuing."%(parsedArgs.out_dir))
-#     else:
-#         cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
-# =============================================================================
+    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
+        print("%s already exists. Continuing."%(parsedArgs.out_dir))
+    else:
+        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
         
         
     parsedArgs.fasta_names=[]
@@ -188,13 +185,6 @@ def parseArgument(argumentParser):
     
     
     parsedArgs.input_rlen = input_rlen
-    
-    
-    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-        print("%s already exists. Continuing."%(parsedArgs.out_dir))
-    else:
-        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
-    
     
     
     return parsedArgs
