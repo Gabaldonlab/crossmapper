@@ -95,8 +95,10 @@ f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {par
 
 
 def simulateData(parsedArgs):
+    print("simulateData" , __package__)
+
     file_num=0
-    if parsedArgs.Simulation_type == "RNA":
+    if parsedArgs.simulation_type == "RNA":
         extractTranscriptome(parsedArgs)        
     for each_file in parsedArgs.fasta_names:
         fasta_basename = getBaseName(each_file)
@@ -113,7 +115,7 @@ def concateFastqFiles(parsedArgs):
         genome_list_r1=[]
         genome_list_r2=[]
         for i in range(0,len(parsedArgs.genomes)):
-            if parsedArgs.Simulation_type == "RNA":
+            if parsedArgs.simulation_type == "RNA":
                 read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
                 genome_list_r1.append(read_1)
             

@@ -154,7 +154,7 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
 
     
 def mapping(parsedArgs):
-    if parsedArgs.Simulation_type == "RNA":
+    if parsedArgs.simulation_type == "RNA":
         starIndex(parsedArgs)
         for rlen in parsedArgs.input_rlen:
             se_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq")
