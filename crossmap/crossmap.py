@@ -62,10 +62,6 @@ def createArgumentParser():
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
     	
-    requirdSharedArgument.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
-    	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
-    	+ "NOTE: Keep the same order of listing as for genome files")
-    	
     shardParser.add_argument("-t", "--threads", type=int, default = 1,
     	help = "Number of cores to be used for all multicore-supporting steps")
     	
@@ -130,12 +126,14 @@ def createArgumentParser():
     	help = "Help message")
     	
     parser_RNA = subparsers.add_parser("RNA", help = "Simulate RNA data", formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser])
-    rnaSharedGroup = parser_RNA.add_argument_group("Mapper Arguments","Arguments specific to STAR Mapper")
+    rnaSharedGroup = parser_RNA.add_argument_group("Mapper and annotation Arguments","Arguments specific to STAR Mapper")
     rnaSharedGroup.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="Int",
     	help = "From STAR manual: "
     	+ " alignment will be output only if it has no more mismatches than this value")
     
-    
+    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
+    	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
+    	+ "NOTE: Keep the same order of listing as for genome files")
     
     return mainParser
 
@@ -152,7 +150,22 @@ def parseArgument(argumentParser):
         os.makedirs(parsedArgs.out_dir)
 
 
+    for i in range(0,len(parsedArgs.genomes)):
+        if os.path.exists(parsedArgs.genomes[i]):
+            if not os.path.getsize(parsedArgs.genomes[i]) > 0:
+                sys.exit(f"parsedArgs.genomes[i] file is empty! Please provide a valid file.")
+        else:
+            sys.exit(f"parsedArgs.genomes[i] file does not exist! Please provide a valid file.")
+                
         
+    if len(parsedArgs.annotations)>0:
+        for i in range(0,len(parsedArgs.annotations)):
+            if os.path.exists(parsedArgs.annotations[i]):
+                if not os.path.getsize(parsedArgs.genomes[i]) > 0:
+                    sys.exit(f"parsedArgs.annotations[i] file is empty! Please provide a valid file.")
+            else:
+                sys.exit(f"parsedArgs.annotations[i] file does not exist! Please provide a valid file.")
+
         
     parsedArgs.fasta_names=[]
     if parsedArgs.simulation_type == "RNA":
