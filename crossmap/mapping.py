@@ -1,9 +1,11 @@
 import os
 import math
+from Bio import SeqIO
 from crossmap.helpers import getBaseName
+import crossmap
 
 
-
+###Concatenate files
 
 def prepareGenome(parsedArgs):
     genome_list=[]
@@ -15,6 +17,8 @@ def prepareGenome(parsedArgs):
     
     cmd_genome_concat = f"cat {genome_concat} > {parsedArgs.out_dir}/concat.fasta"
     print(cmd_genome_concat)
+    crossmap.externalExec.execute(cmd_genome_concat)
+    
     
     ### concatenate gtf files
     gtf_list=[]
@@ -29,6 +33,7 @@ def prepareGenome(parsedArgs):
     
     cmd_gtf_concat = f"cat {gtf_concat} > {parsedArgs.out_dir}/concat.gtf"
     print(cmd_gtf_concat)
+    crossmap.externalExec.execute(cmd_gtf_concat)
 
 
 
@@ -36,24 +41,27 @@ def prepareGenome(parsedArgs):
     
 def starIndex(parsedArgs):
     #calcualte concat.fasta genome size
-    genome_len=99999999999990
-    #for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-     #   genome_len+=len(rec.seq)
+    genome_len=0
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
-        print("WARNING: concatenated genome size is larged than 3GB! " 
+        print("WARNING: concatenated genome size is larged than 3 Gb! " 
               +"\nMore than 30 GB of RAM will be required for STAR mapping." )
     
-    SA_index_size = min(14, round(math.log(26,2)/2) - 1)
+    SA_index_size = min(14, round(math.log(genome_len,2)/2) - 1)
     print("genomeSAindexNbases = %s"%(SA_index_size))
     print("Starting genome indexing with STAR.")
+    
     if os.path.isdir(f"{parsedArgs.out_dir}/STAR_index") == True:
         print("STAR_index directory exists. Generating index files.")
     else:
         print(f"Creating {parsedArgs.out_dir}/STAR_index directory. Writing index files to STAR_index.")
         
         ###FOR SHELL
-        #mkdir {parsedArgs.out_dir}/STAR_index
+        cmd_mkdir = f"mkdir {parsedArgs.out_dir}/STAR_index"
+        crossmap.externalExec.execute(cmd_mkdir)
+        
         
     cmd_star_index = "STAR " \
     f"--runThreadN {parsedArgs.threads} " \
@@ -61,6 +69,7 @@ def starIndex(parsedArgs):
     f"--genomeFastaFiles {parsedArgs.out_dir}/concat.fasta " \
     f"--genomeSAindexNbases {SA_index_size}"
     print(cmd_star_index)
+    crossmap.externalExec.execute(cmd_star_index,"STAR_index")
     print("Genome index for STAR is generated.")
 
 
@@ -68,8 +77,8 @@ def bwaIndex(parsedArgs):
     algo = ""
         #calcualte concat.fasta genome size
     genome_len=0
-   # for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-       # genome_len+=len(rec.seq)
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
         print("Concatenated genome size is larged than 3GB. Using bwtsw algorithm for index generation" )
@@ -82,17 +91,16 @@ def bwaIndex(parsedArgs):
         print(f"Creating {parsedArgs.out_dir}/BWA_index directory. Writing index files to BWA_index.")
         
         ### FOR SHELL
-        #mkdir {parsedArgs.out_dir}/BWA_index
-        #cd {parsedArgs.out_dir}/BWA_index
+        cmd_mkdir=f"{parsedArgs.out_dir}/BWA_index"    
+        crossmap.externalExec.execute(cmd_mkdir)
         
     cmd_bwa_index = "bwa index " \
-    f"-p concat_BWA " \
+    f"-p {parsedArgs.out_dir}/BWA_index/concat_BWA " \
     f"{algo} " \
-    f"../concat.fasta"
-    
-    ### for shell
-    #cd ..
+    f"{parsedArgs.out_dir}/concat.fasta"
+
     print(cmd_bwa_index)
+    crossmap.externalExec.execute(cmd_bwa_index,"BWA_index")
     print("Genome index for BWA is generated.")
 
     
@@ -109,22 +117,31 @@ f"--readFilesIn {reads} " \
 "--readFilesCommand cat --outSAMtype BAM Unsorted " \
 f"--outFileNamePrefix concat_{rlen}_{read_layout}_ " \
 f"--outFilterMismatchNmax {parsedArgs.outFilterMismatchNmax} " \
-f"--outFilterMultimapNmax 10000" \
+f"--outFilterMultimapNmax 10000 " \
 "--outTmpDir ~/TMP/TMPs"
 
     print(cmd_star_mapping)
+    crossmap.externalExec.execute(cmd_star_mapping,"STAR_mapping")
+    
+    
     print("Mapping is finished. Started bam file sorting and indexing.")
     
     cmd_samtools_sort = "samtools sort " \
 f"-@{parsedArgs.threads} " \
 f"-o concat_{rlen}_{read_layout}_sorted.bam concat_{rlen}_{read_layout}_Aligned.out.bam"
+
     print(cmd_samtools_sort)
+    crossmap.externalExec.execute(cmd_samtools_sort,"Samtools_sort")
+    
     print("Sorting is finished."
           +f"\nFinal bam file writen to concat_{rlen}_{read_layout}_sorted.bam")
     
     print("Starting bam indexing.")
     cmd_samtools_index = f"samtools index concat_{rlen}_{read_layout}_sorted.bam"
     print(cmd_samtools_index)
+    crossmap.externalExec.execute(cmd_samtools_index,"Samtools_index")
+    
+    
     print("Indexing is finished.")
     
     
@@ -135,25 +152,30 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     f"-t {parsedArgs.threads} concat {reads} -a | " \
     f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -"
     print(cmd_bwa_mapping)
+    crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping")
+    
+    
     print("Mapping is finished."
           +f"\nFinal bam file writen to concat_{rlen}_{read_layout}_sorted.bam")
     
     print("Starting bam indexing.")
     cmd_samtools_index = f"samtools index concat_{rlen}_{read_layout}_sorted.bam"
     print(cmd_samtools_index)
+    crossmap.externalExec.execute(cmd_samtools_index,"Samtools_index")
+    
     print("Indexing is finished.")
     
 
     
 def mapping(parsedArgs):
-    if parsedArgs.Simulation_type == "RNA":
+    if parsedArgs.simulation_type == "RNA":
         starIndex(parsedArgs)
         for rlen in parsedArgs.input_rlen:
             se_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq")
             pe_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq") + " " + os.path.abspath(f"concat_{rlen}_read2.fastq")
             print(pe_mapping)
             if parsedArgs.read_layout == "SE":
-                #cmd_remove_read2= "rm *_read2.fastq"
+                # TODO: cmd_remove_read2= "rm *_read2.fastq"
                 starMapping(parsedArgs,se_mapping,rlen,parsedArgs.read_layout)
             elif parsedArgs.read_layout == "PE":
                starMapping(parsedArgs,pe_mapping,rlen,parsedArgs.read_layout)
@@ -166,7 +188,7 @@ def mapping(parsedArgs):
             se_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq")
             pe_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq") + " " + os.path.abspath(f"concat_{rlen}_read2.fastq")
             if parsedArgs.read_layout == "SE":
-               # cmd_remove_read2= "rm *_read2.fastq"
+               #TODO: cmd_remove_read2= "rm *_read2.fastq"
                 bwaMapping(parsedArgs,se_mapping,rlen,parsedArgs.read_layout)
             elif parsedArgs.read_layout == "PE":
                 bwaMapping(parsedArgs,pe_mapping,rlen,parsedArgs.read_layout)

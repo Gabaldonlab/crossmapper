@@ -3,13 +3,15 @@ from crossmap.helpers import getBaseName
 import os
 import sys
 from Bio import SeqIO
+import subprocess
+import crossmap
 
 def extractTranscriptome(parsedArgs):
     for i in range(0,len(parsedArgs.annotations)):
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
             print("Annotation %s detected as gtf. Proceeding to transriptome extraction."%(os.path.basename(parsedArgs.annotations[i])))
             #get the transcriptome name
-            transcriptome_name= getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
+            transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
 
             # extract the transcript
             
@@ -18,7 +20,8 @@ def extractTranscriptome(parsedArgs):
             f"-g {parsedArgs.genomes[i]} " \
             f"{parsedArgs.annotations[i]}"
             
-            print(cmd_gffread_extract)
+            #print(cmd_gffread_extract)
+            crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract")
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
             print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
             
@@ -34,6 +37,8 @@ def extractTranscriptome(parsedArgs):
             f"-T -o {parsedArgs.out_dir}/{gtf_name}"
             print(cmd_gffread_convert)
             
+            crossmap.externalExec.execute(cmd_gffread_convert,"gffreadConvert")
+            
             #gffread parsedArgs.annotations[i] -T -o gtf_name
             
             print("GFF --> GTF conversion is done. Proceeding to transriptome extraction.")
@@ -48,6 +53,7 @@ def extractTranscriptome(parsedArgs):
             f"{parsedArgs.out_dir}/{gtf_name}"
             
             print(cmd_gffread_extract)
+            crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract")
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] gtf_name
             print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
@@ -56,8 +62,7 @@ def extractTranscriptome(parsedArgs):
 
 
 
-
-#N_reads=59
+               
 def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
     fasta_len=0
     for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
@@ -70,7 +75,7 @@ def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
         N_reads = parsedArgs.N_read[file_number]
         
         
-    wgsim_cmd = f"wgsim " \
+    cmd_wgsim = f"wgsim " \
 f"-e {parsedArgs.error} " \
 f"-d {parsedArgs.outer_dist} " \
 f"-s {parsedArgs.s_dev} " \
@@ -82,14 +87,18 @@ f"-R {parsedArgs.indel_fraction} " \
 f"-X {parsedArgs.indel_extend} " \
 f"-S {parsedArgs.random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
-f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq"
-    print(wgsim_cmd)
-    return wgsim_cmd
+f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq "
+    print(cmd_wgsim)
+    
+    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim")
+    return cmd_wgsim
 
 
 def simulateData(parsedArgs):
+    print("simulateData" , __package__)
+
     file_num=0
-    if parsedArgs.Simulation_type == "RNA":
+    if parsedArgs.simulation_type == "RNA":
         extractTranscriptome(parsedArgs)        
     for each_file in parsedArgs.fasta_names:
         fasta_basename = getBaseName(each_file)
@@ -106,7 +115,7 @@ def concateFastqFiles(parsedArgs):
         genome_list_r1=[]
         genome_list_r2=[]
         for i in range(0,len(parsedArgs.genomes)):
-            if parsedArgs.Simulation_type == "RNA":
+            if parsedArgs.simulation_type == "RNA":
                 read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
                 genome_list_r1.append(read_1)
             
@@ -123,9 +132,10 @@ def concateFastqFiles(parsedArgs):
         genome_concat1=' '.join(genome_list_r1)
         cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
         print(cmd_read1_concat)
-        
+        crossmap.externalExec.execute(cmd_read1_concat)
         
         genome_concat2=' '.join(genome_list_r2)
         cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.out_dir}/concat_{rlen}_read2.fastq"
         print(cmd_read2_concat)
+        crossmap.externalExec.execute(cmd_read2_concat)
 

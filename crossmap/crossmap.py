@@ -7,10 +7,11 @@ import argparse
 import subprocess 
 import math
 
-from crossmap.helpers import getBaseName
+from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
 from crossmap.simulateReads import simulateData
 from crossmap.mapping import prepareGenome
 from crossmap.mapping import mapping
+
 
 
 ## temp allocation
@@ -26,7 +27,7 @@ soft_version = "0.1"
 
 standard_rlen = [25, 50, 75, 100, 125, 150, 300]
 
-
+__DEBUG__ = True
 ###############################################################################
 
 
@@ -47,7 +48,7 @@ def createArgumentParser():
         version = "%(prog)s \"v" + soft_version + "\"")
     
     ## subparser for DNA or RNA running mode
-    subparsers = mainParser.add_subparsers(help="Simulation type. Choose to simulate either DNA or RNA data",title = "SimulationType" ,  dest = "Simulation_type")
+    subparsers = mainParser.add_subparsers(help="Simulation type. Choose to simulate either DNA or RNA data",title = "SimulationType" ,  dest = "simulation_type")
     subparsers.required = True
     
     
@@ -55,17 +56,11 @@ def createArgumentParser():
     shardParser = argparse.ArgumentParser(add_help=False)
     
     
-    requirdSharedArgument =  shardParser.add_argument_group("Required Arguments")
-
-    
+    requirdSharedArgument = shardParser.add_argument_group("Required Arguments")
 
     requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs=2, required=True,
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
-    	
-    requirdSharedArgument.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
-    	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
-    	+ "NOTE: Keep the same order of listing as for genome files")
     	
     shardParser.add_argument("-t", "--threads", type=int, default = 1,
     	help = "Number of cores to be used for all multicore-supporting steps")
@@ -123,15 +118,7 @@ def createArgumentParser():
     
     shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str,
                        help = "Specify the output directory for crossmap output files.")
-    
-    
-    #parsedArgs
-    #parsedArgs = parser.parse_args()
-    
-    
-    
-    
-    
+
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
     dnaSharedGroup = parser_DNA.add_argument_group("Mapper Arguments","Arguments specific to BWA Mapper")
@@ -139,12 +126,14 @@ def createArgumentParser():
     	help = "Help message")
     	
     parser_RNA = subparsers.add_parser("RNA", help = "Simulate RNA data", formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser])
-    rnaSharedGroup = parser_RNA.add_argument_group("Mapper Arguments","Arguments specific to STAR Mapper")
+    rnaSharedGroup = parser_RNA.add_argument_group("Mapper and annotation Arguments","Arguments specific to STAR Mapper")
     rnaSharedGroup.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="Int",
     	help = "From STAR manual: "
     	+ " alignment will be output only if it has no more mismatches than this value")
     
-    
+    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
+    	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
+    	+ "NOTE: Keep the same order of listing as for genome files")
     
     return mainParser
 
@@ -152,27 +141,54 @@ def createArgumentParser():
 def parseArgument(argumentParser):
     parsedArgs = argumentParser.parse_args()
 
-    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-        print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
-    else:
-        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+    ## setup absole path for dir
+    parsedArgs.out_dir = os.path.abspath(parsedArgs.out_dir) 
+    if os.path.isdir(parsedArgs.out_dir) != True:
+        ## TODO :: create the folder here
+        # cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+        ## try and handle execption here
+        os.makedirs(parsedArgs.out_dir)
+
+
+    for i in range(0,len(parsedArgs.genomes)):
+        if os.path.exists(parsedArgs.genomes[i]):
+            if not os.path.getsize(parsedArgs.genomes[i]) > 0:
+                sys.exit(f"Error: {parsedArgs.genomes[i]} file is empty! Please provide a valid file.")
+        else:
+            sys.exit(f"Error: {parsedArgs.genomes[i]} file does not exist! Please provide a valid file.")
+                
         
+    if len(parsedArgs.annotations)>0:
+        for i in range(0,len(parsedArgs.annotations)):
+            if os.path.exists(parsedArgs.annotations[i]):
+                if not os.path.getsize(parsedArgs.genomes[i]) > 0:
+                    sys.exit(f"Error: {parsedArgs.annotations[i]} file is empty! Please provide a valid file.")
+            else:
+                sys.exit(f"Error: {parsedArgs.annotations[i]} file does not exist! Please provide a valid file.")
+
         
     parsedArgs.fasta_names=[]
-    if parsedArgs.Simulation_type == "RNA":
+    if parsedArgs.simulation_type == "RNA":
         for i in range(0,len(parsedArgs.genomes)):
             transcriptome_name = getBaseName(parsedArgs.genomes[i]) + "_transcriptome%s"%(i+1) + ".fasta"
 #            parsedArgs.fasta_names.append(os.path.abspath(transcriptome_name))
-            parsedArgs.fasta_names.append( os.path.join(parsedArgs.out_dir,transcriptome_name))
+            parsedArgs.fasta_names.append(os.path.join(parsedArgs.out_dir,transcriptome_name))
             
     else:
         for i in range(0,len(parsedArgs.genomes)):
             parsedArgs.fasta_names.append(os.path.abspath(parsedArgs.genomes[i]))
-    print(parsedArgs.fasta_names)
+    #print(parsedArgs.fasta_names)
+    
+    
+    ## check if not all values can be converted to int
+    try:
+        list(map(int,parsedArgs.read_length.split(",")))
+    except Exception:
+        sys.exit("There are strings or floats in read length values. Please use only standard read lengths!")
     
     ## convert list of strings to list of integers
     input_rlen=list(map(int,parsedArgs.read_length.split(",")))
-    print(input_rlen)
+    #print(input_rlen)
     
     ## check if there are duplicated lengths
     if not len(set(input_rlen)) == len(input_rlen):
@@ -189,19 +205,77 @@ def parseArgument(argumentParser):
     parsedArgs.input_rlen = input_rlen
     
     
+
+
     
     
-    if os.path.isdir("./%s"%(parsedArgs.out_dir)) == True:
-        print("%s already directory exists. Continuing."%(parsedArgs.out_dir))
-    else:
-        cmd_mkdir = "mkdir ./%s"%(parsedArgs.out_dir)
+    ## other initilization 
+    ## setting internal variable to parsedArgs object
+    parsedArgs.isDebug = __DEBUG__
+    parsedArgs.logPrefix = "crossmap.log"
+    parsedArgs.logFile = os.path.join(parsedArgs.out_dir, parsedArgs.logPrefix)
+    parsedArgs.verbose = VerboseLevel.All
+    
+    parsedArgs.speciesPrefix = None
+    
+    
+    if parsedArgs.speciesPrefix == None :
+        ## get basename from the genome file
+        parsedArgs.speciesPrefix = []
+        for i in range(0,len(parsedArgs.genomes)):
+            genomePrefix = getBaseName(parsedArgs.genomes[i])
+            parsedArgs.speciesPrefix.append(genomePrefix)
+
+    ## create specied Ids dict
+    parsedArgs.speciesIds = {}
+    for i in range(0,len(parsedArgs.speciesPrefix)) :
+         parsedArgs.speciesIds[parsedArgs.speciesPrefix[i]] = i
     
     
     
+    if __DEBUG__:
+        printArgs(parsedArgs)
+    cmdLine = " ".join(sys.argv )
+    setupLogger(parsedArgs)
+
+    getLogger().info("Starting the program with  \"" + cmdLine + "\"")
+
     return parsedArgs
+
+
+
+
+
+def printArgs(parsedArgs):
+    print("#" * 25)
+    print(f"Simulation Type {parsedArgs.simulation_type}")
+    print("Input Genomes Files :")
+    indLevel = "\t"
+    for inFile in parsedArgs.genomes:
+        print(indLevel + "* " +  os.path.abspath(inFile))
+    
+    print("Species Prefix/Name and Id:")
+    for speciesPrefix in parsedArgs.speciesPrefix:
+        print(f"{indLevel} * {speciesPrefix}:{parsedArgs.speciesIds[speciesPrefix]}")
+    if parsedArgs.simulation_type == "RNA" :
+        print("Input Annotations Files :")
+        indLevel = "\t"
+        for inFile in parsedArgs.annotations:
+            print(indLevel + "* " + os.path.abspath(inFile))
+        print("Generated Transciptome Files :")
+        indLevel = "\t"
+        for inFile in parsedArgs.fasta_names:
+            print(indLevel + "* " + os.path.abspath(inFile))  
+    print(f"Read Length : {parsedArgs.input_rlen}")
+    ## TODO :: complete the rest here
+    
+
+    return
+
 
 ## Main Script Entry Point
 def crossmapMain():
+    print("crossmapMain" , __package__)
     #print("Corssmap Test Run ...")
     #print(sys.argv)
     parser =  createArgumentParser()
