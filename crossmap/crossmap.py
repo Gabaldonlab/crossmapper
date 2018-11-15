@@ -153,18 +153,18 @@ def parseArgument(argumentParser):
     for i in range(0,len(parsedArgs.genomes)):
         if os.path.exists(parsedArgs.genomes[i]):
             if not os.path.getsize(parsedArgs.genomes[i]) > 0:
-                sys.exit(f"parsedArgs.genomes[i] file is empty! Please provide a valid file.")
+                sys.exit(f"Error: {parsedArgs.genomes[i]} file is empty! Please provide a valid file.")
         else:
-            sys.exit(f"parsedArgs.genomes[i] file does not exist! Please provide a valid file.")
+            sys.exit(f"Error: {parsedArgs.genomes[i]} file does not exist! Please provide a valid file.")
                 
         
     if len(parsedArgs.annotations)>0:
         for i in range(0,len(parsedArgs.annotations)):
             if os.path.exists(parsedArgs.annotations[i]):
                 if not os.path.getsize(parsedArgs.genomes[i]) > 0:
-                    sys.exit(f"parsedArgs.annotations[i] file is empty! Please provide a valid file.")
+                    sys.exit(f"Error: {parsedArgs.annotations[i]} file is empty! Please provide a valid file.")
             else:
-                sys.exit(f"parsedArgs.annotations[i] file does not exist! Please provide a valid file.")
+                sys.exit(f"Error: {parsedArgs.annotations[i]} file does not exist! Please provide a valid file.")
 
         
     parsedArgs.fasta_names=[]
