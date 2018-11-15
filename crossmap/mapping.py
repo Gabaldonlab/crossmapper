@@ -5,7 +5,7 @@ from crossmap.helpers import getBaseName
 import crossmap
 
 
-
+###Concatenate files
 
 def prepareGenome(parsedArgs):
     genome_list=[]
@@ -46,8 +46,8 @@ def starIndex(parsedArgs):
         genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
-        print("WARNING: concatenated genome size is larged than 3GB! " 
-              +"\nMore than 30000 GB of RAM will be required for STAR mapping." )
+        print("WARNING: concatenated genome size is larged than 3 Gb! " 
+              +"\nMore than 30 GB of RAM will be required for STAR mapping." )
     
     SA_index_size = min(14, round(math.log(genome_len,2)/2) - 1)
     print("genomeSAindexNbases = %s"%(SA_index_size))
@@ -69,7 +69,7 @@ def starIndex(parsedArgs):
     f"--genomeFastaFiles {parsedArgs.out_dir}/concat.fasta " \
     f"--genomeSAindexNbases {SA_index_size}"
     print(cmd_star_index)
-    crossmap.externalExec.execute(cmd_star_index,"STAR")
+    crossmap.externalExec.execute(cmd_star_index,"STAR_index")
     print("Genome index for STAR is generated.")
 
 
@@ -100,7 +100,7 @@ def bwaIndex(parsedArgs):
     f"{parsedArgs.out_dir}/concat.fasta"
 
     print(cmd_bwa_index)
-    crossmap.externalExec.execute(cmd_bwa_index,"BWA")
+    crossmap.externalExec.execute(cmd_bwa_index,"BWA_index")
     print("Genome index for BWA is generated.")
 
     
@@ -121,18 +121,27 @@ f"--outFilterMultimapNmax 10000 " \
 "--outTmpDir ~/TMP/TMPs"
 
     print(cmd_star_mapping)
+    crossmap.externalExec.execute(cmd_star_mapping,"STAR_mapping")
+    
+    
     print("Mapping is finished. Started bam file sorting and indexing.")
     
     cmd_samtools_sort = "samtools sort " \
 f"-@{parsedArgs.threads} " \
 f"-o concat_{rlen}_{read_layout}_sorted.bam concat_{rlen}_{read_layout}_Aligned.out.bam"
+
     print(cmd_samtools_sort)
+    crossmap.externalExec.execute(cmd_samtools_sort,"Samtools_sort")
+    
     print("Sorting is finished."
           +f"\nFinal bam file writen to concat_{rlen}_{read_layout}_sorted.bam")
     
     print("Starting bam indexing.")
     cmd_samtools_index = f"samtools index concat_{rlen}_{read_layout}_sorted.bam"
     print(cmd_samtools_index)
+    crossmap.externalExec.execute(cmd_samtools_index,"Samtools_index")
+    
+    
     print("Indexing is finished.")
     
     
@@ -143,12 +152,17 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     f"-t {parsedArgs.threads} concat {reads} -a | " \
     f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -"
     print(cmd_bwa_mapping)
+    crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping")
+    
+    
     print("Mapping is finished."
           +f"\nFinal bam file writen to concat_{rlen}_{read_layout}_sorted.bam")
     
     print("Starting bam indexing.")
     cmd_samtools_index = f"samtools index concat_{rlen}_{read_layout}_sorted.bam"
     print(cmd_samtools_index)
+    crossmap.externalExec.execute(cmd_samtools_index,"Samtools_index")
+    
     print("Indexing is finished.")
     
 
@@ -161,7 +175,7 @@ def mapping(parsedArgs):
             pe_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq") + " " + os.path.abspath(f"concat_{rlen}_read2.fastq")
             print(pe_mapping)
             if parsedArgs.read_layout == "SE":
-                #cmd_remove_read2= "rm *_read2.fastq"
+                # TODO: cmd_remove_read2= "rm *_read2.fastq"
                 starMapping(parsedArgs,se_mapping,rlen,parsedArgs.read_layout)
             elif parsedArgs.read_layout == "PE":
                starMapping(parsedArgs,pe_mapping,rlen,parsedArgs.read_layout)
@@ -174,7 +188,7 @@ def mapping(parsedArgs):
             se_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq")
             pe_mapping = os.path.abspath(f"concat_{rlen}_read1.fastq") + " " + os.path.abspath(f"concat_{rlen}_read2.fastq")
             if parsedArgs.read_layout == "SE":
-               # cmd_remove_read2= "rm *_read2.fastq"
+               #TODO: cmd_remove_read2= "rm *_read2.fastq"
                 bwaMapping(parsedArgs,se_mapping,rlen,parsedArgs.read_layout)
             elif parsedArgs.read_layout == "PE":
                 bwaMapping(parsedArgs,pe_mapping,rlen,parsedArgs.read_layout)
