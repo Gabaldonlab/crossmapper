@@ -15,6 +15,6 @@ General description, authors, citation, licence
 In our step-by-step tutorial 
 
 # Instalation and setup
- We have implemented Crossmap in python 3 as an Anaconda package. Thus, the user will just need to install Anaconda, which will efficiently take care of all dependancies for Crossmap.
+ We have implemented the Crossmapper in python 3 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, whithout a nedd to solve any dependency issue. 
 
 # Contact and reporting
