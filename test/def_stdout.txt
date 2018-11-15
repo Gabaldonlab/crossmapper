@@ -1,9 +1,0 @@
-def_stdout.txt
-error_file.txt
-localtest.py
-mydir
-mydir2
-outputfile.txt
-star1_stdout.txt
-star_stdout.txt
-{soft}_stderr.txt
