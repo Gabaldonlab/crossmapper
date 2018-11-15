@@ -151,6 +151,7 @@ def parseArgument(argumentParser):
         ## try and handle execption here
         os.makedirs(parsedArgs.out_dir)
 
+
         
         
     parsedArgs.fasta_names=[]
@@ -192,6 +193,7 @@ def parseArgument(argumentParser):
     
     
 
+
     
     
     ## other initilization 
@@ -224,6 +226,7 @@ def parseArgument(argumentParser):
     setupLogger(parsedArgs)
 
     getLogger().info("Starting the program with  \"" + cmdLine + "\"")
+
     return parsedArgs
 
 

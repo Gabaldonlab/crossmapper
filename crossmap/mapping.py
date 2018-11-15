@@ -2,7 +2,7 @@ import os
 import math
 from Bio import SeqIO
 from crossmap.helpers import getBaseName
-
+import crossmap
 
 
 
@@ -17,6 +17,8 @@ def prepareGenome(parsedArgs):
     
     cmd_genome_concat = f"cat {genome_concat} > {parsedArgs.out_dir}/concat.fasta"
     print(cmd_genome_concat)
+    crossmap.externalExec.execute(cmd_genome_concat)
+    
     
     ### concatenate gtf files
     gtf_list=[]
@@ -31,6 +33,7 @@ def prepareGenome(parsedArgs):
     
     cmd_gtf_concat = f"cat {gtf_concat} > {parsedArgs.out_dir}/concat.gtf"
     print(cmd_gtf_concat)
+    crossmap.externalExec.execute(cmd_gtf_concat)
 
 
 
@@ -39,8 +42,8 @@ def prepareGenome(parsedArgs):
 def starIndex(parsedArgs):
     #calcualte concat.fasta genome size
     genome_len=0
-    #for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
-     #   genome_len+=len(rec.seq)
+    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+        genome_len+=len(rec.seq)
         
     if genome_len > 3000000000:
         print("WARNING: concatenated genome size is larged than 3GB! " 
@@ -56,7 +59,9 @@ def starIndex(parsedArgs):
         print(f"Creating {parsedArgs.out_dir}/STAR_index directory. Writing index files to STAR_index.")
         
         ###FOR SHELL
-        #mkdir {parsedArgs.out_dir}/STAR_index
+        cmd_mkdir = f"mkdir {parsedArgs.out_dir}/STAR_index"
+        crossmap.externalExec.execute(cmd_mkdir)
+        
         
     cmd_star_index = "STAR " \
     f"--runThreadN {parsedArgs.threads} " \
@@ -64,6 +69,7 @@ def starIndex(parsedArgs):
     f"--genomeFastaFiles {parsedArgs.out_dir}/concat.fasta " \
     f"--genomeSAindexNbases {SA_index_size}"
     print(cmd_star_index)
+    crossmap.externalExec.execute(cmd_star_index,"STAR")
     print("Genome index for STAR is generated.")
 
 
@@ -85,7 +91,8 @@ def bwaIndex(parsedArgs):
         print(f"Creating {parsedArgs.out_dir}/BWA_index directory. Writing index files to BWA_index.")
         
         ### FOR SHELL
-        #mkdir {parsedArgs.out_dir}/BWA_index        
+        cmd_mkdir=f"{parsedArgs.out_dir}/BWA_index"    
+        crossmap.externalExec.execute(cmd_mkdir)
         
     cmd_bwa_index = "bwa index " \
     f"-p {parsedArgs.out_dir}/BWA_index/concat_BWA " \
@@ -93,6 +100,7 @@ def bwaIndex(parsedArgs):
     f"{parsedArgs.out_dir}/concat.fasta"
 
     print(cmd_bwa_index)
+    crossmap.externalExec.execute(cmd_bwa_index,"BWA")
     print("Genome index for BWA is generated.")
 
     
