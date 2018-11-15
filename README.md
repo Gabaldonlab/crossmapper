@@ -1,5 +1,4 @@
 # Logos: OPATHY, CRG, BIOTECHVANA
-![alt text](https://biysc.org/sites/default/files/biysc_crg_logo.jpg.png)
 
 # crossmapper
 
