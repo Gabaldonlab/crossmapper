@@ -12,9 +12,9 @@ General description, authors, citation, licence
 
 
 # Step by step tutorial
-
+In our step-by-step tutorial 
 
 # Instalation and setup
-
+ We have implemented Crossmap in python 3 as an Anaconda package. Thus, the user will just need to install Anaconda, which will efficiently take care of all dependancies for Crossmap.
 
 # Contact and reporting
