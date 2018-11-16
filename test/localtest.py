@@ -66,11 +66,24 @@ import crossmap.externalExec
 
 
 
-cmd=["cd",".."]
-
+cmd= "cat /home/ahmed/git/crossmap/test/mydir/C_alb_A_chr1_50_read2.fastq /home/ahmed/git/crossmap/test/mydir/CPAR_chr1_50_read2.fastq"
+# cat /home/ahmed/git/crossmap/test/mydir/C_alb_A_chr1_50_read2.fastq /home/ahmed/git/crossmap/test/mydir/CPAR_chr1_50_read2.fastq > /home/ahmed/git/crossmap/test/mydir/concat_50_read2.fastq
 print(cmd)
-crossmap.externalExec.execute("ls .. && ls . ","star1")
-cmd=["ls","."]
+#%%
+crossmap.externalExec.execute(cmd,"cat","/home/ahmed/git/crossmap/test/mydir/concat_50_read2.fastq", outDir="/home/ahmed/git/crossmap/test/mydir/")
+#cmd=["ls","."]
 
 #crossmap.externalExec.execute("ls .")
+
+#%%
+import subprocess
+cmd = "gffread asda zxczxc"
+cmdList = cmd.split(" ")
+#process = None
+
+outfile = open("/home/ahmed/git/crossmap/test/mydir/concat_50_read2.fastq", "w")
+errorfile = open("/home/ahmed/git/crossmap/test/mydir/cat_stderr.txt", "w")
+process = subprocess.run(cmdList, shell=False, stdout = outfile, stderr = errorfile, check = False)
+outfile.close()
+errorfile.close()
 

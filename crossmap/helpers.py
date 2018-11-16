@@ -47,3 +47,4 @@ def setupLogger(args):
     logger.debug("Debug is ON")
 def getLogger():
     return logging.getLogger("crossmap")
+

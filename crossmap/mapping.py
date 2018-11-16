@@ -1,13 +1,14 @@
 import os
+import sys
 import math
 from Bio import SeqIO
-from crossmap.helpers import getBaseName
+from crossmap.helpers import getBaseName, getLogger
 import crossmap
 
 
-###Concatenate files
 
-def prepareGenome(parsedArgs):
+def concatGeneomes(parsedArgs):
+    logger = getLogger()
     genome_list=[]
     
     for i in range(0,len(parsedArgs.genomes)):
@@ -15,26 +16,14 @@ def prepareGenome(parsedArgs):
     genome_concat = ' '.join(genome_list)
     
     
-    cmd_genome_concat = f"cat {genome_concat} > {parsedArgs.out_dir}/concat.fasta"
-    print(cmd_genome_concat)
-    crossmap.externalExec.execute(cmd_genome_concat)
-    
-    
-    ### concatenate gtf files
-    gtf_list=[]
-    for i in range(0,len(parsedArgs.genomes)):
-        if parsedArgs.annotations[i].split(".")[-1] == "gtf":
-            gtf_list.append(parsedArgs.annotations[i])
-        else:
-            gtf_name = getBaseName(parsedArgs.annotations[i]) + ".gtf"
-            gtf_list.append(f"{parsedArgs.out_dir}/{gtf_name}")
-    
-    gtf_concat = ' '.join(gtf_list)
-    
-    cmd_gtf_concat = f"cat {gtf_concat} > {parsedArgs.out_dir}/concat.gtf"
-    print(cmd_gtf_concat)
-    crossmap.externalExec.execute(cmd_gtf_concat)
-
+#    cmd_genome_concat = f"cat {genome_concat} > {parsedArgs.out_dir}/concat.fasta"
+    res = crossmap.externalExec.execute(f"cat {genome_concat}",
+                                  "cat",
+                                  f"{parsedArgs.out_dir}/concat.fasta",
+                                  None,
+                                  f"{parsedArgs.out_dir}")
+    if not res.resCheck():
+        sys.exit("Execution fail")
 
 
 ###Mapping

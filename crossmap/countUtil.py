@@ -1,5 +1,5 @@
 import pysam
-
+from helpers import getLogger
 
 
  
@@ -428,8 +428,11 @@ isRNA = False
 
 
 def getReadCounters(args,inBamFileName):
+    logger = getLogger()
     speciesIds =   args.speciesIds # { org1Name : 0, org2Name  :1}
-    print("Reading Fasta files for sequence info ... ")
+    
+    
+    logger.info("Reading Sequence Directory from Fasta files")
     
     spInputFastaFiles = args.genomes
     
@@ -439,7 +442,7 @@ def getReadCounters(args,inBamFileName):
     seqToOrg = sequenceToOrganism(allSeqs)
     transcriptMap = None
     if isRNA :
-        print("Reading GTF/GFF files for transcripts info ... ")
+        logger.info("Reading GTF/GFF files for transcripts info ... ")
         transcriptMap = mapTranscriptToSequence( args.annotations, seqsIndex)  ## test was [sp1InputGTF, sp2InputGTF]
      
     

@@ -9,7 +9,7 @@ import math
 
 from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
 from crossmap.simulateReads import simulateData
-from crossmap.mapping import prepareGenome
+from crossmap.mapping import concatGeneomes
 from crossmap.mapping import mapping
 
 
@@ -282,11 +282,11 @@ def crossmapMain():
     
     ## parse and check argument , also TODO :: may it would agood idea to prepare all parapmeters here if needed
     parsedArgs = parseArgument(parser)
+    concatGeneomes(parsedArgs)
 
     simulateData(parsedArgs)
     
     
-    prepareGenome(parsedArgs)
     mapping(parsedArgs)
 
     return

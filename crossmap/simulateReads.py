@@ -1,15 +1,47 @@
 
-from crossmap.helpers import getBaseName
+from crossmap.helpers import getBaseName, getLogger
 import os
 import sys
 from Bio import SeqIO
 import subprocess
 import crossmap
+import crossmap.externalExec
+
+
+
+
+
+
+
+def concatAnnotations(parsedArgs):
+    logger = getLogger()
+    if parsedArgs.simulation_type == "RNA" :
+        ### concatenate gtf files
+        gtf_list=[]
+        for i in range(0,len(parsedArgs.genomes)):
+            if parsedArgs.annotations[i].split(".")[-1] == "gtf":
+                gtf_list.append(parsedArgs.annotations[i])
+            else:
+                gtf_name = getBaseName(parsedArgs.annotations[i]) + ".gtf"
+                gtf_list.append(f"{parsedArgs.out_dir}/{gtf_name}")
+        
+        gtf_concat = ' '.join(gtf_list)
+        
+    #    cmd_gtf_concat = f"cat {gtf_concat} > {parsedArgs.out_dir}/concat.gtf"
+        res = crossmap.externalExec.execute(f"cat {gtf_concat}",
+                                      "cat",
+                                      f"{parsedArgs.out_dir}/concat.gtf",
+                                      None,
+                                      f"{parsedArgs.out_dir}")
+        if not res.resCheck():
+            sys.exit("Execution fail")
 
 def extractTranscriptome(parsedArgs):
+    logger = getLogger()
+    
     for i in range(0,len(parsedArgs.annotations)):
         if parsedArgs.annotations[i].split(".")[-1] == "gtf":
-            print("Annotation %s detected as gtf. Proceeding to transriptome extraction."%(os.path.basename(parsedArgs.annotations[i])))
+            logger.info("Annotation file %s detected as gtf. Proceeding to transriptome extraction."%(os.path.basename(parsedArgs.annotations[i])))
             #get the transcriptome name
             transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
 
@@ -21,27 +53,30 @@ def extractTranscriptome(parsedArgs):
             f"{parsedArgs.annotations[i]}"
             
             #print(cmd_gffread_extract)
-            crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract")
+            res = crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
+            if not res.resCheck():
+                sys.exit("Execution fail")
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
-            print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
+            logger.info("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
             
         elif parsedArgs.annotations[i].split(".")[-1] == "gff":
 			
-            print("Annotation file %s detected as gff. Converting to gtf using gffread."%(os.path.basename(parsedArgs.annotations[i])))
+            logger.info("Annotation file %s detected as gff. Converting to gtf using gffread."%(os.path.basename(parsedArgs.annotations[i])))
             
             #converting to gtf
-            gtf_name = getBaseName(parsedArgs.annotations[i])+".gtf"
+            gtf_name = getBaseName(parsedArgs.annotations[i]) + ".gtf"
             
             cmd_gffread_convert = f"gffread " \
             f"{parsedArgs.annotations[i]} " \
             f"-T -o {parsedArgs.out_dir}/{gtf_name}"
-            print(cmd_gffread_convert)
+            #print(cmd_gffread_convert)
             
-            crossmap.externalExec.execute(cmd_gffread_convert,"gffreadConvert")
-            
+            res = crossmap.externalExec.execute(cmd_gffread_convert,"gffreadConvert" , outDir = f"{parsedArgs.out_dir}")
+            if not res.resCheck(stdoutRemove=True,stdErrRemove = True):
+                sys.exit("Execution fail")
             #gffread parsedArgs.annotations[i] -T -o gtf_name
             
-            print("GFF --> GTF conversion is done. Proceeding to transriptome extraction.")
+            logger.info("GFF --> GTF conversion is done. Proceeding to transriptome extraction.")
             
             #get the transcriptome name
             transcriptome_name = getBaseName(parsedArgs.genomes[i])+"_transcriptome%s"%(i+1)+".fasta"
@@ -52,13 +87,16 @@ def extractTranscriptome(parsedArgs):
             f"-g {parsedArgs.genomes[i]} " \
             f"{parsedArgs.out_dir}/{gtf_name}"
             
-            print(cmd_gffread_extract)
-            crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract")
+            #print(cmd_gffread_extract)
+            res = crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
+            if not res.resCheck(stdoutRemove=True,stdErrRemove = True):
+                sys.exit("Execution fail")
             # extract the transcript
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] gtf_name
-            print("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
+            logger.info("Transcriptome extracted for %s"%(os.path.basename(parsedArgs.genomes[i])))
         else:
-            sys.exit("Error: annotation file %s is neither gtf nor in gff. Please check the annotation file."%(os.path.basename(parsedArgs.annotations[i])))
+            logger.error("Error: annotation file %s is neither gtf nor in gff. Please check the annotation file."%(os.path.basename(parsedArgs.annotations[i])))
+            sys.exit("Execution Failed")
 
 
 
@@ -88,54 +126,90 @@ f"-X {parsedArgs.indel_extend} " \
 f"-S {parsedArgs.random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
 f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq "
-    print(cmd_wgsim)
     
-    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim")
+    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim", outDir = f"{parsedArgs.out_dir}", overwrite = False)
     return cmd_wgsim
 
 
 def simulateData(parsedArgs):
-    print("simulateData" , __package__)
-
+    
     file_num=0
     if parsedArgs.simulation_type == "RNA":
-        extractTranscriptome(parsedArgs)        
-    for each_file in parsedArgs.fasta_names:
-        fasta_basename = getBaseName(each_file)
-        for rlen in parsedArgs.input_rlen:
+        extractTranscriptome(parsedArgs)    
+        concatAnnotations(parsedArgs)
+    ## 
+    for rlen in parsedArgs.input_rlen:
+    #for each_file in parsedArgs.fasta_names:
+        #fasta_basename = getBaseName(each_file)
+        #for rlen in parsedArgs.input_rlen:
+        for each_file in parsedArgs.fasta_names:
+            fasta_basename = getBaseName(each_file)
             #print(each_file,fasta_basename,file_num,rlen)
             readSimulation(parsedArgs,each_file,fasta_basename,file_num,rlen)
             
         file_num+=1
+        ## clean now
+        concateFastqFiles(parsedArgs, rlen)
+        
+        
+        
+        
+        
+def concateFastqFiles(parsedArgs, rlen):
+    logger = getLogger()
     
-    concateFastqFiles(parsedArgs)
-        
-def concateFastqFiles(parsedArgs):
-    for rlen in parsedArgs.input_rlen:
-        genome_list_r1=[]
-        genome_list_r2=[]
-        for i in range(0,len(parsedArgs.genomes)):
-            if parsedArgs.simulation_type == "RNA":
-                read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
-                genome_list_r1.append(read_1)
+    #for rlen in parsedArgs.input_rlen:
+    genome_list_r1=[]
+    genome_list_r2=[]
+    for i in range(0,len(parsedArgs.genomes)):
+        if parsedArgs.simulation_type == "RNA":
+            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
+            genome_list_r1.append(read_1)
             
-                read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read2.fastq"
-                genome_list_r2.append(read_2)
+            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read2.fastq"
+            genome_list_r2.append(read_2)
             #print(genome_list_r2)
-            else:
-                read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read1.fastq"
-                genome_list_r1.append(read_1)
+        else:
+            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read1.fastq"
+            genome_list_r1.append(read_1)
                 
-                read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read2.fastq"
-                genome_list_r2.append(read_2)
+            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read2.fastq"
+            genome_list_r2.append(read_2)
             
-        genome_concat1=' '.join(genome_list_r1)
-        cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
-        print(cmd_read1_concat)
-        crossmap.externalExec.execute(cmd_read1_concat)
-        
-        genome_concat2=' '.join(genome_list_r2)
-        cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.out_dir}/concat_{rlen}_read2.fastq"
-        print(cmd_read2_concat)
-        crossmap.externalExec.execute(cmd_read2_concat)
+    genome_concat1=' '.join(genome_list_r1)
+        #cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
+    res = crossmap.externalExec.execute(f"cat {genome_concat1}",
+                                      "cat", 
+                                      f"{parsedArgs.out_dir}/concat_{rlen}_read1.fastq",
+                                      None,
+                                      f"{parsedArgs.out_dir}")
+    if not res.resCheck():
+        sys.exit("Execution fail")
 
+    
+    genome_concat2=' '.join(genome_list_r2)
+        
+        # cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.out_dir}/concat_{rlen}_read2.fastq"
+    res = crossmap.externalExec.execute(f"cat {genome_concat2}",
+                                      "cat",
+                                      f"{parsedArgs.out_dir}/concat_{rlen}_read2.fastq",
+                                      None,
+                                      f"{parsedArgs.out_dir}")
+    if not res.resCheck():
+        sys.exit("Execution fail")
+    ## cleanning temp files
+    tmpFiles = []
+    tmpFiles.extend(genome_list_r1)
+    tmpFiles.extend(genome_list_r2)
+    for tmpFile in tmpFiles:
+        try:
+            logger.debug(f"Deleteing tmp file {tmpFile}")
+            os.remove(tmpFile)
+            logger.debug(f"tmp file {tmpFile} delete")
+        except Exception:
+            logger.error(f"Can not delete tmp file {tmpFile}", exc_info=True)
+            ## ignoe if before is ok
+                
+                
+                
+                
