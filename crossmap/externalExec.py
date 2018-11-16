@@ -73,7 +73,10 @@ def execute(cmd, softName="extr_cmd" , stdOutFile = None  , stdErrFile = None , 
                 logger.error(f"Can not excecute {softName} CMD : \"{cmd}\".")
             return ExecRes(cmd,process,softName, stdOutFile , stdErrFile) 
         except FileNotFoundError as no_file:
+
             logger.error("Error in execute CMD : NO SUCH FILE OR DIRECTORY", exc_info=True)
+        except PermissionError as perm_denied:
+            logger.error("PERMISSION DENIED", exc_info=True)
 
         except Exception as ex:
             logger.error("Error in execute CMD", exc_info=True)            #raise ex

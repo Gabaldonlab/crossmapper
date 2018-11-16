@@ -21,7 +21,7 @@ importlib.reload(crossmap)
 
 #%% 
 testCases = [
-        "crossmap.py DNA  -h",
+        "crossmap.py -g ../human.fasta ../mouse.fasta RNA -a ../human.gff ../mouse.gtf -C 20 20",
         "crossmap.py RNA -g ../human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres"
         "crossmap.py"
         ]
@@ -34,7 +34,7 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(1)
+    sys.argv =  getArgv(0)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     #print(parsedArgs)
@@ -42,7 +42,7 @@ def testCreateArgumentParser():
 
 
 def testRunCrossmap():
-    sys.argv =  getArgv(1)
+    sys.argv =  getArgv(0)
     #print(sys.argv)
     crossmap.crossmapMain()
 
@@ -51,7 +51,7 @@ def testRunCrossmap():
 #%%
 #exit(0)
 import crossmap.crossmap
-sys.argv =  getArgv(1)
+sys.argv =  getArgv(0)
 parser = crossmap.crossmap.createArgumentParser()
 parsedArgs = crossmap.crossmap.parseArgument(parser)
 #%% 
