@@ -17,6 +17,8 @@ def execute(cmd,soft="def"):
                 
         except FileNotFoundError as no_file:
             print(no_file, "NO SUCH FILE OR DIRECTORY")
+        except PermissionError as perm_denied:
+            print(perm_denied, "PERMISSION DENIED")
         except Exception as ex:
             print(ex)
             #raise ex
