@@ -11,7 +11,7 @@ from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
 from crossmap.simulateReads import simulateData
 from crossmap.mapping import concatGeneomes
 from crossmap.mapping import mapping
-
+from crossmap.countUtil import getReadCounters
 
 
 ## temp allocation

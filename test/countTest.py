@@ -26,8 +26,8 @@ testCases = [
         "crossmap.py RNA -g ./human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres",
         "crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fixed coverage -- ~ same size,
         "crossmap.py RNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fail missing input files
-        "crossmap.py RNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ./testFiles/C_alb_A_chr1.gff ./testFiles/CPAR_chr1.gff -N 1000 1000 -o mydir -rlen 50,100", ## 
-        "crossmap.py DNA -rlay PE -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -N 1000 1000 -o mydir -rlen 50,100", ## 
+        "crossmap.py RNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ./testFiles/C_alb_A_chr1.gff ./testFiles/CPAR_chr1.gff -N 1000 1000 -o mydir -rlen 25,50", ## 
+        "crossmap.py DNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -N 1000 1000 -o mydir -rlen 50,100", ## 
 
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
@@ -41,7 +41,7 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(4)
+    sys.argv =  getArgv(5)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     crossmap.mapping.concatGeneomes(parsedArgs)
@@ -82,9 +82,9 @@ def testCountingStep(parsedArgs):
     
     
 #sys.argv =  getArgv(5)
-#args = testCreateArgumentParser()
-#testSimulation(args)
-#testMapping(args)
+args = testCreateArgumentParser()
+testSimulation(args)
+testMapping(args)
 res = testCountingStep(args)
 
 ## write result

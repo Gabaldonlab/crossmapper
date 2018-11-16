@@ -221,8 +221,12 @@ class Counter():
         self.unmapped       = [0]  * nSpecies
         self.total       = [0]  * nSpecies
         self.mPrimary       = [[0] * 3 for i in range(nSpecies)]
-        self.mSecondary     = [[0] * 3 for i in range(nSpecies)] 
+        self.mSecondary     = [[0] * 3 for i in range(nSpecies)]
+        ## Counter is  [#readsMultiMaptoOnlyOneSp,#readsMultiMaptoBothSp, #readsMultiMaptoOneWrongSp]
         self.multiReads     = [[0] * 3 for i in range(nSpecies)]
+        self.crossSpMulti = [[0] * nSpecies for i in range(nSpecies)]
+        self.crossSpUnique = [[0] * nSpecies for i in range(nSpecies)]
+        self.crossSpTotal = [[0] * nSpecies for i in range(nSpecies)]
     def summary(self , outFile = sys.stdout):
         
         lpad = 25
@@ -256,7 +260,9 @@ class Counter():
         #UniqeMapped
         print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "Correct","unCorrect"   ) ,file=outFile     )
         print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "-------","-------"   )   ,file=outFile  )
-        print( "{0}\t{1}\t{2}\t|\t{3}\t{4}\t{5}\t{6}".format(" ".ljust(4), "Unique" ,"Multi" ,   "Unique", "Unique_Cross", "Multi" ,  "Multi_Cross" )   ,file=outFile)
+        ## Multi_org+other mapped to source plus map to some other sp.
+        ## Multi_onlyOther map to any of other sp and does not map to source sp
+        print( "{0}\t{1}\t{2}\t|\t{3}\t{4}\t{5}\t{6}".format(" ".ljust(4), "Unique" ,"Multi" ,   "Unique", "Unique_Cross", "Multi_org+other" ,  "Multi_onlyOther" )   ,file=outFile)
         for sp in self.speciesIds:
             spID = self.speciesIds[sp]
             #print(spID)
@@ -269,6 +275,47 @@ class Counter():
                   self.multiReads[spID][1],  
                   self.multiReads[spID][2]),
                 file=outFile)
+        
+            
+        print("\t-----------------\n",file=outFile)
+        print("Unique_Cross\n\t",end="",file=outFile)
+        for sourceSp in self.speciesIds:
+            print(sourceSp,end="\t",file=outFile)
+        print("\n",file=outFile)
+        for sourceSp in self.speciesIds:
+            sourceSpID = self.speciesIds[sourceSp]
+            print(sourceSp,end="\t",file=outFile)
+            for targetSp in self.speciesIds:
+                targetSpID = self.speciesIds[targetSp]
+                print(self.crossSpUnique[sourceSpID][targetSpID],end="\t",file=outFile)
+            print("\n",file=outFile)
+        
+        
+        print("\t-----------------\n",file=outFile)
+        print("Multi_Cross\n\t",end="",file=outFile)
+        for sourceSp in self.speciesIds:
+            print(sourceSp,end="\t",file=outFile)
+        print("\n",file=outFile)
+        for sourceSp in self.speciesIds:
+            sourceSpID = self.speciesIds[sourceSp]
+            print(sourceSp,end="\t",file=outFile)
+            for targetSp in self.speciesIds:
+                targetSpID = self.speciesIds[targetSp]
+                print(self.crossSpMulti[sourceSpID][targetSpID],end="\t",file=outFile)
+            print("\n",file=outFile)
+        
+        print("Total_Cross\n\t",end="",file=outFile)
+        for sourceSp in self.speciesIds:
+            print(sourceSp,end="\t",file=outFile)
+        print("\n",file=outFile)
+        for sourceSp in self.speciesIds:
+            sourceSpID = self.speciesIds[sourceSp]
+            print(sourceSp,end="\t",file=outFile)
+            for targetSp in self.speciesIds:
+                targetSpID = self.speciesIds[targetSp]
+                print(self.crossSpTotal[sourceSpID][targetSpID],end="\t",file=outFile)
+            print("\n",file=outFile)
+                
 
 #%% Read RNA
 def checkNHTag(bamFile):
@@ -360,13 +407,24 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
             nhTagValue = record.get_tag("NH")
         if nhTagValue == 1 :
             allCounter.unique[orgReadSpId][counterIndex]+=1
+            if orgReadSpId !=mappingSpId: 
+                allCounter.crossSpUnique[orgReadSpId][mappingSpId]+=1
+                allCounter.crossSpTotal[orgReadSpId][mappingSpId]+=1
             continue
         #read = record.qname
-        if not read.readId in reads  :
-            reads[read.readId] = []
-            multiReadsClass[read.readId] = []
-            multiReadsOrgSp[read.readId]= orgReadSpId
-            multiReadsMappedTpSp[read.readId] = []
+        
+        ## consider left and right
+        pe_readId = read.readId
+        if record.is_read1:
+            pe_readId+= "_S1"
+        if record.is_read2:
+            pe_readId+= "_S2"
+            
+        if not pe_readId in reads  :
+            reads[pe_readId] = []
+            multiReadsClass[pe_readId] = []
+            multiReadsOrgSp[pe_readId]= orgReadSpId
+            multiReadsMappedTpSp[pe_readId] = []
             #print(record.tostring(bamFile))
             #bamRecords[read.readId] = []
             
@@ -375,9 +433,10 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
             allCounter.mPrimary[orgReadSpId][counterIndex]+=1
         else:
             allCounter.mSecondary[orgReadSpId][counterIndex]+=1
-        reads[read.readId].append(record)
-        multiReadsClass[read.readId].append(counterIndex)
-        multiReadsMappedTpSp[read.readId].append(mappingSpId)
+            allCounter.total[orgReadSpId] -=1
+        reads[pe_readId].append(record)
+        multiReadsClass[pe_readId].append(counterIndex)
+        multiReadsMappedTpSp[pe_readId].append(mappingSpId)
         #continue
     ## Counter is  [#readsMultiMaptoOnlyOneSp,#readsMultiMaptoBothSp, #readsMultiMaptoOneWrongSp]
 #    multiReadsCounter = [[0] * 3 for i in range(nSpecies)]
@@ -385,6 +444,8 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         classesSet = set(multiReadsClass[read])
         #print(read)
         orgSp = multiReadsOrgSp[read]
+        # print(read , orgSp  , " : " , multiReadsMappedTpSp[read] , "\t " , multiReadsClass[read] )
+
         #print(orgSp)
         if len(classesSet ) == 1 :
             if classesSet.pop() <= 1  : #reads MultiMapto Only to One correct Sp
@@ -395,12 +456,20 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
                     allCounter.multiReads[orgSp][2]+=1
                 else:
                     allCounter.multiReads[orgSp][1]+=1
+            for mappedToSp in set(multiReadsMappedTpSp[read]):
+                if mappedToSp != orgSp :
+                    allCounter.crossSpMulti[orgSp][mappedToSp]+=1
+                    allCounter.crossSpTotal[orgSp][mappedToSp]+=1
         else:
             spSet = set(multiReadsMappedTpSp[read])
             if orgSp in spSet : ## readsMultiMaptoBothSp
                 allCounter.multiReads[orgSp][1]+=1
             else:
                 allCounter.multiReads[orgSp][2]+=1
+            for mappedToSp in set(multiReadsMappedTpSp[read]):
+                #if mappedToSp != orgSp :
+                allCounter.crossSpMulti[orgSp][mappedToSp]+=1
+                allCounter.crossSpTotal[orgSp][mappedToSp]+=1
     return allCounter,reads,
 #%%
     
