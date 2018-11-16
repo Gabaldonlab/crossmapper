@@ -26,7 +26,9 @@ testCases = [
         "crossmap.py RNA -g ./human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres",
         "crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fixed coverage -- ~ same size,
         "crossmap.py RNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fail missing input files
-        "crossmap.py RNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ./testFiles/C_alb_A_chr1.gff ./testFiles/CPAR_chr1.gff -C 20 20 -o mydir -rlen 50,100", ## 
+        "crossmap.py RNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ./testFiles/C_alb_A_chr1.gff ./testFiles/CPAR_chr1.gff -N 1000 1000 -o mydir -rlen 50,100", ## 
+        "crossmap.py DNA -rlay PE -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -N 1000 1000 -o mydir -rlen 50,100", ## 
+
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
         ]
@@ -39,10 +41,12 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(1)
+    sys.argv =  getArgv(4)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
+    crossmap.mapping.concatGeneomes(parsedArgs)
     #print(parsedArgs)
+    return parsedArgs
 
 
 
@@ -51,19 +55,40 @@ def testRunCrossmap():
     #print(sys.argv)
     crossmap.crossmapMain()
 
-def testSimulation():
-    sys.argv =  getArgv(4)
-    parser = crossmap.crossmap.createArgumentParser()
-    parsedArgs = crossmap.crossmap.parseArgument(parser)
+def testSimulation(parsedArgs):
     logger = crossmap.helpers.getLogger()
     logger.info("Starting Simulation Test")
-    crossmap.mapping.concatGeneomes(parsedArgs)
     crossmap.simulateReads.simulateData(parsedArgs)
+    crossmap.crossmap.printOutputFileInfo(parsedArgs,'wgsim')
     logger.info("Simulation Test END")
 
+
+def testMapping(parsedArgs):
+    logger = crossmap.helpers.getLogger()
+    logger.info("Starting Mapping Test")
+    crossmap.mapping.mapping(parsedArgs)
+    crossmap.crossmap.printOutputFileInfo(parsedArgs,'mapping')
+    logger.info("Mapping Test END")    
+
+def testCountingStep(parsedArgs):
+    logger = crossmap.helpers.getLogger()
+    logger.info("Starting Counting Test")
+
+    res = crossmap.countUtil.getReadCounters(parsedArgs)
+    logger.info("Counting Test END")    
+    return res
 #testCreateArgumentParser()
 #testRunCrossmap()
-testSimulation()
+    
+    
+#sys.argv =  getArgv(5)
+#args = testCreateArgumentParser()
+#testSimulation(args)
+#testMapping(args)
+res = testCountingStep(args)
+
+## write result
+
 #%%
 #exit(0)
 #import crossmap.crossmap

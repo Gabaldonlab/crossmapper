@@ -34,7 +34,7 @@ class ExecRes(object):
             logger.error(f"See error log in {self.stdErrFile}") 
             return False
         if clean :
-            self.clean(stdoutRemove=False,stdErrRemove = True)
+            self.clean(stdoutRemove=stdoutRemove,stdErrRemove = stdErrRemove)
         return True
         
         
@@ -49,6 +49,7 @@ def execute(cmd, softName="extr_cmd" , stdOutFile = None  , stdErrFile = None , 
     ## remove white spaces
     cmd = cmd.strip()
     cmd_list = cmd.split(" ") ## split as list 
+    cmd_list = list(filter(None,cmd_list))
     if stdOutFile == None :
         stdOutFile = os.path.join(outDir , softName +"_stdout.txt")
         

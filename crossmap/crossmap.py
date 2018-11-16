@@ -212,6 +212,14 @@ def parseArgument(argumentParser):
     
     
     ## other initilization 
+    
+    parsedArgs.simulationOutputFiles = {}
+    parsedArgs.mappingOutputFiles = {}
+    ## default concat geneome fasta file name
+    parsedArgs.simDir = f"{parsedArgs.out_dir}"
+    parsedArgs.mappingDir = f"{parsedArgs.out_dir}"
+    parsedArgs.genomeConcatFasta = f"{parsedArgs.out_dir}/concat.fasta"
+    parsedArgs.annotationsGTFConcat = f"{parsedArgs.out_dir}/concat.gtf"
     ## setting internal variable to parsedArgs object
     parsedArgs.isDebug = __DEBUG__
     parsedArgs.logPrefix = "crossmap.log"
@@ -249,30 +257,51 @@ def parseArgument(argumentParser):
 
 
 def printArgs(parsedArgs):
-    print("#" * 25)
-    print(f"Simulation Type {parsedArgs.simulation_type}")
-    print("Input Genomes Files :")
+    allArgsStr = "All Args \n"
+    allArgsStr += "#" * 25 + "\n"
+    allArgsStr += f"Simulation Type {parsedArgs.simulation_type}" + "\n"
+    allArgsStr += "Input Genomes Files :" + "\n"
     indLevel = "\t"
     for inFile in parsedArgs.genomes:
-        print(indLevel + "* " +  os.path.abspath(inFile))
+        allArgsStr += indLevel + "* " +  os.path.abspath(inFile) + "\n"
     
-    print("Species Prefix/Name and Id:")
+    allArgsStr += "Species Prefix/Name and Id:" + "\n"
     for speciesPrefix in parsedArgs.speciesPrefix:
-        print(f"{indLevel} * {speciesPrefix}:{parsedArgs.speciesIds[speciesPrefix]}")
+        allArgsStr += f"{indLevel} * {speciesPrefix}:{parsedArgs.speciesIds[speciesPrefix]}" + "\n"
     if parsedArgs.simulation_type == "RNA" :
-        print("Input Annotations Files :")
+        allArgsStr +=  "Input Annotations Files :"+ "\n"
         indLevel = "\t"
         for inFile in parsedArgs.annotations:
-            print(indLevel + "* " + os.path.abspath(inFile))
-        print("Generated Transciptome Files :")
+            allArgsStr += indLevel + "* " + os.path.abspath(inFile)+ "\n"
+        allArgsStr +="Generated Transciptome Files :"+ "\n"
         indLevel = "\t"
         for inFile in parsedArgs.fasta_names:
-            print(indLevel + "* " + os.path.abspath(inFile))  
-    print(f"Read Length : {parsedArgs.input_rlen}")
+            allArgsStr += indLevel + "* " + os.path.abspath(inFile)+ "\n"
+    allArgsStr += f"Read Length : {parsedArgs.input_rlen}"+ "\n"
+    allArgsStr += f"Read Layout : {parsedArgs.read_layout}"+ "\n"
+    allArgsStr += "#" * 25 + "\n"
+
+    getLogger().debug(allArgsStr)
     ## TODO :: complete the rest here
-    
 
     return
+
+
+def printOutputFileInfo(parsedArgs,step = 'All'):
+    logger = getLogger()
+    if step == "wgsim" or step == 'All':
+        allArgsStr ="\n"
+        for rlen,files in parsedArgs.simulationOutputFiles.items():
+            allArgsStr +=  f"\t\t * {rlen} : {files}\n"
+        logger.debug("wgsim output files : "+ allArgsStr)
+    if step == "mapping" or step == 'All':
+        allArgsStr ="\n"
+        for rlen,layout_files in parsedArgs.mappingOutputFiles.items():
+            for layout,files in layout_files.items():
+                allArgsStr +=  f"\t\t * {rlen} ({layout}) : {files}\n"
+        logger.debug("mapping output files : "+ allArgsStr)
+        
+        
 
 
 ## Main Script Entry Point

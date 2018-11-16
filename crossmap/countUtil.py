@@ -1,5 +1,7 @@
 import pysam
-from helpers import getLogger
+import sys
+import os
+from crossmap.helpers import getLogger
 
 
  
@@ -212,42 +214,51 @@ class Counter():
     ## #species 
     ## 0          [ #CorrectMapping, #unCorrectMappingCorrectSp, #unCorrectSp ]
     ## 1          [ #CorrectMapping, #unCorrectMappingCorrectSp, #unCorrectSp ]
-    def __init__(self,nSpecies):
+    def __init__(self,speciesIds):
+        nSpecies = len(speciesIds)
+        self.speciesIds = speciesIds
         self.unique         = [[0] * 3 for i in range(nSpecies)]
         self.unmapped       = [0]  * nSpecies
         self.total       = [0]  * nSpecies
         self.mPrimary       = [[0] * 3 for i in range(nSpecies)]
         self.mSecondary     = [[0] * 3 for i in range(nSpecies)] 
         self.multiReads     = [[0] * 3 for i in range(nSpecies)]
-    def summary(self):
+    def summary(self , outFile = sys.stdout):
         
         lpad = 25
         
-        totalReads = 0
         
-        print("Summary Report \n" + "".join( "=" * 15 )  )
+        
+        print("Summary Report \n" + "".join( "=" * 15 )  , file=outFile)
         print(      "\t{0}:\t{1}"
-                      .format("Totol Reads".ljust(lpad) , 0)    
-                  )
+                      .format("Totol Reads".ljust(lpad) , sum(self.total) + sum(self.unmapped)),
+                      file=outFile )
     
+        totalUniqueMapped = 0
+        for uniqueCounter in self.unique:
+            totalUniqueMapped += sum(uniqueCounter)
         print(      "\t{0}:\t{1}"
-                      .format("Unique Mapped Reads".ljust(lpad) , 0)    
-                  )
-        print(      "\t{0}:\t{1}"
-                      .format("Multi Mapped Reads".ljust(lpad) , 0)    
-                  )
-        print(      "\t{0}:\t{1}"
-                      .format("UnMapped Mapped Reads".ljust(lpad) , 0)    
-                  )
+                      .format("Unique Mapped Reads".ljust(lpad) , totalUniqueMapped),    
+                      file=outFile)
         
-        print("\t-----------------\n")
+        totalMultiMapped = 0
+        for multiCounter in self.multiReads:
+            totalMultiMapped += sum(multiCounter)
+        print(      "\t{0}:\t{1}"
+                      .format("Multi Mapped Reads".ljust(lpad) , totalMultiMapped),
+                      file=outFile)
+        print(      "\t{0}:\t{1}"
+                      .format("UnMapped Mapped Reads".ljust(lpad) , sum(self.unmapped)) ,   
+                  file=outFile)
+        
+        print("\t-----------------\n",file=outFile)
         #print("Cross Species Stats \n")
         #UniqeMapped
-        print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "Correct","unCorrect"   )     )
-        print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "-------","-------"   )     )
-        print( "{0}\t{1}\t{2}\t|\t{3}\t{4}\t{5}\t{6}".format(" ".ljust(4), "Unique" ,"Multi" ,   "Unique", "Unique_Cross", "Multi" ,  "Multi_Cross" )   )
-        for sp in speciesIds:
-            spID = speciesIds[sp]
+        print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "Correct","unCorrect"   ) ,file=outFile     )
+        print( "{0}\t{1}\t\t|\t\t\t{2}\t".format(" ".ljust(4),  "-------","-------"   )   ,file=outFile  )
+        print( "{0}\t{1}\t{2}\t|\t{3}\t{4}\t{5}\t{6}".format(" ".ljust(4), "Unique" ,"Multi" ,   "Unique", "Unique_Cross", "Multi" ,  "Multi_Cross" )   ,file=outFile)
+        for sp in self.speciesIds:
+            spID = self.speciesIds[sp]
             #print(spID)
             print( "{0}\t{1}\t{2}\t|\t{3}\t{4}\t{5}\t{6}".format(sp.ljust(4),
                   self.unique[spID][0] ,
@@ -256,7 +267,8 @@ class Counter():
                   self.unique[spID][1],
                   self.unique[spID][2],
                   self.multiReads[spID][1],  
-                  self.multiReads[spID][2])   )
+                  self.multiReads[spID][2]),
+                file=outFile)
 
 #%% Read RNA
 def checkNHTag(bamFile):
@@ -294,7 +306,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
     #unmappedCounters = [0] * len(nSpecies)
     #mPrimaryCounters    =  [[0] * 3 for i in range(nSpecies)]
     #mSecondaryCounters  =  [[0] * 3 for i in range(nSpecies)]
-    allCounter = Counter(nSpecies)
+    allCounter = Counter(speciesIds)
     count  = 0
     dict_list=[]
     reads = {}
@@ -320,7 +332,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         if record.is_unmapped:
             allCounter.unmapped[orgReadSpId] +=1
             continue
-        
+        allCounter.total[orgReadSpId] +=1
         # read = WGSIMRead(qName=record.qname)
         mappingSpId = seqToOrg[record.reference_name]
         
@@ -399,7 +411,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
 #sampleFileName= "/data/bio/projects/simulation/bams/SC_to_concat1_Aligned.sortedByCoord.out.bam"
 #sampleFileName= "/data/bio/projects/simulation/bams/sample_dna/cpar_calbAligned.sortedByCoord.out.bam"
 #sampleFileName="/data/bio/projects/simulation/bams/sample_rna/calb_cpar_PE_trans_Aligned.sortedByCoord.out.bam"
-sampleFileName="/data/bio/projects/simulation/bams/sample_rna/calb_cpar_BWA.bam"
+#sampleFileName="/data/bio/projects/simulation/bams/sample_rna/calb_cpar_BWA.bam"
 
 #From these bam file we need to calculate the following things:
 #1. How many reads of CPAR map to CALB uniquely.
@@ -412,22 +424,22 @@ sampleFileName="/data/bio/projects/simulation/bams/sample_rna/calb_cpar_BWA.bam"
 #6. How many reads originated from CALB are multimapped to both genome.
 #7. Other things you think could be relevant?
 
-sp1InputFasta = "/data/bio/projects/simulation/bams/genome/clab.fa"
-sp2InputFasta = "/data/bio/projects/simulation/bams/genome/cpar.fa"
+#sp1InputFasta = "/data/bio/projects/simulation/bams/genome/clab.fa"
+#sp2InputFasta = "/data/bio/projects/simulation/bams/genome/cpar.fa"
+#
+#sp1InputGTF="/data/bio/projects/simulation/bams/genome/CALB.gtf"
+#sp2InputGTF="/data/bio/projects/simulation/bams/genome/CPAR.gtf"
+#
+#
+#org1Name = "calb" # C_albicans_SC5314
+#org2Name = "cpar" # C_parapsilosis_CDC317
+#
+#
+#nSpecies = 2
+#isRNA = False
 
-sp1InputGTF="/data/bio/projects/simulation/bams/genome/CALB.gtf"
-sp2InputGTF="/data/bio/projects/simulation/bams/genome/CPAR.gtf"
 
-
-org1Name = "calb" # C_albicans_SC5314
-org2Name = "cpar" # C_parapsilosis_CDC317
-
-
-nSpecies = 2
-isRNA = False
-
-
-def getReadCounters(args,inBamFileName):
+def getReadCounters(args):
     logger = getLogger()
     speciesIds =   args.speciesIds # { org1Name : 0, org2Name  :1}
     
@@ -441,15 +453,30 @@ def getReadCounters(args,inBamFileName):
     seqsIndexToSeq = dict((v, k) for k,v in seqsIndex.items())
     seqToOrg = sequenceToOrganism(allSeqs)
     transcriptMap = None
-    if isRNA :
+    if args.simulation_type == "RNA" :
         logger.info("Reading GTF/GFF files for transcripts info ... ")
-        transcriptMap = mapTranscriptToSequence( args.annotations, seqsIndex)  ## test was [sp1InputGTF, sp2InputGTF]
+        transcriptMap = mapTranscriptToSequence( [args.annotationsGTFConcat], seqsIndex)  ## test was [sp1InputGTF, sp2InputGTF]
      
     
-    bamFile = pysam.AlignmentFile(inBamFileName,"rb")
-    ## chech if bamFile has NH tag or not , if not calc it in advance and pass it to the count method
-    NHTags = checkNHTag(bamFile)
-    allCounter = countReads(bamFile, speciesIds , seqsIndexToSeq , seqToOrg , transcriptMap = transcriptMap , nhTag = NHTags)
-    return allCounter
+    counters = {}
+    
+    
+    outputFile = open(os.path.join(args.out_dir,"report.txt"),"w")
+    for rlen,layout_files in args.mappingOutputFiles.items():
+        counters[rlen] = {}
+        for layout,inBamFileName in layout_files.items(): 
+            logger.info(f"Start counting reads for read lenghth {rlen} and ({layout}) layout:")
+            
+            bamFile = pysam.AlignmentFile(inBamFileName,"rb")
+            ## chech if bamFile has NH tag or not , if not calc it in advance and pass it to the count method
+            NHTags = checkNHTag(bamFile)
+            allCounter,reads = countReads(bamFile, speciesIds , seqsIndexToSeq , seqToOrg , transcriptMap = transcriptMap , nhTag = NHTags)
+            counters[rlen][layout] = allCounter
+            
+            outputFile.write(f"Summary Counter for lenghth {rlen} and ({layout}) layout : {inBamFileName}\n")
+            allCounter.summary(outputFile)
+            outputFile.write("*"*50 + "\n\n")
+    outputFile.close()
+    return counters
 
 

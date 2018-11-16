@@ -35,6 +35,7 @@ def concatAnnotations(parsedArgs):
                                       f"{parsedArgs.out_dir}")
         if not res.resCheck():
             sys.exit("Execution fail")
+    parsedArgs.annotationsGTFConcat = f"{parsedArgs.out_dir}/concat.gtf"
 
 def extractTranscriptome(parsedArgs):
     logger = getLogger()
@@ -102,10 +103,15 @@ def extractTranscriptome(parsedArgs):
 
                
 def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
+    logger = getLogger()
     fasta_len=0
-    for rec in SeqIO.parse(f"{parsedArgs.out_dir}/concat.fasta", 'fasta'):
+    for rec in SeqIO.parse(f"{parsedArgs.genomeConcatFasta}", 'fasta'):
         fasta_len+=len(rec.seq)
 
+    parsedArgs.simDir = os.path.join(parsedArgs.out_dir,"wgsim_output") 
+    if os.path.isdir(f"{parsedArgs.simDir}") == False:
+        logger.info(f"Creating {parsedArgs.simDir} directory.")
+        os.makedirs(f"{parsedArgs.simDir}")
     ## if possible to assign, calculate N_reads, based on C, else use input value
     try:
         N_reads = round(parsedArgs.coverage[file_number]*fasta_len/read_len)
@@ -125,13 +131,14 @@ f"-R {parsedArgs.indel_fraction} " \
 f"-X {parsedArgs.indel_extend} " \
 f"-S {parsedArgs.random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
-f"{fasta_name} {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.out_dir}/{fasta_basename}_{read_len}_read2.fastq "
+f"{fasta_name} {parsedArgs.simDir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.simDir}/{fasta_basename}_{read_len}_read2.fastq "
     
-    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim", outDir = f"{parsedArgs.out_dir}", overwrite = False)
+    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim", outDir = f"{parsedArgs.simDir}", overwrite = False)
     return cmd_wgsim
 
 
 def simulateData(parsedArgs):
+    
     
     file_num=0
     if parsedArgs.simulation_type == "RNA":
@@ -139,6 +146,7 @@ def simulateData(parsedArgs):
         concatAnnotations(parsedArgs)
     ## 
     for rlen in parsedArgs.input_rlen:
+        parsedArgs.simulationOutputFiles[rlen] = []
     #for each_file in parsedArgs.fasta_names:
         #fasta_basename = getBaseName(each_file)
         #for rlen in parsedArgs.input_rlen:
@@ -155,6 +163,7 @@ def simulateData(parsedArgs):
         
         
         
+        
 def concateFastqFiles(parsedArgs, rlen):
     logger = getLogger()
     
@@ -163,24 +172,24 @@ def concateFastqFiles(parsedArgs, rlen):
     genome_list_r2=[]
     for i in range(0,len(parsedArgs.genomes)):
         if parsedArgs.simulation_type == "RNA":
-            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
+            read_1 = parsedArgs.simDir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read1.fastq"
             genome_list_r1.append(read_1)
             
-            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read2.fastq"
+            read_2 = parsedArgs.simDir + "/" + getBaseName(parsedArgs.genomes[i]) + "_transcriptome" + str(i+1) + "_" + str(rlen) + "_read2.fastq"
             genome_list_r2.append(read_2)
             #print(genome_list_r2)
         else:
-            read_1 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read1.fastq"
+            read_1 = parsedArgs.simDir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read1.fastq"
             genome_list_r1.append(read_1)
                 
-            read_2 = parsedArgs.out_dir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read2.fastq"
+            read_2 = parsedArgs.simDir + "/" + getBaseName(parsedArgs.genomes[i]) + "_" + str(rlen) + "_read2.fastq"
             genome_list_r2.append(read_2)
             
     genome_concat1=' '.join(genome_list_r1)
         #cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
     res = crossmap.externalExec.execute(f"cat {genome_concat1}",
                                       "cat", 
-                                      f"{parsedArgs.out_dir}/concat_{rlen}_read1.fastq",
+                                      f"{parsedArgs.simDir}/concat_{rlen}_read1.fastq",
                                       None,
                                       f"{parsedArgs.out_dir}")
     if not res.resCheck():
@@ -189,14 +198,27 @@ def concateFastqFiles(parsedArgs, rlen):
     
     genome_concat2=' '.join(genome_list_r2)
         
-        # cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.out_dir}/concat_{rlen}_read2.fastq"
-    res = crossmap.externalExec.execute(f"cat {genome_concat2}",
-                                      "cat",
-                                      f"{parsedArgs.out_dir}/concat_{rlen}_read2.fastq",
-                                      None,
-                                      f"{parsedArgs.out_dir}")
-    if not res.resCheck():
-        sys.exit("Execution fail")
+        # cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.simDir}/concat_{rlen}_read2.fastq"
+    if parsedArgs.read_layout != "SE":
+        res = crossmap.externalExec.execute(f"cat {genome_concat2}",
+                                          "cat",
+                                          f"{parsedArgs.simDir}/concat_{rlen}_read2.fastq",
+                                          None,
+                                          f"{parsedArgs.out_dir}")
+        if not res.resCheck():
+            sys.exit("Execution fail")
+#    else: ## no need ??
+#        ## remove right reads files
+#        try :
+#            logger.debug(f"Removeing simulated reads 2 from wgsim {parsedArgs.out_dir}/concat_{rlen}_read2.fastq")
+#            os.remove(f"{parsedArgs.out_dir}/concat_{rlen}_read2.fastq")
+#        except:
+#            logger.warning(f"Can not remove unwanted reads file  {parsedArgs.out_dir}/concat_{rlen}_read2.fastq")
+    
+    parsedArgs.simulationOutputFiles[rlen].append(f"{parsedArgs.simDir}/concat_{rlen}_read1.fastq")
+    if parsedArgs.read_layout != "SE":
+        parsedArgs.simulationOutputFiles[rlen].append(f"{parsedArgs.simDir}/concat_{rlen}_read2.fastq")
+
     ## cleanning temp files
     tmpFiles = []
     tmpFiles.extend(genome_list_r1)
