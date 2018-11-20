@@ -26,8 +26,11 @@ testCases = [
         "crossmap.py RNA -g ./human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres",
         "crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fixed coverage -- ~ same size,
         "crossmap.py RNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fail missing input files
-        "crossmap.py RNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ./testFiles/C_alb_A_chr1.gff ./testFiles/CPAR_chr1.gff -N 1000 1000 -o mydir -rlen 25,50", ## 
-        "crossmap.py DNA -rlay both -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -N 1000 1000 -o mydir -rlen 50,100", ## 
+        "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -N 1000 1000 -o testcase1 -rlen 25,50", ## 
+        "crossmap.py DNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 1000 1000 -o testcase1 -rlen 25,50", ## 
+        "crossmap.py DNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -N 1000 4000 -o testcase2DNA -rlen 25,50", ## 
+        "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase2/CDUBL.gff -N 1000 4000 -o testcase2RNA -rlen 25,50", ## 
+        "crossmap.py RNA -rlay PE -g ./testFiles/testcase2/C_alb_A.fa ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase2/C_alb_A.gff ./testFiles/testcase2/CDUBL.gff -C 10 10  -o /data/bio/projects/simulation/test/testcase3RNA -rlen 25,50", ## 
 
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
@@ -36,12 +39,18 @@ testCases = [
 
 def getArgv(i):
     #print(testCases[i].split(' '))
-    return testCases[i].split(' ')
+    args = [] 
+    for r in testCases[i].split(' '):
+        if r.strip() != '':
+            args.append(r)
+            
+    
+    return args
 
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(5)
+    sys.argv =  getArgv(8)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     crossmap.mapping.concatGeneomes(parsedArgs)

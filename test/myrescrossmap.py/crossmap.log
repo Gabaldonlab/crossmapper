@@ -1,2 +1,0 @@
-[2018-11-14 16:36:16] DEBUG      : Debug is ON
-[2018-11-14 16:36:16] INFO       : Starting the program with  "crossmap.py RNA -g ../human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myrescrossmap.py"

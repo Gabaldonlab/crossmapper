@@ -140,7 +140,7 @@ f"{fasta_name} {parsedArgs.simDir}/{fasta_basename}_{read_len}_read1.fastq {pars
 def simulateData(parsedArgs):
     
     
-    file_num=0
+    
     if parsedArgs.simulation_type == "RNA":
         extractTranscriptome(parsedArgs)    
         concatAnnotations(parsedArgs)
@@ -150,12 +150,13 @@ def simulateData(parsedArgs):
     #for each_file in parsedArgs.fasta_names:
         #fasta_basename = getBaseName(each_file)
         #for rlen in parsedArgs.input_rlen:
+        file_num=0
         for each_file in parsedArgs.fasta_names:
+            
             fasta_basename = getBaseName(each_file)
             #print(each_file,fasta_basename,file_num,rlen)
             readSimulation(parsedArgs,each_file,fasta_basename,file_num,rlen)
-            
-        file_num+=1
+            file_num+=1
         ## clean now
         concateFastqFiles(parsedArgs, rlen)
         

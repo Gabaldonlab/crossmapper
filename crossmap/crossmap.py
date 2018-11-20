@@ -320,4 +320,7 @@ def crossmapMain():
     
     mapping(parsedArgs)
 
+    ## saving files and report are handled inside 
+    finalResult = getReadCounters(parsedArgs)
+
     return
