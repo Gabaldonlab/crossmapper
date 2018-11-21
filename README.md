@@ -16,4 +16,6 @@ In our step-by-step tutorial
 # Installation and setup
 We have implemented the Crossmapper in Python3 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. The examplified procedure of Crossmapper installation can be found in our step-by-step tutorial. 
 
+# Usage and options
+
 # Contact and reporting
