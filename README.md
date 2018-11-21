@@ -1,4 +1,4 @@
-![alt text](https://image.ibb.co/jz8Rjq/logos.png)
+![alt text](https://image.ibb.co/bs7fAV/logos.png)
 
 # crossmapper
 
