@@ -1,4 +1,4 @@
-# Logos: OPATHY, CRG, BIOTECHVANA
+![alt text](https://image.ibb.co/cJpDxA/logos.png)
 
 # crossmapper
 
