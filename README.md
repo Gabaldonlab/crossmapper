@@ -7,18 +7,25 @@ Crossmapper is an automated bioinformatics pipeline for asessing the rate of rea
 Based on in-silico read simulation and back-mapping to the original genomes of sequenced organisms, Crossmapper allows the users to assess the rate of incorrect unique and multimapped reads to non-corresponding genomes and thus helps to optimize the sequencing parameters such as the read lenght, paired/single-end, mapping parameters, etc., prior to performing the actual sequencing experiment.
 
 
-General description, authors, citation, license
-
+Crossmapper is distribued under the GNU GENERAL PUBLIC LICENSE v3.
 
 # Step by step tutorial
 In our step-by-step tutorial 
 
 # Installation and setup
-We have implemented the Crossmapper in Python3 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. The examplified procedure of Crossmapper installation can be found in our step-by-step tutorial. 
+We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
+
+If anaconda or miniconda package managers are installed, simply run:
+
+`conda install -c bioconda crossmapper`
+
+to install crossmapper and all its dependencies.
+
+The examplified procedure of Crossmapper installation and optional specific enviroment creation can be found in our step-by-step tutorial. 
 
 # Usage and options
 
-The basic usage argument can be found by `typing crossmap.py -h`:
+The basic usage arguments of Crossmapper can be found by typing `crossmap.py -h` in the command line:
 ```
 usage: crossmap.py [-h] [-v] {DNA,RNA} ...
 
@@ -33,7 +40,7 @@ SimulationType:
     DNA          Simulate DNA data
     RNA          Simulate RNA data
 ```
-Thus, crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
+Thus, Crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
 ```
 usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
