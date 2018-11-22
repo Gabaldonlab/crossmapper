@@ -18,4 +18,102 @@ We have implemented the Crossmapper in Python3 as an Anaconda package. Thus, the
 
 # Usage and options
 
+
+```
+usage: crossmap.py [-h] [-v] {DNA,RNA} ...
+
+-- crossmap.py Software
+
+optional arguments:
+  -h, --help     show this help message and exit
+  -v, --version  show program's version number and exit
+
+SimulationType:
+  {DNA,RNA}      Simulation type. Choose to simulate either DNA or RNA data
+    DNA          Simulate DNA data
+    RNA          Simulate RNA data
+```
+
+
+```
+usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
+                       [-d OUTER_DIST] [-s S_DEV]
+                       (-N N_READ N_READ | -C COVERAGE COVERAGE)
+                       [-rlay {SE,PE,both}] [-rlen READ_LENGTH] [-r MUT_RATE]
+                       [-R INDEL_FRACTION] [-X INDEL_EXTEND] [-S RANDOM_SEED]
+                       [-A DISCARD_AMBIG] [-hapl] [-o OUT_DIR]
+                       [-max_mismatch Int] -a ANNOTATIONS ANNOTATIONS
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t THREADS, --threads THREADS
+                        Number of cores to be used for all multicore-
+                        supporting steps (default: 1)
+  -e ERROR, --error ERROR
+                        Base error rate (default: 0.02)
+  -d OUTER_DIST, --outer_dist OUTER_DIST
+                        Outer distance between the two reads. For example, in
+                        case of 2x50 reads, d=300 and s=0 the mates will be
+                        200 bp apart from each other. (default: 500)
+  -s S_DEV, --s_dev S_DEV
+                        Standard deviation of outer distance. (default: 30)
+  -N N_READ N_READ, --N_read N_READ N_READ
+                        The number of reads/read pairs to generate. This
+                        paremeter can not be used alongside with -C (default:
+                        None)
+  -C COVERAGE COVERAGE, --coverage COVERAGE COVERAGE
+                        Generate the number of reads that reaches the
+                        specified coverage. Coverage is calculated as:C =
+                        N*rlen/L, where L is the length of the
+                        genome/transcriptome (default: None)
+  -rlay {SE,PE,both}, --read_layout {SE,PE,both}
+                        Specify the read configuration - single-end (SE),
+                        paired-end (PE), or both (both). If chosen 'both', the
+                        software will make separate analysis with each
+                        configuration (default: SE)
+  -rlen READ_LENGTH, --read_length READ_LENGTH
+                        Specify the read length. Choose from the possible read
+                        lengths available for Illumina
+                        machines:25,50,75,100,125,150,300. The user can either
+                        enter a specific length, or specify a COMMA-SEPARATED
+                        (!)(no spaces are allowed between commas)list of
+                        desired read lengths. In the latter case, the software
+                        will perform the analysis for all specifiedvalues
+                        separatelly and will report mapping statistics in a
+                        form of a graph (default: 50)
+  -r MUT_RATE, --mut_rate MUT_RATE
+                        Mutation rate. (default: 0.001)
+  -R INDEL_FRACTION, --indel_fraction INDEL_FRACTION
+                        Fraction of indels. (default: 0.015)
+  -X INDEL_EXTEND, --indel_extend INDEL_EXTEND
+                        Probability of an indel to be extended. (default: 0.3)
+  -S RANDOM_SEED, --random_seed RANDOM_SEED
+                        Seed for random generator. (default: -1)
+  -A DISCARD_AMBIG, --discard_ambig DISCARD_AMBIG
+                        Disgard if the fraction of ambiguous bases is higher
+                        than this number. (default: 0.05)
+  -hapl, --haplotype_mode
+                        Haplotype mode. If specified, the haploid mutations
+                        will be simulated instead of diploid. (default: False)
+  -o OUT_DIR, --out_dir OUT_DIR
+                        Specify the output directory for crossmap output
+                        files. (default: crossmap_out)
+
+Required Arguments:
+  -g GENOMES GENOMES, --genomes GENOMES GENOMES
+                        Specify the genome files in fasta format. Enter genome
+                        names separated by whitespace. NOTE: Keep the same
+                        order of listing for gtf/gff files (default: None)
+
+Mapper and annotation Arguments:
+  Arguments specific to STAR Mapper
+
+  -max_mismatch Int, --outFilterMismatchNmax Int
+                        From STAR manual: alignment will be output only if it
+                        has no more mismatches than this value (default: 10)
+  -a ANNOTATIONS ANNOTATIONS, --annotations ANNOTATIONS ANNOTATIONS
+                        Specify the gtf/gff files. Enter the file names
+                        separated by whitespace. NOTE: Keep the same order of
+                        listing as for genome files (default: None)`
+```
 # Contact and reporting
