@@ -8,11 +8,11 @@ Based on in-silico read simulation and back-mapping to the original genomes of s
 
 ### Developers
 
-Crossmapper is developed by 
+Crossmapper is developed by:
 
 Hrant Hovhannisyan (Toni Gabaldón group, Centre for Genomic Regulation, Barcelona, Spain, contact email: grant.hovhannisyan@gmail.com) and
 
-Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ). 
+Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ah.hafez@gmail.com ). 
 
 Both are a part of [EU funded Innovative Training Network OPATHY - From Omics to Patient: Improving Diagnostics of Pathogenic Yeasts](https://www.opathy.eu/).
 
