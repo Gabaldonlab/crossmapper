@@ -1,6 +1,6 @@
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
 
-# Crossmapper
+# General descripiton of Crossmapper
 
 Crossmapper is an automated bioinformatics pipeline for asessing the rate of read crossmapping when two or more organisms are sequenced as one sample. The software can be used for planning such kind of experimental setups as dual- or multiple RNA-seq (mainly for host-pathogen, symbiont and cohabitant interaction studies), metagenomics studies, sequencing and analysis of hybrid species, allele-specific expression studies, and can be extended for the use in large sequencing facilities for resource optimization.
 
@@ -124,7 +124,8 @@ Mapper and annotation Arguments:
 
 
 # Step by step tutorial
-We have created a Step-by-Step tutorial with detailed description of options and steps performed by Crossmapper. We guied the user from the initial software installation and setup untill the interpretations of the obtained results. 
+
+We have created a [Step-by-Step tutorial] (https://github.com/GrantHov/crossmap/wiki/Step-by-step-Crossmapper-usage-tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
 
 
 # Contact and reporting
