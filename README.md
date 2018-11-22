@@ -9,8 +9,6 @@ Based on in-silico read simulation and back-mapping to the original genomes of s
 
 Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
 
-# Step by step tutorial
-In our step-by-step tutorial 
 
 # Installation and setup
 We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
@@ -123,4 +121,10 @@ Mapper and annotation Arguments:
                         separated by whitespace. NOTE: Keep the same order of
                         listing as for genome files (default: None)
 ```
+
+
+# Step by step tutorial
+We have created a Step-by-Step tutorial with detailed description of options and steps performed by Crossmapper. We guied the user from the initial software installation and setup untill the interpretations of the obtained results. 
+
+
 # Contact and reporting
