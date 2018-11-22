@@ -1,6 +1,6 @@
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
 
-# General descripiton of Crossmapper
+## General descripiton of Crossmapper
 
 Crossmapper is an automated bioinformatics pipeline for asessing the rate of read crossmapping when two or more organisms are sequenced as one sample. The software can be used for planning such kind of experimental setups as dual- or multiple RNA-seq (mainly for host-pathogen, symbiont and cohabitant interaction studies), metagenomics studies, sequencing and analysis of hybrid species, allele-specific expression studies, and can be extended for the use in large sequencing facilities for resource optimization.
 
@@ -10,7 +10,7 @@ Based on in-silico read simulation and back-mapping to the original genomes of s
 Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
 
 
-# Installation and setup
+## Installation and setup
 We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
 
 If anaconda or miniconda package managers are installed, simply run:
@@ -21,7 +21,7 @@ to install crossmapper and all its dependencies.
 
 The examplified procedure of Crossmapper installation and optional specific enviroment creation can be found in our step-by-step tutorial. 
 
-# Usage and options
+## Usage and options
 
 The basic usage arguments of Crossmapper can be found by typing `crossmap.py -h` in the command line:
 ```
@@ -123,11 +123,11 @@ Mapper and annotation Arguments:
 ```
 
 
-# Step by step tutorial
+## Step by step tutorial
 
 We have created a [Step-by-Step tutorial](https://github.com/GrantHov/crossmap/wiki/Step-by-step-Crossmapper-usage-tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
 
 
-# Contact and reporting
+## Contact and reporting
 
 The users of Crossmapper can report bugs/issues in our [Github Issues section](https://github.com/GrantHov/crossmap/issues), or alternativelly can ask questions, report bugs and suggest new features for Crossmapper in our [google group](https://groups.google.com/forum/#!forum/crossmapper-users).
