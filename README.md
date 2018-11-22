@@ -18,7 +18,7 @@ We have implemented the Crossmapper in Python3 as an Anaconda package. Thus, the
 
 # Usage and options
 
-
+The basic usage argument can be found by `typing crossmap.py -h`:
 ```
 usage: crossmap.py [-h] [-v] {DNA,RNA} ...
 
@@ -33,10 +33,9 @@ SimulationType:
     DNA          Simulate DNA data
     RNA          Simulate RNA data
 ```
+Thus, crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
-
-```
-usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
+```usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
                        [-d OUTER_DIST] [-s S_DEV]
                        (-N N_READ N_READ | -C COVERAGE COVERAGE)
                        [-rlay {SE,PE,both}] [-rlen READ_LENGTH] [-r MUT_RATE]
@@ -73,12 +72,12 @@ optional arguments:
                         configuration (default: SE)
   -rlen READ_LENGTH, --read_length READ_LENGTH
                         Specify the read length. Choose from the possible read
-                        lengths available for Illumina
-                        machines:25,50,75,100,125,150,300. The user can either
-                        enter a specific length, or specify a COMMA-SEPARATED
-                        (!)(no spaces are allowed between commas)list of
-                        desired read lengths. In the latter case, the software
-                        will perform the analysis for all specifiedvalues
+                        lengths available for Illumina machines:
+                        25,50,75,100,125,150,300. The user can either enter a
+                        specific length, or specify a (!) COMMA-SEPARATED (no
+                        spaces are allowed between commas) list of desired
+                        read lengths. In the latter case, the software will
+                        perform the analysis for all specified values
                         separatelly and will report mapping statistics in a
                         form of a graph (default: 50)
   -r MUT_RATE, --mut_rate MUT_RATE
@@ -114,6 +113,6 @@ Mapper and annotation Arguments:
   -a ANNOTATIONS ANNOTATIONS, --annotations ANNOTATIONS ANNOTATIONS
                         Specify the gtf/gff files. Enter the file names
                         separated by whitespace. NOTE: Keep the same order of
-                        listing as for genome files (default: None)`
+                        listing as for genome files (default: None)
 ```
 # Contact and reporting
