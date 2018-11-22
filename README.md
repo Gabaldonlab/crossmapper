@@ -130,4 +130,4 @@ We have created a [Step-by-Step tutorial](https://github.com/GrantHov/crossmap/w
 
 # Contact and reporting
 
-The users of Crossmapper can report bugs/issues in our [Github Issues section]https://github.com/GrantHov/crossmap/issues, or alternativelly can ask questions, report bugs and suggest new features for Crossmapper in our [google group]https://groups.google.com/forum/#!forum/crossmapper-users
+The users of Crossmapper can report bugs/issues in our [Github Issues section](https://github.com/GrantHov/crossmap/issues), or alternativelly can ask questions, report bugs and suggest new features for Crossmapper in our [google group](https://groups.google.com/forum/#!forum/crossmapper-users)
