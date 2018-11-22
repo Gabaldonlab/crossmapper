@@ -125,7 +125,7 @@ Mapper and annotation Arguments:
 
 # Step by step tutorial
 
-We have created a [Step-by-Step tutorial] (https://github.com/GrantHov/crossmap/wiki/Step-by-step-Crossmapper-usage-tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
+We have created a [Step-by-Step tutorial](https://github.com/GrantHov/crossmap/wiki/Step-by-step-Crossmapper-usage-tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
 
 
 # Contact and reporting
