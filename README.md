@@ -7,7 +7,7 @@ Crossmapper is an automated bioinformatics pipeline for asessing the rate of rea
 Based on in-silico read simulation and back-mapping to the original genomes of sequenced organisms, Crossmapper allows the users to assess the rate of incorrect unique and multimapped reads to non-corresponding genomes and thus helps to optimize the sequencing parameters such as the read lenght, paired/single-end, mapping parameters, etc., prior to performing the actual sequencing experiment.
 
 
-Crossmapper is distribued under the GNU GENERAL PUBLIC LICENSE v3.
+Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
 
 # Step by step tutorial
 In our step-by-step tutorial 
