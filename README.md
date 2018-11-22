@@ -9,6 +9,11 @@ Based on in-silico read simulation and back-mapping to the original genomes of s
 
 Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
 
+Crossmapper is developed by 
+Hrant Hovhannisyan (Toni Gabaldon's group, Centre for Genomic Regulation, Barcelona, Spain, contact email: grant.hovhannisyan@gmail.com) and
+Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ). 
+
+Both are a part of (EU funded Innovative Training Network OPATHY - From Omics to Patient: Improving Diagnostics of Pathogenic Yeasts)[https://www.opathy.eu/].
 
 ## Installation and setup
 We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
