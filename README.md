@@ -35,7 +35,8 @@ SimulationType:
 ```
 Thus, crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
-```usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
+```
+usage: crossmap.py RNA [-h] -g GENOMES GENOMES [-t THREADS] [-e ERROR]
                        [-d OUTER_DIST] [-s S_DEV]
                        (-N N_READ N_READ | -C COVERAGE COVERAGE)
                        [-rlay {SE,PE,both}] [-rlen READ_LENGTH] [-r MUT_RATE]
