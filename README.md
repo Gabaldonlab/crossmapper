@@ -6,8 +6,7 @@ Crossmapper is an automated bioinformatics pipeline for asessing the rate of rea
 
 Based on in-silico read simulation and back-mapping to the original genomes of sequenced organisms, Crossmapper allows the users to assess the rate of incorrect unique and multimapped reads to non-corresponding genomes and thus helps to optimize the sequencing parameters such as the read lenght, paired/single-end, mapping parameters, etc., prior to performing the actual sequencing experiment.
 
-
-Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
+### Developers
 
 Crossmapper is developed by 
 
@@ -16,6 +15,10 @@ Hrant Hovhannisyan (Toni Gabaldon's group, Centre for Genomic Regulation, Barcel
 Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ). 
 
 Both are a part of [EU funded Innovative Training Network OPATHY - From Omics to Patient: Improving Diagnostics of Pathogenic Yeasts](https://www.opathy.eu/).
+
+### Licensing
+Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
+
 
 ## Installation and setup
 We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
