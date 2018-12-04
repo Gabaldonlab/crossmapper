@@ -93,14 +93,14 @@ def testCountingStep(parsedArgs):
     
 #sys.argv =  getArgv(5)
 
-#args = testCreateArgumentParser()
-#testSimulation(args)
-#testMapping(args)
+args = testCreateArgumentParser()
+testSimulation(args)
+testMapping(args)
 res = testCountingStep(args)
 #%%
-importlib.reload(crossmap)
+#importlib.reload(crossmap)
 
-crossmap.reporting.createHTMLReport(res,args)
+#crossmap.reporting.createHTMLReport(res,args)
 ## write result
 
 #%%
