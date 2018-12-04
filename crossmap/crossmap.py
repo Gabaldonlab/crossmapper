@@ -58,7 +58,7 @@ def createArgumentParser():
     
     requirdSharedArgument = shardParser.add_argument_group("Required Arguments")
 
-    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs=2, required=True,
+    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs="+", required=True,
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
     	
@@ -82,7 +82,7 @@ def createArgumentParser():
     group.add_argument("-N", "--N_read", type = int, nargs=2,
         help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
     
-    group.add_argument("-C", "--coverage", type = int, nargs=2,
+    group.add_argument("-C", "--coverage", type = int, nargs="+",
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
     		+ "C = N*rlen/L, " 
     		+ "where L is the length of the genome/transcriptome")
