@@ -115,7 +115,7 @@ def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
     ## if possible to assign, calculate N_reads, based on C, else use input value
     try:
         N_reads = round(parsedArgs.coverage[file_number]*fasta_len/read_len)
-    except Exception:
+    except Exception as ex:
         N_reads = parsedArgs.N_read[file_number]
         
         

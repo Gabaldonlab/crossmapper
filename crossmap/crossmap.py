@@ -58,7 +58,7 @@ def createArgumentParser():
     
     requirdSharedArgument = shardParser.add_argument_group("Required Arguments")
 
-    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs=2, required=True,
+    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs="+", required=True,
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
     	
@@ -79,10 +79,10 @@ def createArgumentParser():
     	help = "Standard deviation of outer distance.")
     	
     group = shardParser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-N", "--N_read", type = int, nargs=2,
+    group.add_argument("-N", "--N_read", type = int, nargs="+",
         help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
     
-    group.add_argument("-C", "--coverage", type = float, nargs=2,
+    group.add_argument("-C", "--coverage", type = int, nargs="+",
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
     		+ "C = N*rlen/L, " 
     		+ "where L is the length of the genome/transcriptome")
@@ -131,7 +131,7 @@ def createArgumentParser():
     	help = "From STAR manual: "
     	+ " alignment will be output only if it has no more mismatches than this value")
     
-    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs=2, required=True,
+    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs="+", required=True,
     	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
     	+ "NOTE: Keep the same order of listing as for genome files")
     
@@ -157,8 +157,28 @@ def parseArgument(argumentParser):
         else:
             sys.exit(f"Error: {parsedArgs.genomes[i]} file does not exist! Please provide a valid file.")
                 
+############### checking input
+    if len(parsedArgs.genomes) <= 1 :
+            sys.exit(f"Error: Number of provided input genomes must be at least 2.")
         
+    if parsedArgs.simulation_type == "RNA":
+        if len(parsedArgs.genomes) != len(parsedArgs.annotations):
+            sys.exit(f"Error: Number of provided input genomes files does not match number of input annotations files.")
 
+    if parsedArgs.coverage is not None:
+        if len(parsedArgs.coverage) == 1 :
+            for ic in range(1,len(parsedArgs.genomes)):
+                parsedArgs.coverage.append(parsedArgs.coverage[0])
+        if len(parsedArgs.genomes) > len(parsedArgs.coverage):
+            sys.exit(f"Error: Provided Coverage (--coverage) options do not match the input genomes files. You should provide coverage for each input fasta file or just one converage for all of them.")
+    elif parsedArgs.N_read is not None:
+        if len(parsedArgs.N_read) == 1 :
+            for ic in range(1,len(parsedArgs.genomes)):
+                parsedArgs.N_read.append(parsedArgs.N_read[0])
+        elif len(parsedArgs.genomes) > len(parsedArgs.N_read):
+            sys.exit(f"Error: Provided  number of reads/read pairs to generate (--N_read) options do not match the input genomes files. You should provide one for each input fasta file or just one for all of them.")
+       
+        
 
         
     parsedArgs.fasta_names=[]

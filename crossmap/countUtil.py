@@ -2,7 +2,7 @@ import pysam
 import sys
 import os
 from crossmap.helpers import getLogger
-
+from crossmap.reporting import createHTMLReport
 
  
 #%%
@@ -210,6 +210,8 @@ class WGSIMRead(ReadId):
 #%% counters 
     
 class Counter():
+    
+    
     ## Counters Unique Mapping
     ## #species 
     ## 0          [ #CorrectMapping, #unCorrectMappingCorrectSp, #unCorrectSp ]
@@ -227,6 +229,79 @@ class Counter():
         self.crossSpMulti = [[0] * nSpecies for i in range(nSpecies)]
         self.crossSpUnique = [[0] * nSpecies for i in range(nSpecies)]
         self.crossSpTotal = [[0] * nSpecies for i in range(nSpecies)]
+        self.isPercent = False    
+        self.totalReadsCount = -1
+        
+        
+        
+    def getPerSpCrossMapped(self,source,target,countType = 'Total'):
+        sourceMatrix = self.crossSpTotal
+        if countType == 'Unique':
+            sourceMatrix = self.crossSpUnique
+        if countType == 'Multi':
+            sourceMatrix = self.crossSpMulti
+        sourceSpId = self.speciesIds[source]
+        tagetSpId = self.speciesIds[target]
+        return sourceMatrix[sourceSpId][tagetSpId]
+        
+    def getTotalCrossMapped(self, readlen, mLay , spName ):
+        spID = self.speciesIds[spName]
+        totalSum = sum(self.crossSpTotal[spID]) - self.crossSpTotal[spID][spID]
+        return totalSum
+    
+    def getSpeciesCorssMapped(self, spName ):
+        serDic = []
+        spID = self.speciesIds[spName]
+        for o_sp,o_spId in self.speciesIds.items():
+            if  o_sp !=  spName:
+                serDic.append((o_sp,self.crossSpTotal[spID][o_spId]))
+        return serDic
+    
+    def getTotalUniqueMapped(self,percent=False):
+        totalUniqueMapped = 0
+        for uniqueCounter in self.unique:
+            totalUniqueMapped += sum(uniqueCounter)
+        if percent:
+            return round( 100* (totalUniqueMapped/self.getTotalReads() ) , 2)
+        else:    
+            return totalUniqueMapped
+    
+    def getTotalMultiMapped(self,percent=False):
+        totalMultiMapped = 0
+        for multiCounter in self.multiReads:
+            totalMultiMapped += sum(multiCounter)
+        if percent:
+            return round(100*totalMultiMapped/self.getTotalReads(),2)
+        else:    
+            return totalMultiMapped
+    def getTotalUnmapped(self,percent=False):
+        if percent:
+            return  round(100*sum(self.unmapped)/self.getTotalReads(),2)
+        return sum(self.unmapped)
+    def getTotalReads (self):
+        self.totalReadsCount = self.getTotalUniqueMapped() + self.getTotalMultiMapped()+self.getTotalUnmapped()
+        return self.totalReadsCount
+    
+    def getReadLenSeries(self, countType = 'Total'):
+        
+        if countType == 'Total':
+            total = 0
+            for iRow in range(0,len(self.crossSpTotal)):
+                total += sum(self.crossSpTotal[iRow])  - self.crossSpTotal[iRow][iRow]
+            return total
+            
+        if countType == 'Unique':
+            total = 0
+            for iRow in range(0,len(self.crossSpUnique)):
+                total += sum(self.crossSpUnique[iRow]) - self.crossSpUnique[iRow][iRow]
+            return total            
+        if countType == 'Multi':
+            total = 0
+            for iRow in range(0,len(self.crossSpMulti)):
+                total += sum(self.crossSpMulti[iRow]) - self.crossSpMulti[iRow][iRow]
+            return total
+        return 0
+    
     def summary(self , outFile = sys.stdout):
         
         lpad = 25
@@ -546,6 +621,11 @@ def getReadCounters(args):
             allCounter.summary(outputFile)
             outputFile.write("*"*50 + "\n\n")
     outputFile.close()
+    
+    createHTMLReport(counters,args)
+    
     return counters
 
 
+
+        
