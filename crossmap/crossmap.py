@@ -82,7 +82,7 @@ def createArgumentParser():
     group.add_argument("-N", "--N_read", type = int, nargs=2,
         help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
     
-    group.add_argument("-C", "--coverage", type = int, nargs=2,
+    group.add_argument("-C", "--coverage", type = float, nargs=2,
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
     		+ "C = N*rlen/L, " 
     		+ "where L is the length of the genome/transcriptome")
@@ -92,9 +92,9 @@ def createArgumentParser():
     		+ " If chosen 'both', the software will make separate analysis with each configuration")
     
     shardParser.add_argument("-rlen", "--read_length", type=str, default="50",
-    	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines:"
-    		+ "25,50,75,100,125,150,300. The user can either enter a specific length, or specify a COMMA-SEPARATED (!)(no spaces are allowed between commas)"
-    		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
+    	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines: "
+    		+ "25,50,75,100,125,150,300. The user can either enter a specific length, or specify a (!) COMMA-SEPARATED (no spaces are allowed between commas) "
+    		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified "
     		+ "values separatelly and will report mapping statistics in a form of a graph")
     		
     shardParser.add_argument("-r", "--mut_rate", type=float, default = 0.001,
