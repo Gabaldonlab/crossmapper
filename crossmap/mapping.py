@@ -119,6 +119,7 @@ f"--readFilesIn {reads} " \
 f"--outFileNamePrefix {star_dir}/concat_{rlen}_{read_layout}_ " \
 f"--outFilterMismatchNmax {parsedArgs.outFilterMismatchNmax} " \
 f"--outFilterMultimapNmax 10000 " \
+f"--outFilterMismatchNoverReadLmax {parsedArgs.outFilterMismatchNoverReadLmax}"
 # "--outTmpDir ~/TMP"
 
     # print(cmd_star_mapping)
@@ -177,7 +178,7 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     
     tmpSamFile = f"{parsedArgs.out_dir}/concat_{rlen}_{read_layout}.sam"
     finalBamFile = f"{parsedArgs.out_dir}/concat_{rlen}_{read_layout}_sorted.bam"
-    cmd_bwa_mapping = f"bwa mem -t {parsedArgs.threads} {parsedArgs.out_dir}/BWA_index/concat_BWA -a {reads} " 
+    cmd_bwa_mapping = f"bwa mem -t {parsedArgs.threads} -A {parsedArgs.match_score} -B {parsedArgs.mismatch_penalty} {parsedArgs.out_dir}/BWA_index/concat_BWA -a {reads}" 
     #f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -
     res = crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
                                  tmpSamFile,
