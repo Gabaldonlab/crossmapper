@@ -82,7 +82,7 @@ def createArgumentParser():
     group.add_argument("-N", "--N_read", type = int, nargs="+",metavar = "int", 
         help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
     
-    group.add_argument("-C", "--coverage", type = int, nargs="+",metavar="float/int",
+    group.add_argument("-C", "--coverage", type = float, nargs="+",metavar="float/int",
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
     		+ "C = N*rlen/L, " 
     		+ "where L is the length of the genome/transcriptome")
