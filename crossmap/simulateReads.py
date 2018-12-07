@@ -6,6 +6,7 @@ from Bio import SeqIO
 import subprocess
 import crossmap
 import crossmap.externalExec
+import random
 
 
 
@@ -118,6 +119,7 @@ def readSimulation(parsedArgs, fasta_name,fasta_basename,file_number,read_len):
     except Exception as ex:
         N_reads = parsedArgs.N_read[file_number]
         
+    random_seed=int(parsedArgs.random_seed) + random.randint(1,100000)
         
     cmd_wgsim = f"wgsim " \
 f"-e {parsedArgs.error} " \
@@ -129,7 +131,7 @@ f"-2 {read_len} " \
 f"-r {parsedArgs.mut_rate} " \
 f"-R {parsedArgs.indel_fraction} " \
 f"-X {parsedArgs.indel_extend} " \
-f"-S {parsedArgs.random_seed} " \
+f"-S {random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
 f"{fasta_name} {parsedArgs.simDir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.simDir}/{fasta_basename}_{read_len}_read2.fastq "
     
