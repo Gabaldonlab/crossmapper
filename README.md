@@ -89,7 +89,7 @@ optional arguments:
   -rlen READ_LENGTH, --read_length READ_LENGTH
                         Specify the read length. Choose from the possible read
                         lengths available for Illumina machines:
-                        25,50,75,100,125,150,300. The user can either enter a
+                        50,75,100,125,150,300. The user can either enter a
                         specific length, or specify a (!) COMMA-SEPARATED (no
                         spaces are allowed between commas) list of desired
                         read lengths. In the latter case, the software will
