@@ -119,8 +119,8 @@ f"--readFilesIn {reads} " \
 f"--outFileNamePrefix {star_dir}/concat_{rlen}_{read_layout}_ " \
 f"--outFilterMismatchNmax {parsedArgs.outFilterMismatchNmax} " \
 f"--outFilterMultimapNmax 10000 " \
-f"--outFilterMismatchNoverReadLmax {parsedArgs.outFilterMismatchNoverReadLmax}"
-# "--outTmpDir ~/TMP"
+f"--outFilterMismatchNoverReadLmax {parsedArgs.outFilterMismatchNoverReadLmax} " \
+f"--outTmpDir {parsedArgs.star_temp_dir}"
 
     # print(cmd_star_mapping)
     res = crossmap.externalExec.execute(cmd_star_mapping,"STAR_mapping" , outDir = f"{star_dir}", overwrite = False)
