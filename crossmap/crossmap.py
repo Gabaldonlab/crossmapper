@@ -25,7 +25,7 @@ _Main_Prog_Desc = """
 soft_version = "0.1"
 
 
-standard_rlen = [25, 50, 75, 100, 125, 150, 300]
+standard_rlen = [50, 75, 100, 125, 150, 300]
 
 __DEBUG__ = True
 ###############################################################################
@@ -62,27 +62,27 @@ def createArgumentParser():
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
     	
-    shardParser.add_argument("-t", "--threads", type=int, default = 1,
+    shardParser.add_argument("-t", "--threads", type=int, default = 1, metavar = "int",
     	help = "Number of cores to be used for all multicore-supporting steps")
     	
     
     #### WGSIM parameters
     
-    shardParser.add_argument("-e", "--error", type=float, default=0.02,
+    shardParser.add_argument("-e", "--error", type=float, default=0.02, metavar = "float",
     	help = "Base error rate")
     	
-    shardParser.add_argument("-d", "--outer_dist", type=int, default = 500,
+    shardParser.add_argument("-d", "--outer_dist", type=int, default = 500, metavar = "int",
     	help = 	"Outer distance between the two reads. For example, in case of 2x50 reads, d=300 and s=0 "
     			+ "the  mates will be 200 bp apart from each other.")
     
-    shardParser.add_argument("-s", "--s_dev", type=int, default = 30,
+    shardParser.add_argument("-s", "--s_dev", type=int, default = 30, metavar = "int",
     	help = "Standard deviation of outer distance.")
     	
     group = shardParser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-N", "--N_read", type = int, nargs="+",
+    group.add_argument("-N", "--N_read", type = int, nargs="+",metavar = "int", 
         help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
     
-    group.add_argument("-C", "--coverage", type = int, nargs="+",
+    group.add_argument("-C", "--coverage", type = float, nargs="+",metavar="float/int",
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
     		+ "C = N*rlen/L, " 
     		+ "where L is the length of the genome/transcriptome")
@@ -91,25 +91,25 @@ def createArgumentParser():
         help = "Specify the read configuration - single-end (SE), paired-end (PE), or both (both)." 
     		+ " If chosen 'both', the software will make separate analysis with each configuration")
     
-    shardParser.add_argument("-rlen", "--read_length", type=str, default="50",
-    	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines:"
-    		+ "25,50,75,100,125,150,300. The user can either enter a specific length, or specify a COMMA-SEPARATED (!)(no spaces are allowed between commas)"
-    		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified"
+    shardParser.add_argument("-rlen", "--read_length", type=str, default="50", metavar = "int",
+    	help = "Specify the read length. Choose from the possible read lengths available for Illumina machines: "
+    		+ "50,75,100,125,150,300. The user can either enter a specific length, or specify a (!) COMMA-SEPARATED (no spaces are allowed between commas) "
+    		+ "list of desired read lengths. In the latter case, the software will perform the analysis for all specified "
     		+ "values separatelly and will report mapping statistics in a form of a graph")
     		
-    shardParser.add_argument("-r", "--mut_rate", type=float, default = 0.001,
+    shardParser.add_argument("-r", "--mut_rate", type=float, default = 0.001,metavar="float",
     	help = "Mutation rate.")
     
-    shardParser.add_argument("-R", "--indel_fraction", type=float, default = 0.015,
+    shardParser.add_argument("-R", "--indel_fraction", type=float, default = 0.015,metavar="float",
     	help = "Fraction of indels.")
     	
-    shardParser.add_argument("-X", "--indel_extend", type=float, default = 0.3,
+    shardParser.add_argument("-X", "--indel_extend", type=float, default = 0.3,metavar="float",
     	help = "Probability of an indel to be extended.")
     	
-    shardParser.add_argument("-S", "--random_seed", type=int, default=(-1), 
+    shardParser.add_argument("-S", "--random_seed", type=int, default=(-1), metavar="int",
     	help = "Seed for random generator.")
     
-    shardParser.add_argument("-A", "--discard_ambig", type=float, default = 0.05,
+    shardParser.add_argument("-AMB", "--discard_ambig", type=float, default = 0.05,metavar="float",
     	help = "Disgard if the fraction of ambiguous bases is higher than this number.")
     	
     shardParser.add_argument("-hapl", "--haplotype_mode", action = "store_true", default = False,
@@ -122,18 +122,37 @@ def createArgumentParser():
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
     dnaSharedGroup = parser_DNA.add_argument_group("Mapper Arguments","Arguments specific to BWA Mapper")
-    dnaSharedGroup.add_argument("-specific_bwa", "--specific", type=int, default=5,
-    	help = "Help message")
+    dnaSharedGroup.add_argument("-k", "--seed_length", type=int, default=19,metavar="int",
+    	help = "From BWA manual: "
+        +" Minimum seed length. Matches shorter than INT will be missed. The alignment speed is usually insensitive to this value unless it significantly deviates 20")
+    
+    dnaSharedGroup.add_argument("-A", "--match_score", type=int, default=1, metavar="int",
+                                help = "From BWA manual: "
+                                + " Matching score.")
+    dnaSharedGroup.add_argument("-B", "--mismatch_penalty", type=int, default=4, metavar="int",
+                                help = "From BWA manual: "
+                                + " Mismatch penalty. The sequence error rate is approximately: {.75 * exp[-log(4) * B/A]}")
     	
     parser_RNA = subparsers.add_parser("RNA", help = "Simulate RNA data", formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser])
     rnaSharedGroup = parser_RNA.add_argument_group("Mapper and annotation Arguments","Arguments specific to STAR Mapper")
-    rnaSharedGroup.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="Int",
+    
+    rnaSharedGroup.add_argument("-max_mismatch_per_len", "--outFilterMismatchNoverReadLmax", type=float, default=0.04, metavar = "float",
+                                help = "From STAR manual: "
+                                  +"alignment will be output only if its ratio of mismatches to *read* length is less than or equal to this value: for 2x100b, max number of mismatches is 0.04*200=8 for the paired read.")
+   
+    rnaSharedGroup.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="int",
     	help = "From STAR manual: "
     	+ " alignment will be output only if it has no more mismatches than this value")
     
     rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs="+", required=True,
     	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
     	+ "NOTE: Keep the same order of listing as for genome files")
+    
+    rnaSharedGroup.add_argument("-star_tmp", "--star_temp_dir", default =  type=str, metavar="PATH",
+    	help = "Specify a full path to a local temprorary directory, where all intermediate files of STAR will be written. "
+    	+ " This option can be used when running crossmaper from a local machine in a server or cluster with SAMBA connection.")
+
+    
     
     return mainParser
 
