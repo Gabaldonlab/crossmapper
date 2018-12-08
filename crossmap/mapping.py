@@ -176,20 +176,29 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
 #    f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -"
 #    print(cmd_bwa_mapping)
     
-    tmpSamFile = f"{parsedArgs.out_dir}/concat_{rlen}_{read_layout}.sam"
-    finalBamFile = f"{parsedArgs.out_dir}/concat_{rlen}_{read_layout}_sorted.bam"
+    bwa_dir = f"{parsedArgs.out_dir}/bwa_output"
+    parsedArgs.mappingDir = bwa_dir
+    if os.path.isdir(f"{bwa_dir}") == False:
+        logger.info(f"Creating {bwa_dir} directory.")
+        os.makedirs(f"{bwa_dir}")
+    
+    
+    
+    
+    tmpSamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}.sam"
+    finalBamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}_sorted.bam"
     cmd_bwa_mapping = f"bwa mem -t {parsedArgs.threads} -A {parsedArgs.match_score} -B {parsedArgs.mismatch_penalty} {parsedArgs.out_dir}/BWA_index/concat_BWA -a {reads}" 
     #f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -
     res = crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
                                  tmpSamFile,
                                  None,
-                                 outDir = f"{parsedArgs.out_dir}")
+                                 outDir = f"{bwa_dir}")
     if not res.resCheck():
         sys.exit("Execution Failed")
     ## TODO :: samtools view -bS
     res = crossmap.externalExec.execute(f"samtools sort -@{parsedArgs.threads} -o {finalBamFile} {tmpSamFile}",
                                         "samtools" ,
-                                        outDir = f"{parsedArgs.out_dir}")
+                                        outDir = f"{bwa_dir}")
     if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
         sys.exit("Execution Failed")
     logger.info("Mapping is finished. " + f"Final bam file writen to {finalBamFile}")
@@ -206,7 +215,7 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     #print(cmd_samtools_index)
     res = crossmap.externalExec.execute(cmd_samtools_index,
                                         "samtools_index",
-                                        outDir = f"{parsedArgs.out_dir}")
+                                        outDir = f"{bwa_dir}")
     if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
         sys.exit("Execution Failed")
     parsedArgs.mappingOutputFiles[rlen][read_layout] = finalBamFile
