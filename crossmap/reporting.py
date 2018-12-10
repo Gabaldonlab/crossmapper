@@ -90,6 +90,17 @@ body {
 	background-color: #03233f;
     font-size: 16px;
 }
+
+.tg .tg-cap {
+        border-color:inherit;
+        text-align:center;
+        vertical-align:top
+}
+
+caption {
+    display: table-caption;
+    text-align: center;
+}
 </style>
 ''')
     
@@ -99,11 +110,16 @@ contentTemplate = Template(
 {% for readLen,count_pLays in counterRes.items()  %}
   {% for lay,counters in count_pLays.items()  %}
     <div id='read_{{readLen}}_{{lay}}' class='read_section'>
-    <span> Counters Summary for read length {{readLen}} and ({{lay}}) layout </span>
+    <span>Mapping summary for read length {{readLen}} and ({{lay}}) layout</span>
 	<hr class="hrleft">
     
 	<div class="summary-table divtable">
 		<table class="tg">
+            <caption>Overall mapping statistics</caption>
+          <!--  <tr>
+    			<th class="tg-cap" colspan="3">Overall mapping statistics</th>
+  			</tr>
+              -->
 		  <tr>
 		    <th class="tg-c3ow"></th>
 		    <th class="tg-c3ow"><br>#Reads</th>
@@ -125,7 +141,7 @@ contentTemplate = Template(
 		    <td class="tg-phtq">{{counters.getTotalUnmapped(percent=True)}}%</td>
 		  </tr>
 		  <tr>
-		    <th scope='row' class="tg-0lax">Totol Reads<br></th>
+		    <th scope='row' class="tg-0lax">Total Reads<br></th>
 		    <td class="tg-0lax">{{counters.getTotalReads()}}</td>
 		    <td class="tg-0lax">--</td>
 		  </tr>
@@ -135,17 +151,18 @@ contentTemplate = Template(
     <div class="count-table divtable">
     
 		<table class="tg">
+        <caption>Correct and Incorrect mapping statistics</caption>
 		  <tr>
 		    <th class="tg-c3ow" rowspan="2">Genome</th>
 		    <th class="tg-c3ow" colspan="2">Correct</th>
-		    <th class="tg-c3ow" colspan="4">UnCorrect</th>
+		    <th class="tg-c3ow" colspan="3">InCorrect</th>
 		  </tr>
 		  <tr>
 		    
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Correct Uniquely Mapped Reads">Unique</a></td>
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Correct Multi Mapped Reads">Multi</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Uncorrect Unique Mapped Reads. Reads mapped to the wrong contif">Unique</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Reads originated from one speices and mapped uniquely to another species">Unique Cross</a></td>
+		    <!-- <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Incorrect Unique Mapped Reads. Reads mapped to the wrong contig">Unique</a></td> -->
+		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Reads originated for source species, but uniquely mapped to other species">Unique Cross</a></td>
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads mapped to the source species and other species">Multi_org other</a></td>
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads that did not map to the source species but mapped to other species">Multi_onlyOther</a></td>
 		  </tr>
@@ -161,7 +178,7 @@ contentTemplate = Template(
 		     <th scope='row' class="{{rowHeadStyle}}">{{sp}}<br></th>
              <td class="{{rowStyle}}">{{counters.unique[spId][0]}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][0]}}</td>  
-             <td class="{{rowStyle}}">{{counters.unique[spId][1]}}</td>
+             <!-- <td class="{{rowStyle}}">{{counters.unique[spId][1]}}</td> -->
              <td class="{{rowStyle}}">{{counters.unique[spId][2]}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][1]}}</td> 
              <td class="{{rowStyle}}">{{counters.multiReads[spId][2]}}</td>
@@ -174,6 +191,8 @@ contentTemplate = Template(
     <br>
     <div class='cross-table divtable'>
     	<table class="tg">
+        <caption>Breakdown of Crossmapping by organisms</caption>
+
 		  <tr>
 		    <th class="tg-c3ow" rowspan="2"></th>
 		    <th class="tg-c3ow" colspan="{{counters.speciesIds|length}}">Unique Cross</th>
@@ -240,10 +259,10 @@ Highcharts.chart('barchartcontainer', {
         type: 'column'
     },
     title: {
-        text: 'Total/Details Cross-Mapped Reads per Species'
+        text: 'Details of crossmapped reads per species'
     },
     subtitle: {
-        text: 'Click the columns to view details cross mapped count'
+        text: 'Click the columns to view details cross mapped count. Click read lengths at the bottom to add/remove barplots'
     },
     xAxis: {
         type: 'category'
@@ -337,9 +356,9 @@ Highcharts.chart('container1', {
         text: 'Total Cross-Mapped Reads per read length'
     },
 
-    subtitle: {
-        text: '...'
-    },
+ //   subtitle: {
+ //       text: '...'
+ //   },
 	 xAxis: {
 	 	 title: {
             text: 'Read length'
@@ -441,7 +460,98 @@ Highcharts.chart('container1', {
 
 });
 ''')
+
+barchart2DivtableTemplate = Template('''
+<table>
+  
+
+
+{% for readLen,count_pLays in counterRes.items()  %}
+<tr>
+    {% for lay,counters in count_pLays.items()  %}
+    <td> <div id="{{lay}}_{{readLen}}" class="divchart"> </div> </td>
+    {%endfor%}
+<tr>
+{%endfor%}
+</table>                     
+                                    ''')
+   
+barchart2Template = Template('''
+  
+{% for readLen,count_pLays in counterRes.items()  %}
+    {% for lay,counters in count_pLays.items()  %}
+Highcharts.chart('{{lay}}_{{readLen}}', {
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Total Cross-Mapped Reads for Read length {{readLen}} {{lay}}'
+    },
+    xAxis: {
+        categories: [ {% for sp,id in counters.speciesIds.items() %} '{{sp}}',  {%endfor%} ]
+    },
+    yAxis: {
+        min: 0,
+        title: {
+            text: '#Wrong Mapped Reads'
+        },
+        stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+            }
+        }
+    },
+    legend: {
+        align: 'right',
+        x: -30,
+        verticalAlign: 'top',
+        y: 25,
+        floating: true,
+        backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+        borderColor: '#CCC',
+        borderWidth: 1,
+        shadow: false
+    },
+    tooltip: {
+        headerFormat: '<b>{point.x}</b><br/>',
+        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+    },
+    plotOptions: {
+        column: {
+            stacking: 'normal',
+            dataLabels: {
+                enabled: true,
+                color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white'
+            }
+        }
+    },
+    series: [
+    {% for sp,id in counters.speciesIds.items() %} 
+    { 
+     name: '{{sp}}',
+     data : [
+         {% for tar_sp in counters.speciesIds %}
+         {{counters.getPerSpCrossMapped(sp,tar_sp)}} ,
+         {%endfor%}
+         ]
+    },
+    {%endfor%} 
+    ]
     
+    
+});
+    
+    
+    
+    
+    {%endfor%}
+
+{%endfor%}                     
+                                    ''')
+
+ 
 reportTemplete = Template('''
 <!doctype html>
 <html>
@@ -463,9 +573,11 @@ reportTemplete = Template('''
 
     <div class="total-summary " style="width:100%;">
 		<div id="container1" style="width:90%; margin-left:5%;"></div>
-		</div> 
 
-		<div id="barchartcontainer" style="width:90%; margin-left:5%;"></div>
+		<div id="barchartcontainer" style="width:90%; margin-left:5%;">
+        {% if not args.groupBarChart %}
+        {% include barchart2DivtableTemplate %}
+        {%endif%}
 		</div>
 
    </div>
@@ -476,7 +588,12 @@ $(document).ready(function(){
     
     $('[data-toggle="tooltip"]').tooltip();   
     {% include lineChartTemplate %}
+    {% if args.groupBarChart %}
     {% include barGroupChartTemplate %}
+    {% else %}
+        {% include barchart2Template %}
+
+    {% endif %}
 });
 </script>
 
@@ -495,6 +612,8 @@ def createHTMLReport(resCounters,args):
             lineChartTemplate = lineChartTemplate,
             seriesTemplate = seriesTemplate ,
             drilldownTemplate = drilldownTemplate ,
+            barchart2DivtableTemplate = barchart2DivtableTemplate,
+            barchart2Template =barchart2Template ,
             counterRes = resCounters,
             args = args)
     

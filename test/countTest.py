@@ -31,7 +31,7 @@ testCases = [
         "crossmap.py DNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -N 1000 4000 -o testcase2DNA -rlen 25,50", ## 
         "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase2/CDUBL.gff -N 1000 4000 -o testcase2RNA -rlen 25,50", ## 
         "crossmap.py RNA -rlay both -g ./testFiles/testcase2/C_alb_A.fa ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase2/C_alb_A.gff ./testFiles/testcase2/CDUBL.gff -C 2 2  -o /data/bio/projects/simulation/test/testcase3RNA -rlen 25,50", ## 
-        "crossmap.py DNA -rlay both -g ./testFiles/testcase3/C_alb_A_chr1.fasta ./testFiles/testcase3/CPAR_chr1.fasta ./testFiles/testcase3/dubl.fasta  -C 2 2 2 -o /data/bio/projects/simulation/test/testcase4DNA -rlen 25,50,100,125", ## 
+        "crossmap.py DNA -rlay both -g ./testFiles/testcase3/C_alb_A_chr1.fasta ./testFiles/testcase3/CPAR_chr1.fasta ./testFiles/testcase3/dubl.fasta  -C 2 2 2 -o /data/bio/projects/simulation/test/testcase4DNA -rlen 50,100,125", ## 
 
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
@@ -98,9 +98,9 @@ testSimulation(args)
 testMapping(args)
 res = testCountingStep(args)
 #%%
-#importlib.reload(crossmap)
+importlib.reload(crossmap)
 
-#crossmap.reporting.createHTMLReport(res,args)
+crossmap.reporting.createHTMLReport(res,args)
 ## write result
 
 #%%
