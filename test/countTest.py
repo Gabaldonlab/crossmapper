@@ -36,7 +36,7 @@ testCases = [
         "crossmap.py DNA -rlay both -g ./testFiles/testcase4/C_alb_A_chr1.fasta ./testFiles/testcase4/CPAR_chr1.fasta ./testFiles/testcase4/dubl.fasta  -N 100000 100000 100000 -o /data/bio/projects/simulation/test/testcase6DNA -rlen 50,100,125", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -N 1000000 1000000 1000000 -o /data/bio/projects/simulation/test/testcase7DNA -rlen 50,100,125", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -N 3000000 1000000 500000  -o /data/bio/projects/simulation/test/testcase8DNA -rlen 50,125", ## 
-        "crossmap.py DNA  -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -C 3 1 1  -o /data/bio/projects/simulation/test/testcase9DNA -rlen 125", ## 
+        "crossmap.py DNA  -gb -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -C 3 1 1  -o /data/bio/projects/simulation/test/testcase9DNA -rlen 125", ## 
 
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
@@ -101,15 +101,13 @@ def testCountingStep(parsedArgs):
 args = testCreateArgumentParser()
 testSimulation(args)
 testMapping(args)
-args.graphPercent = True
-args.groupBarChart = True
 res = testCountingStep(args)
 #%%
-importlib.reload(crossmap)
-args = testCreateArgumentParser()
+#importlib.reload(crossmap)
+#args = testCreateArgumentParser()
 #res = testCountingStep(args)
 # args.groupBarChart = False
-crossmap.reporting.createHTMLReport(res,args)
+#crossmap.reporting.createHTMLReport(res,args)
 ## write result
 
 #%%
