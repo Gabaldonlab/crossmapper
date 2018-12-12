@@ -119,6 +119,15 @@ def createArgumentParser():
     shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str,
                        help = "Specify the output directory for crossmap output files.")
 
+
+    ## TODO ::
+    ## add args.graphPercent option
+    ## groupBarChart
+    ## add args.groupBarChart option
+    shardParser.add_argument("-gb", "--groupBarChart",  action = "store_true", default = False,
+                       help = "Use a grouped bar chart in the output report instead of individual bar chart.")
+
+
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
     dnaSharedGroup = parser_DNA.add_argument_group("Mapper Arguments","Arguments specific to BWA Mapper")

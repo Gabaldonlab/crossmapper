@@ -11,6 +11,7 @@ from crossmap.helpers import getLogger
 #######################################    report Templates
 headTemplate = Template('''
 <meta charset="utf-8"/>
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -19,7 +20,7 @@ headTemplate = Template('''
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/drilldown.js"></script>
-
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;}
 .tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
@@ -42,7 +43,7 @@ headTemplate = Template('''
     cursor: pointer;
 }
 .count-table .tg-hmp3{
-	width: 120px;
+	width: 150px;
 }
 .tg-baqh-even{
 background-color: #D2E4FC !important;
@@ -64,14 +65,15 @@ margin-left: 15%;
 /*padding-top: 10px;
 */background-color: #ffffff;
 }
-#content-body {
+.content-body {
 padding: 10px;
 }
 #header {
 	text-align: center;
-	padding-top: 10px;
+  /*margin-top: 10px;*/
+	padding-top: 20px;
 	background-color: #f1f1f1;
-    font-size: 20px;
+  font-size: 20px;
 }
 
 
@@ -99,7 +101,16 @@ body {
 
 caption {
     display: table-caption;
-    text-align: center;
+    text-align: left;
+}
+/* The navigation bar */
+#navbard {
+  overflow: hidden;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%;
+  font-size: 15px;
+
 }
 </style>
 ''')
@@ -110,7 +121,7 @@ contentTemplate = Template(
 {% for readLen,count_pLays in counterRes.items()  %}
   {% for lay,counters in count_pLays.items()  %}
     <div id='read_{{readLen}}_{{lay}}' class='read_section'>
-    <span>Mapping summary for read length {{readLen}} and ({{lay}}) layout</span>
+    <span>Mapping summary for read length {{readLen}} and {{lay}} layout</span>
 	<hr class="hrleft">
     
 	<div class="summary-table divtable">
@@ -163,8 +174,8 @@ contentTemplate = Template(
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Correct Multi Mapped Reads">Multi</a></td>
 		    <!-- <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Incorrect Unique Mapped Reads. Reads mapped to the wrong contig">Unique</a></td> -->
 		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Reads originated for source species, but uniquely mapped to other species">Unique Cross</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads mapped to the source species and other species">Multi_org other</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads that did not map to the source species but mapped to other species">Multi_onlyOther</a></td>
+		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads mapped to the source species and other species">Multi Source/Other</a></td>
+		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads that did not map to the source species but mapped to other species">Multi Only/Other</a></td>
 		  </tr>
           
           {% for sp,spId in counters.speciesIds.items() %}
@@ -176,12 +187,21 @@ contentTemplate = Template(
            {% endif %}
            <tr>
 		     <th scope='row' class="{{rowHeadStyle}}">{{sp}}<br></th>
+             {%if showPercent%}
+             <td class="{{rowStyle}}">{{ ( 100*(counters.unique[spId][0]/counters.getTotalReads()))|round(2)}}%</td>
+             <td class="{{rowStyle}}">{{( 100*(counters.multiReads[spId][0]/counters.getTotalReads()))|round(2)}}%</td>  
+             <!-- <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][1]/counters.getTotalReads()))|round(2)}}%</td> -->
+             <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][2]/counters.getTotalReads() ))|round(2)}}%</td>
+             <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][1]/counters.getTotalReads()))|round(2)}}%</td> 
+             <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][2]/counters.getTotalReads()))|round(2)}}%</td>
+             {%else%}
              <td class="{{rowStyle}}">{{counters.unique[spId][0]}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][0]}}</td>  
              <!-- <td class="{{rowStyle}}">{{counters.unique[spId][1]}}</td> -->
              <td class="{{rowStyle}}">{{counters.unique[spId][2]}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][1]}}</td> 
              <td class="{{rowStyle}}">{{counters.multiReads[spId][2]}}</td>
+             {%endif%}
             </tr>
            {% endfor %}
          </table>
@@ -222,21 +242,45 @@ contentTemplate = Template(
                      {% if loop.index ==  1 %}
                          {% set clmStyle= 'clm-first' %}
                      {% endif %}
-                  <td class="{{rowStyle}} {{clmStyle}}">{{counters.getPerSpCrossMapped(sp,tar_sp,'Unique')}}</td>
+                  <td class="{{rowStyle}} {{clmStyle}}">
+                  {%if sp==tar_sp%}
+                  -
+                  {%else%}
+                  <a data-toggle="tooltip" data-html="true"  title="{% if showPercent  %}{{counters.getPerSpCrossMapped(sp,tar_sp,'Unique')}} #Total Mapped Reads{%else%}{{counters.getPerSpCrossMapped(sp,tar_sp,'Unique',percent = True)}}% of Total Mapped Reads{%endif%}.<br> {{counters.getPerSpCrossMapped(sp,tar_sp,'Unique',percent = True , relative = True)}}% of Total Spp. Mapped Reads. ">
+                  {{counters.getPerSpCrossMapped(sp,tar_sp,'Unique' , percent = showPercent )}}{% if showPercent  %}%{%endif%}
+                  </a>
+                  {%endif%}
+                  </td>
                  {%endfor%}
                  {% for tar_sp in counters.speciesIds %}
                      {% set clmStyle= 'clm' %}
                      {% if loop.index ==  1 %}
                          {% set clmStyle= 'clm-first' %}
                      {% endif %}
-                  <td class="{{rowStyle}} {{clmStyle}}">{{counters.getPerSpCrossMapped(sp,tar_sp,'Multi')}}</td>
+                  <td class="{{rowStyle}} {{clmStyle}}">
+                  {%if sp==tar_sp%}
+                  -
+                  {%else%}
+                  <a data-toggle="tooltip" data-html="true"  title="{% if showPercent  %}{{counters.getPerSpCrossMapped(sp,tar_sp,'Multi')}} #Total Mapped Reads{%else%}{{counters.getPerSpCrossMapped(sp,tar_sp,'Multi',percent = True)}}% of Total Mapped Reads{%endif%}.<br> {{counters.getPerSpCrossMapped(sp,tar_sp,'Multi',percent = True , relative = True)}}% of Total Spp. Mapped Reads. ">
+                  {{counters.getPerSpCrossMapped(sp,tar_sp,'Multi' , percent = showPercent )}}{% if showPercent  %}%{%endif%}
+                  </a>
+                  {%endif%}
+                  </td>
                  {%endfor%}
                  {% for tar_sp in counters.speciesIds %}
                      {% set clmStyle= 'clm' %}
                      {% if loop.index == 1 %}
                          {% set clmStyle= 'clm-first' %}
                      {% endif %}
-                  <td class="{{rowStyle}} {{clmStyle}}">{{counters.getPerSpCrossMapped(sp,tar_sp)}}</td>
+                  <td class="{{rowStyle}} {{clmStyle}}">
+                  {%if sp==tar_sp%}
+                  -
+                  {%else%}
+                       <a data-toggle="tooltip" data-html="true"  title="{% if showPercent  %}{{counters.getPerSpCrossMapped(sp,tar_sp)}} #Total Mapped Reads{%else%}{{counters.getPerSpCrossMapped(sp,tar_sp,percent = True)}}% of Total Mapped Reads{%endif%}.<br> {{counters.getPerSpCrossMapped(sp,tar_sp,percent = True , relative = True)}}% of Total Spp. Mapped Reads. ">
+                       {{counters.getPerSpCrossMapped(sp,tar_sp , percent = showPercent )}}{% if showPercent  %}%{%endif%}
+                       </a>
+                 {%endif%}
+                 </td>
                  {%endfor%}
             </tr>
            {% endfor %}
@@ -262,14 +306,14 @@ Highcharts.chart('barchartcontainer', {
         text: 'Details of crossmapped reads per species'
     },
     subtitle: {
-        text: 'Click the columns to view details cross mapped count. Click read lengths at the bottom to add/remove barplots'
+        text: 'Click the columns to view details of cross mapped count. Click read lengths at the bottom to add/remove barplots'
     },
     xAxis: {
         type: 'category'
     },
     yAxis: {
         title: {
-            text: '#Wrong Mapped Reads'
+            text: '{% if showPercent  %}% of {%else%}#{%endif%} Wrong Mapped Reads'
         }
 
     },
@@ -281,14 +325,14 @@ Highcharts.chart('barchartcontainer', {
             borderWidth: 0,
             dataLabels: {
                 enabled: true,
-                format: '{point.y:.1f}'
+                format: '{point.y:.1f}{% if showPercent %}%{%endif%}'
             }
         }
     },
 
     tooltip: {
         headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}</b> Total Cross-Mapped Reads<br/>'
+        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.3f}{% if showPercent %}%{%endif%}    </b> Total Cross-Mapped Reads<br/>'
     },
     {% include seriesTemplate %},
     "drilldown": { {% include drilldownTemplate %}
@@ -309,7 +353,7 @@ seriesTemplate = Template(
                         {% for sp,id in counters.speciesIds.items() %}
                         {
                             "name" : "{{sp}}",
-                            "y" : {{counters.getTotalCrossMapped(readLen,lay,sp)}},
+                            "y" : {{counters.getTotalCrossMapped(readLen,lay,sp , percent = showPercent)}},
                             "drilldown" : "{{sp}}_{{readLen}}_{{lay}}"
                         },
                         {% endfor %}
@@ -321,6 +365,8 @@ seriesTemplate = Template(
 '''
         )
     
+    
+### TODO :: try to replace "name" : "{{sp}}"  with "name" : {{readLen}}_{{lay}}
 drilldownTemplate = Template(
 '''
 "series" : [
@@ -328,11 +374,11 @@ drilldownTemplate = Template(
         {% for lay,counters in count_pLays.items()  %}
             {% for sp,id in counters.speciesIds.items() %}
             {                    
-                "name" : "{{sp}}",
+                "name" : "{{sp}}", 
                 "id" : "{{sp}}_{{readLen}}_{{lay}}",
                 "data" : 
                     [
-                        {%for spVPair in counters.getSpeciesCorssMapped(sp)%}
+                        {%for spVPair in counters.getSpeciesCorssMapped(sp, percent = showPercent)%}
                         [
                             "{{spVPair[0]}}",
                             {{spVPair[1]}}
@@ -371,7 +417,7 @@ Highcharts.chart('container1', {
     },
     yAxis: {
         title: {
-            text: 'Total reads'
+            text: '{% if showPercent  %}% of {%else%}#{%endif%}Total reads'
         }
     },
     legend: {
@@ -396,7 +442,7 @@ Highcharts.chart('container1', {
         data: 
             [
             {% for readLen,count_pLays in counterRes.items()  %}
-                {{count_pLays['SE'].getReadLenSeries('Total')}},
+                {{count_pLays['SE'].getReadLenSeries('Total',percent = showPercent)}},
             {% endfor %}
             ]
     }, {
@@ -404,7 +450,7 @@ Highcharts.chart('container1', {
         data:
             [
             {% for readLen,count_pLays in counterRes.items()  %}
-                {{count_pLays['SE'].getReadLenSeries('Unique')}},
+                {{count_pLays['SE'].getReadLenSeries('Unique',percent = showPercent)}},
             {% endfor %}
             ]
     }, {
@@ -412,7 +458,7 @@ Highcharts.chart('container1', {
         data: 
             [
             {% for readLen,count_pLays in counterRes.items()  %}
-                {{count_pLays['SE'].getReadLenSeries('Multi')}},
+                {{count_pLays['SE'].getReadLenSeries('Multi',percent = showPercent)}},
             
             {% endfor %}
             ]
@@ -421,7 +467,7 @@ Highcharts.chart('container1', {
        data: 
            [
             {% for readLen,count_pLays in counterRes.items()  %}
-                {{count_pLays['PE'].getReadLenSeries('Total')}},
+                {{count_pLays['PE'].getReadLenSeries('Total',percent = showPercent)}},
             {% endfor %}
             ]
     }, {
@@ -429,7 +475,7 @@ Highcharts.chart('container1', {
         data:
             [
             {% for readLen,count_pLays in counterRes.items()  %}
-                {{count_pLays['PE'].getReadLenSeries('Unique')}},
+                {{count_pLays['PE'].getReadLenSeries('Unique',percent = showPercent)}},
             {% endfor %}
             ]
     },{
@@ -438,7 +484,7 @@ Highcharts.chart('container1', {
             [
             {% for readLen,count_pLays in counterRes.items()  %}
             
-                {{count_pLays['PE'].getReadLenSeries('Multi')}},
+                {{count_pLays['PE'].getReadLenSeries('Multi',percent = showPercent)}},
             {% endfor %}
             ]
     }],
@@ -493,7 +539,7 @@ Highcharts.chart('{{lay}}_{{readLen}}', {
     yAxis: {
         min: 0,
         title: {
-            text: '#Wrong Mapped Reads'
+            text: '{% if showPercent  %}% of {%else%}#{%endif%}Wrong Mapped Reads'
         },
         stackLabels: {
             enabled: true,
@@ -516,7 +562,7 @@ Highcharts.chart('{{lay}}_{{readLen}}', {
     },
     tooltip: {
         headerFormat: '<b>{point.x}</b><br/>',
-        pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+        pointFormat: '{series.name}: {point.y}{% if showPercent  %}%{%endif%}<br/>Total: {point.stackTotal}{% if showPercent  %}%{%endif%}'
     },
     plotOptions: {
         column: {
@@ -533,7 +579,7 @@ Highcharts.chart('{{lay}}_{{readLen}}', {
      name: '{{sp}}',
      data : [
          {% for tar_sp in counters.speciesIds %}
-         {{counters.getPerSpCrossMapped(sp,tar_sp)}} ,
+         {{counters.getPerSpCrossMapped(tar_sp,sp,percent = showPercent)}} ,
          {%endfor%}
          ]
     },
@@ -559,14 +605,24 @@ reportTemplete = Template('''
     {% include headTemplate %}
 </head>
 <body>
-
+<div id="navbard">
+    <div style="float: right;color: white;"> Switch to 
+    <input id="toggle-percent" type="checkbox" data-toggle="toggle" data-on="Count" data-off="Percent " data-onstyle="warning" data-offstyle="info" size='small'>
+    </div>
+</div>
 <div id='content'>
 	<div id='header'>
 		Crossmapper Summary Report
 		<hr style="width: 100%">
 	</div>
     
-    <div  id='content-body'>
+    <div   id="content-count" class='content-body'>
+    {% set showPercent= False %}
+    {% include contentTemplate %}
+    </div>
+
+    <div   id="content-percent" class='content-body'>
+    {% set showPercent= True %}
     {% include contentTemplate %}
     </div>
 
@@ -587,13 +643,43 @@ reportTemplete = Template('''
 $(document).ready(function(){
     
     $('[data-toggle="tooltip"]').tooltip();   
-    {% include lineChartTemplate %}
-    {% if args.groupBarChart %}
-    {% include barGroupChartTemplate %}
-    {% else %}
-        {% include barchart2Template %}
 
-    {% endif %}
+     $('#toggle-percent').change(function() {
+      
+      if ( $(this).prop('checked')) {
+        $('#content-count').hide();
+        $('#content-percent').show();
+        
+         {% set showPercent= True %}
+        {% include lineChartTemplate %}
+        {% if args.groupBarChart  %}
+        {% include barGroupChartTemplate %}
+        {% else %}
+            {% include barchart2Template %}
+        {% endif %}
+        
+      }
+      else{
+        $('#content-count').show();
+        $('#content-percent').hide();
+        
+        {% set showPercent= False %}
+        {% include lineChartTemplate %}
+        {% if args.groupBarChart  %}
+        {% include barGroupChartTemplate %}
+        {% else %}
+            {% include barchart2Template %}
+        {% endif %}
+      }
+    
+
+    
+    
+    })
+    
+    $('#toggle-percent').prop('checked',false).change()
+
+
 });
 </script>
 
@@ -617,7 +703,7 @@ def createHTMLReport(resCounters,args):
             counterRes = resCounters,
             args = args)
     
-    with open(reportFilePath, "w") as fh:
+    with open(reportFilePath, "w+") as fh:
         fh.write(reportHTML)
     
     return

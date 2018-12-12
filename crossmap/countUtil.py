@@ -231,10 +231,12 @@ class Counter():
         self.crossSpTotal = [[0] * nSpecies for i in range(nSpecies)]
         self.isPercent = False    
         self.totalReadsCount = -1
+        self.totalMappedReadsCount = -1
         
         
-        
-    def getPerSpCrossMapped(self,source,target,countType = 'Total'):
+    def getPerSpCrossMapped(self,source,target,countType = 'Total' , percent=False , relative = False):
+        if source == target :
+            return 0
         sourceMatrix = self.crossSpTotal
         if countType == 'Unique':
             sourceMatrix = self.crossSpUnique
@@ -242,19 +244,31 @@ class Counter():
             sourceMatrix = self.crossSpMulti
         sourceSpId = self.speciesIds[source]
         tagetSpId = self.speciesIds[target]
-        return sourceMatrix[sourceSpId][tagetSpId]
         
-    def getTotalCrossMapped(self, readlen, mLay , spName ):
+        resCount = sourceMatrix[sourceSpId][tagetSpId]
+        if percent :
+            totalDiv = self.getTotalMappedReads()
+            if relative :
+                totalDiv = self.total[sourceSpId]
+            resCount =  round(100*resCount/totalDiv,3)
+        return resCount
+        
+    def getTotalCrossMapped(self, readlen, mLay , spName, percent=False ):
         spID = self.speciesIds[spName]
         totalSum = sum(self.crossSpTotal[spID]) - self.crossSpTotal[spID][spID]
+        if percent :
+            totalSum =  round(100*totalSum/self.getTotalMappedReads(),3)
         return totalSum
     
-    def getSpeciesCorssMapped(self, spName ):
+    def getSpeciesCorssMapped(self, spName , percent=False):
         serDic = []
         spID = self.speciesIds[spName]
         for o_sp,o_spId in self.speciesIds.items():
             if  o_sp !=  spName:
-                serDic.append((o_sp,self.crossSpTotal[spID][o_spId]))
+                resCount = self.crossSpTotal[spID][o_spId]
+                if percent :
+                    resCount =  round(100*resCount/self.getTotalMappedReads(),3)
+                serDic.append((o_sp,resCount))
         return serDic
     
     def getTotalUniqueMapped(self,percent=False):
@@ -279,28 +293,30 @@ class Counter():
             return  round(100*sum(self.unmapped)/self.getTotalReads(),2)
         return sum(self.unmapped)
     def getTotalReads (self):
-        self.totalReadsCount = self.getTotalUniqueMapped() + self.getTotalMultiMapped()+self.getTotalUnmapped()
+        if self.totalReadsCount == -1 :
+            self.totalReadsCount = self.getTotalUniqueMapped() + self.getTotalMultiMapped()+self.getTotalUnmapped()
         return self.totalReadsCount
-    
-    def getReadLenSeries(self, countType = 'Total'):
+    def getTotalMappedReads (self):
+        if self.totalMappedReadsCount == -1 :
+            self.totalMappedReadsCount = self.getTotalUniqueMapped() + self.getTotalMultiMapped()
+        return self.totalMappedReadsCount
+    def getReadLenSeries(self, countType = 'Total' , percent=False):
         
         if countType == 'Total':
             total = 0
             for iRow in range(0,len(self.crossSpTotal)):
-                total += sum(self.crossSpTotal[iRow])  - self.crossSpTotal[iRow][iRow]
-            return total
-            
-        if countType == 'Unique':
+                total += sum(self.crossSpTotal[iRow])  - self.crossSpTotal[iRow][iRow]            
+        elif countType == 'Unique':
             total = 0
             for iRow in range(0,len(self.crossSpUnique)):
-                total += sum(self.crossSpUnique[iRow]) - self.crossSpUnique[iRow][iRow]
-            return total            
-        if countType == 'Multi':
+                total += sum(self.crossSpUnique[iRow]) - self.crossSpUnique[iRow][iRow]            
+        elif countType == 'Multi':
             total = 0
             for iRow in range(0,len(self.crossSpMulti)):
                 total += sum(self.crossSpMulti[iRow]) - self.crossSpMulti[iRow][iRow]
-            return total
-        return 0
+        if percent :
+            total = round(100*total/self.getTotalMappedReads(),2)
+        return total
     
     def summary(self , outFile = sys.stdout):
         
@@ -482,7 +498,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
             nhTagValue = record.get_tag("NH")
         if nhTagValue == 1 :
             allCounter.unique[orgReadSpId][counterIndex]+=1
-            if orgReadSpId !=mappingSpId: 
+            if orgReadSpId != mappingSpId: 
                 allCounter.crossSpUnique[orgReadSpId][mappingSpId]+=1
                 allCounter.crossSpTotal[orgReadSpId][mappingSpId]+=1
             continue
