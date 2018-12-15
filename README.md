@@ -55,7 +55,7 @@ usage: crossmap.py RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
                        [-s int]
                        (-N int [int ...] | -C float/int [float/int ...])
                        [-rlay {SE,PE,both}] [-rlen int] [-r float] [-R float]
-                       [-X float] [-S int] [-AMB float] [-hapl] [-o OUT_DIR]
+                       [-X float] [-S int] [-AMB float] [-hapl] [-o PATH]
                        [-gb] [-max_mismatch_per_len float] [-max_mismatch int]
                        -a gtf [gtf ...] [-star_tmp PATH]
 
@@ -73,7 +73,7 @@ optional arguments:
   -s int, --s_dev int   Standard deviation of outer distance. (default: 30)
   -N int [int ...], --N_read int [int ...]
                         The number of reads/read pairs to generate. This
-                        paremeter can not be used alongside with -C (default:
+                        parameter can not be used alongside with -C (default:
                         None)
   -C float/int [float/int ...], --coverage float/int [float/int ...]
                         Generate the number of reads that reaches the
@@ -109,7 +109,7 @@ optional arguments:
   -hapl, --haplotype_mode
                         Haplotype mode. If specified, the haploid mutations
                         will be simulated instead of diploid. (default: False)
-  -o OUT_DIR, --out_dir OUT_DIR
+  -o PATH, --out_dir PATH
                         Specify the output directory for crossmap output
                         files. (default: crossmap_out)
   -gb, --groupBarChart  Use a grouped bar chart in the output report instead
