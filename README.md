@@ -4,7 +4,7 @@
 
 Crossmapper is an automated bioinformatics pipeline for asessing the rate of read crossmapping when two or more organisms are sequenced as one sample. The software can be used for planning such kind of experimental setups as dual- or multiple RNA-seq (mainly for host-pathogen, symbiont and cohabitant interaction studies), metagenomics studies, sequencing and analysis of hybrid species, allele-specific expression studies, and can be extended for the use in large sequencing facilities for resource optimization.
 
-Based on in-silico read simulation and back-mapping to the original genomes of sequenced organisms, Crossmapper allows the users to assess the rate of incorrect unique and multimapped reads to non-corresponding genomes and thus helps to optimize the sequencing parameters such as the read lenght, paired/single-end, mapping parameters, etc., prior to performing the actual sequencing experiment.
+Based on in-silico read simulation and back-mapping to the original genomes of sequenced organisms, Crossmapper allows the users to assess the rate of incorrect unique and multimapped reads to non-corresponding genomes and thus helps to optimize the sequencing parameters such as the read lenght, paired/single-end, mapping parameters, etc., prior of performing the actual sequencing experiment.
 
 ### Developers
 
@@ -14,7 +14,7 @@ Hrant Hovhannisyan (Toni Gabaldón group, Centre for Genomic Regulation, Barcelo
 
 Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ah.hafez@gmail.com ). 
 
-Both are a part of [EU funded Innovative Training Network OPATHY - From Omics to Patient: Improving Diagnostics of Pathogenic Yeasts](https://www.opathy.eu/).
+Both are part of [EU funded Innovative Training Network OPATHY - From Omics to Patient: Improving Diagnostics of Pathogenic Yeasts](https://www.opathy.eu/).
 
 ### Licensing
 Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
@@ -48,7 +48,7 @@ SimulationType:
     DNA          Simulate DNA data
     RNA          Simulate RNA data
 ```
-Thus, Crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
+Crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
 ```
 usage: crossmap.py RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
