@@ -38,7 +38,10 @@ testCases = [
         "crossmap.py DNA -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -N 3000000 1000000 500000  -o /data/bio/projects/simulation/test/testcase8DNA -rlen 50,125", ## 
         "crossmap.py DNA  -gb -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -C 3 1 1  -o /data/bio/projects/simulation/test/testcase9DNA -rlen 125", ## 
         "crossmap.py RNA -r 0.01 -max_mismatch 5 -gb -rlay both -g ./testFiles/testcase3/C_alb_A.fasta ./testFiles/testcase3/C_alb_B.fasta -a ./testFiles/testcase3/C_alb_A.gff ./testFiles/testcase3/C_alb_B.gff -N 1000000 1000000 -o /home/ghovhannisyan/users/tg/hhovhannisyan/crossmaping_tool/master_script/test/test_CALB_A_vs_B_mism_10 -rlen 50,75,100,125,150 -star_tmp /home/ghovhannisyan/TMP/TMP3 -t 10",
-        "crossmap.py DNA -r 0.01 -gb -rlay both -g ./testFiles/test_homo_mus_ceano_dros/homo_rename.fasta ./testFiles/test_homo_mus_ceano_dros/mus_rename.fasta ./testFiles/test_homo_mus_ceano_dros/dros_rename.fasta ./testFiles/test_homo_mus_ceano_dros/caeno_rename.fasta -N 3000000 3000000 3000000 3000000 -o /home/ghovhannisyan/users/tg/hhovhannisyan/crossmaping_tool/master_script/test/4_species -rlen 50,75,100,125,150 -t 8"
+        "crossmap.py DNA -r 0.01 -gb -rlay both -g ./testFiles/test_homo_mus_ceano_dros/homo_rename.fasta ./testFiles/test_homo_mus_ceano_dros/mus_rename.fasta ./testFiles/test_homo_mus_ceano_dros/dros_rename.fasta ./testFiles/test_homo_mus_ceano_dros/caeno_rename.fasta -N 3000000 3000000 3000000 3000000 -o /home/ghovhannisyan/users/tg/hhovhannisyan/crossmaping_tool/master_script/test/4_species -rlen 50,75,100,125,150 -t 8",
+        "crossmap.py DNA -r 0.01 -gb -rlay SE -g /data/bio/data/sim/testcase10/homo_.fasta /data/bio/data/sim/testcase10/mus_.fasta /data/bio/data/sim/testcase10/dros_.fasta /data/bio/data/sim/testcase10/caeno_.fasta -N 1000000 500000 500000 500000 -o /data/bio/projects/simulation/test/4_species -rlen 50 -t 8",
+        "crossmap.py RNA -r 0.01 -max_mismatch 5 -gb -rlay SE -g ./testFiles/testcase3/C_alb_A.fasta ./testFiles/testcase3/C_alb_B.fasta -a ./testFiles/testcase3/C_alb_A.gff ./testFiles/testcase3/C_alb_B.gff -N 1000000 1000000 -o /data/bio/projects/simulation/test/testcase3RNA -star_tmp /data/bio/projects/simulation/test/testcase3RNA/TMP_  -rlen 50 -t 10",
+
         #"crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -o mydir -rlen 50,100" ## fixed coverage -- ~ same size
 
         ]
@@ -57,7 +60,7 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(16)
+    sys.argv =  getArgv(18)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     crossmap.mapping.concatGeneomes(parsedArgs)
@@ -104,14 +107,21 @@ testSimulation(args)
 testMapping(args)
 res = testCountingStep(args)
 #%%
-#importlib.reload(crossmap)
+importlib.reload(crossmap)
 #args = testCreateArgumentParser()
 #res = testCountingStep(args)
 # args.groupBarChart = False
-#crossmap.reporting.createHTMLReport(res,args)
+crossmap.reporting.createHTMLReport(res,args)
 ## write result
 
+
+
+
 #%%
+importlib.reload(crossmap)
+res = testCountingStep(args)
+
+
 #exit(0)
 #import crossmap.crossmap
 #sys.argv =  getArgv(1)

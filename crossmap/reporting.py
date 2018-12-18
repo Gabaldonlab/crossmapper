@@ -85,7 +85,8 @@ padding: 10px;
 
 .divtable {
 	margin-left: 10px;
-	margin-top: 10px
+	margin-top: 10px;
+    overflow : auto;
 }
 
 body {
@@ -188,14 +189,14 @@ contentTemplate = Template(
            <tr>
 		     <th scope='row' class="{{rowHeadStyle}}">{{sp}}<br></th>
              {%if showPercent%}
-             <td class="{{rowStyle}}">{{ ( 100*(counters.unique[spId][0]/counters.getTotalReads()))|round(2)}}%</td>
+             <td class="{{rowStyle}}">{{ ( 100*((counters.unique[spId][1]+counters.unique[spId][0])/counters.getTotalReads()))|round(2)}}%</td>
              <td class="{{rowStyle}}">{{( 100*(counters.multiReads[spId][0]/counters.getTotalReads()))|round(2)}}%</td>  
              <!-- <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][1]/counters.getTotalReads()))|round(2)}}%</td> -->
              <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][2]/counters.getTotalReads() ))|round(2)}}%</td>
              <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][1]/counters.getTotalReads()))|round(2)}}%</td> 
              <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][2]/counters.getTotalReads()))|round(2)}}%</td>
              {%else%}
-             <td class="{{rowStyle}}">{{counters.unique[spId][0]}}</td>
+             <td class="{{rowStyle}}">{{(counters.unique[spId][0]+counters.unique[spId][1])}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][0]}}</td>  
              <!-- <td class="{{rowStyle}}">{{counters.unique[spId][1]}}</td> -->
              <td class="{{rowStyle}}">{{counters.unique[spId][2]}}</td>
@@ -437,7 +438,9 @@ Highcharts.chart('container1', {
         }
     },
 
-    series: [{
+    series: [
+    {%if not args.read_layout == 'PE' %}
+    {
         name: 'Total SE',
         data: 
             [
@@ -445,7 +448,8 @@ Highcharts.chart('container1', {
                 {{count_pLays['SE'].getReadLenSeries('Total',percent = showPercent)}},
             {% endfor %}
             ]
-    }, {
+    }, 
+    {
         name: 'Unique SE',
         data:
             [
@@ -453,7 +457,8 @@ Highcharts.chart('container1', {
                 {{count_pLays['SE'].getReadLenSeries('Unique',percent = showPercent)}},
             {% endfor %}
             ]
-    }, {
+    }, 
+    {
         name: 'Multi SE',
         data: 
             [
@@ -462,7 +467,10 @@ Highcharts.chart('container1', {
             
             {% endfor %}
             ]
-    }, {
+    },
+    {%endif%}
+    {%if not args.read_layout == 'SE' %}
+    {
         name: 'Total PE',
        data: 
            [
@@ -487,7 +495,9 @@ Highcharts.chart('container1', {
                 {{count_pLays['PE'].getReadLenSeries('Multi',percent = showPercent)}},
             {% endfor %}
             ]
-    }],
+    }
+        {%endif%}
+    ],
 
     responsive: {
         rules: [{

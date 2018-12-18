@@ -226,8 +226,11 @@ class Counter():
         self.mSecondary     = [[0] * 3 for i in range(nSpecies)]
         ## Counter is  [#readsMultiMaptoOnlyOneSp,#readsMultiMaptoBothSp, #readsMultiMaptoOneWrongSp]
         self.multiReads     = [[0] * 3 for i in range(nSpecies)]
+        
+        ## not cross read counter
         ## counter for the worng multi mapped with one sp. reads that map to the wrong contig
         self.worngMultiReadsPerSp  = [0]  * nSpecies
+        
         self.crossSpMulti = [[0] * nSpecies for i in range(nSpecies)]
         self.crossSpUnique = [[0] * nSpecies for i in range(nSpecies)]
         self.crossSpTotal = [[0] * nSpecies for i in range(nSpecies)]
@@ -486,8 +489,8 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         else:
             if orgReadSpId == mappingSpId :
                 ## correct Sp but wrong mapping
-                counterIndex = 0  ## map to the it org sp but map to the wrong contig
-                print("Yes")
+                counterIndex = 1  ## map to the it org sp but map to the wrong contig
+                # print("Yes")
             else:
                 counterIndex = 2 ## map to the wrong sp
         nhTagValue = 0
@@ -559,15 +562,21 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
                     allCounter.crossSpMulti[orgSp][mappedToSp]+=1
                     allCounter.crossSpTotal[orgSp][mappedToSp]+=1
         else:
-            spSet = set(multiReadsMappedTpSp[read])
-            if orgSp in spSet : ## readsMultiMaptoBothSp
-                allCounter.multiReads[orgSp][1]+=1
+            # print(classesSet)
+            
+            if not 2 in classesSet : ## it is not a wrong cross reads 
+                allCounter.multiReads[orgSp][0]+=1
+                allCounter.worngMultiReadsPerSp[orgSp]+=1
             else:
-                allCounter.multiReads[orgSp][2]+=1
-            for mappedToSp in set(multiReadsMappedTpSp[read]):
-                #if mappedToSp != orgSp :
-                allCounter.crossSpMulti[orgSp][mappedToSp]+=1
-                allCounter.crossSpTotal[orgSp][mappedToSp]+=1
+                spSet = set(multiReadsMappedTpSp[read])
+                if orgSp in spSet : ## readsMultiMaptoBothSp
+                    allCounter.multiReads[orgSp][1]+=1
+                else:
+                    allCounter.multiReads[orgSp][2]+=1
+                for mappedToSp in set(multiReadsMappedTpSp[read]):
+                    #if mappedToSp != orgSp :
+                    allCounter.crossSpMulti[orgSp][mappedToSp]+=1
+                    allCounter.crossSpTotal[orgSp][mappedToSp]+=1
     return allCounter,reads,
 #%%
     
