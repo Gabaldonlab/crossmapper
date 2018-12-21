@@ -10,9 +10,8 @@ import crossmap
 def concatGeneomes(parsedArgs):
     logger = getLogger()
     genome_list=[]
-    
-    for i in range(0,len(parsedArgs.genomes)):
-        genome_list.append(parsedArgs.genomes[i])    
+    for i in range(0,len(parsedArgs.chr_rename_fasta)):
+        genome_list.append(parsedArgs.chr_rename_fasta[i])    
     genome_concat = ' '.join(genome_list)
     
     parsedArgs.genomeConcatFasta = f"{parsedArgs.out_dir}/concat.fasta"
@@ -109,6 +108,12 @@ def starMapping(parsedArgs,reads,rlen,read_layout):
         os.makedirs(f"{star_dir}")
 
     logger.info("Starting STAR mapping.")
+    
+    if parsedArgs.bacterial_mode is True:
+        intron_len_max=1
+    else:
+        intron_len_max=0
+        
     cmd_star_mapping = "STAR " \
 f"--runThreadN {parsedArgs.threads} " \
 f"--genomeDir {parsedArgs.starIndex} " \
@@ -120,6 +125,7 @@ f"--outFileNamePrefix {star_dir}/concat_{rlen}_{read_layout}_ " \
 f"--outFilterMismatchNmax {parsedArgs.outFilterMismatchNmax} " \
 f"--outFilterMultimapNmax 10000 " \
 f"--outFilterMismatchNoverReadLmax {parsedArgs.outFilterMismatchNoverReadLmax} " \
+f"--alignIntronMax {intron_len_max} " \
 f"--outTmpDir {parsedArgs.star_temp_dir}"
 
     # print(cmd_star_mapping)

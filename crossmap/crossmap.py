@@ -8,7 +8,7 @@ import subprocess
 import math
 
 from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
-from crossmap.simulateReads import simulateData
+from crossmap.simulateReads import simulateData, renameChromosomes
 from crossmap.mapping import concatGeneomes
 from crossmap.mapping import mapping
 from crossmap.countUtil import getReadCounters
@@ -58,10 +58,13 @@ def createArgumentParser():
     
     requirdSharedArgument = shardParser.add_argument_group("Required Arguments")
 
-    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs="+", required=True,
+    requirdSharedArgument.add_argument("-g", "--genomes",type=str, nargs="+", required=True, metavar = "fasta",
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
-    	
+    
+    requirdSharedArgument.add_argument("-gn", "--genome_names", type=str, nargs="+", metavar = "name",
+                                      help="Specify names of the genomes. The names will appear in the report file." )
+      	
     shardParser.add_argument("-t", "--threads", type=int, default = 1, metavar = "int",
     	help = "Number of cores to be used for all multicore-supporting steps")
     	
@@ -80,7 +83,7 @@ def createArgumentParser():
     	
     group = shardParser.add_mutually_exclusive_group(required=True)
     group.add_argument("-N", "--N_read", type = int, nargs="+",metavar = "int", 
-        help = "The number of reads/read pairs to generate. This paremeter can not be used alongside with -C ")
+        help = "The number of reads/read pairs to generate. This parameter can not be used alongside with -C ")
     
     group.add_argument("-C", "--coverage", type = float, nargs="+",metavar="float/int",
         help = "Generate the number of reads that reaches the specified coverage. Coverage is calculated as:"
@@ -116,7 +119,7 @@ def createArgumentParser():
     	help = "Haplotype mode. If specified, the haploid mutations will be simulated instead of diploid.")
     	
     
-    shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str,
+    shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str, metavar = "PATH",
                        help = "Specify the output directory for crossmap output files.")
 
 
@@ -148,12 +151,16 @@ def createArgumentParser():
     rnaSharedGroup.add_argument("-max_mismatch_per_len", "--outFilterMismatchNoverReadLmax", type=float, default=0.04, metavar = "float",
                                 help = "From STAR manual: "
                                   +"alignment will be output only if its ratio of mismatches to *read* length is less than or equal to this value: for 2x100b, max number of mismatches is 0.04*200=8 for the paired read.")
-   
+    rnaSharedGroup.add_argument("-bact_mode", "--bacterial_mode", action = "store_true", default=False,
+                                help = "This option prohibits spliced alignments for STAR and it can be used for mapping bacterial data." )
+
+    
+    
     rnaSharedGroup.add_argument("-max_mismatch", "--outFilterMismatchNmax", type=int, default=10, metavar="int",
     	help = "From STAR manual: "
     	+ " alignment will be output only if it has no more mismatches than this value")
     
-    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs="+", required=True,
+    rnaSharedGroup.add_argument("-a", "--annotations",type=str, nargs="+", required=True,metavar = "gtf",
     	help="Specify the gtf/gff files. Enter the file names separated by whitespace. "
     	+ "NOTE: Keep the same order of listing as for genome files")
     
@@ -199,7 +206,7 @@ def parseArgument(argumentParser):
             for ic in range(1,len(parsedArgs.genomes)):
                 parsedArgs.coverage.append(parsedArgs.coverage[0])
         if len(parsedArgs.genomes) > len(parsedArgs.coverage):
-            sys.exit(f"Error: Provided Coverage (--coverage) options do not match the input genomes files. You should provide coverage for each input fasta file or just one converage for all of them.")
+            sys.exit(f"Error: Provided Coverage (--coverage) options do not match the input genomes files. You should provide coverage for each input fasta file or just one coverage for all of them.")
     elif parsedArgs.N_read is not None:
         if len(parsedArgs.N_read) == 1 :
             for ic in range(1,len(parsedArgs.genomes)):
@@ -207,27 +214,48 @@ def parseArgument(argumentParser):
         elif len(parsedArgs.genomes) > len(parsedArgs.N_read):
             sys.exit(f"Error: Provided  number of reads/read pairs to generate (--N_read) options do not match the input genomes files. You should provide one for each input fasta file or just one for all of them.")
        
-        
 
-        
+    ### for renaming chr names
+    parsedArgs.chr_rename_fasta=[]
+    for i in range(0,len(parsedArgs.genomes)):
+        fasta_chr_rename=getBaseName(parsedArgs.genomes[i])+"_rename"+".fasta"
+        parsedArgs.chr_rename_fasta.append(os.path.abspath(parsedArgs.out_dir)+"/"+fasta_chr_rename)
+    #print(parsedArgs.chr_rename_fasta)
+    
+    
+    ### for renaming chr names in gff
+    if parsedArgs.simulation_type == "RNA":
+        parsedArgs.chr_rename_gff=[]
+        for i in range(0,len(parsedArgs.annotations)):
+            if parsedArgs.annotations[i][-3:] == "gtf":
+                gff_chr_rename=getBaseName(parsedArgs.annotations[i])+"_rename"+".gtf"
+                parsedArgs.chr_rename_gff.append(os.path.abspath(parsedArgs.out_dir)+"/"+gff_chr_rename)
+            elif parsedArgs.annotations[i][-3:] == "gff":
+                gff_chr_rename=getBaseName(parsedArgs.annotations[i])+"_rename"+".gff"
+                parsedArgs.chr_rename_gff.append(os.path.abspath(parsedArgs.out_dir)+"/"+gff_chr_rename)
+            
+        #print(parsedArgs.chr_rename_gff)
+
+
+
     parsedArgs.fasta_names=[]
     if parsedArgs.simulation_type == "RNA":
-        for i in range(0,len(parsedArgs.genomes)):
-            transcriptome_name = getBaseName(parsedArgs.genomes[i]) + "_transcriptome%s"%(i+1) + ".fasta"
+        for i in range(0,len(parsedArgs.chr_rename_fasta)):
+            transcriptome_name = getBaseName(parsedArgs.chr_rename_fasta[i]) + "_transcriptome%s"%(i+1) + ".fasta"
 #            parsedArgs.fasta_names.append(os.path.abspath(transcriptome_name))
             parsedArgs.fasta_names.append(os.path.join(parsedArgs.out_dir,transcriptome_name))
 
         if len(parsedArgs.annotations)>0:
             for i in range(0,len(parsedArgs.annotations)):
                 if os.path.exists(parsedArgs.annotations[i]):
-                    if not os.path.getsize(parsedArgs.genomes[i]) > 0:
+                    if not os.path.getsize(parsedArgs.annotations[i]) > 0:
                         sys.exit(f"Error: {parsedArgs.annotations[i]} file is empty! Please provide a valid file.")
                 else:
                     sys.exit(f"Error: {parsedArgs.annotations[i]} file does not exist! Please provide a valid file.")
             
     else:
-        for i in range(0,len(parsedArgs.genomes)):
-            parsedArgs.fasta_names.append(os.path.abspath(parsedArgs.genomes[i]))
+        for i in range(0,len(parsedArgs.chr_rename_fasta)):
+            parsedArgs.fasta_names.append(os.path.abspath(parsedArgs.chr_rename_fasta[i]))
     #print(parsedArgs.fasta_names)
     
     
@@ -275,7 +303,12 @@ def parseArgument(argumentParser):
     parsedArgs.logFile = os.path.join(parsedArgs.out_dir, parsedArgs.logPrefix)
     parsedArgs.verbose = VerboseLevel.All
     
-    parsedArgs.speciesPrefix = None
+    
+    
+    if parsedArgs.genome_names is not None:
+        parsedArgs.speciesPrefix = parsedArgs.genome_names
+    else:
+        parsedArgs.speciesPrefix = None
     
     
     if parsedArgs.speciesPrefix == None :
@@ -284,7 +317,7 @@ def parseArgument(argumentParser):
         for i in range(0,len(parsedArgs.genomes)):
             genomePrefix = getBaseName(parsedArgs.genomes[i])
             parsedArgs.speciesPrefix.append(genomePrefix)
-
+    
     ## create specied Ids dict
     parsedArgs.speciesIds = {}
     for i in range(0,len(parsedArgs.speciesPrefix)) :
@@ -362,9 +395,12 @@ def crossmapMain():
     
     ## parse and check argument , also TODO :: may it would agood idea to prepare all parapmeters here if needed
     parsedArgs = parseArgument(parser)
+    
+    simulateData(parsedArgs)
+    
     concatGeneomes(parsedArgs)
 
-    simulateData(parsedArgs)
+    
     
     
     mapping(parsedArgs)

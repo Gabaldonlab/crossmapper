@@ -11,9 +11,38 @@ import random
 
 
 
-
-
-
+def renameChromosomes(parsedArgs):
+    for i in range(0,len(parsedArgs.genomes)):
+        with open(f"{parsedArgs.genomes[i]}", "r+") as original_fasta, open(f"{parsedArgs.chr_rename_fasta[i]}", "w") as renamed_fasta:
+            for line in original_fasta.readlines():
+                if line.startswith(">"):
+                    line=line.rstrip()
+                    line=line.replace(">", f">{parsedArgs.speciesPrefix[i]}_")
+                    print(line)
+                    renamed_fasta.write(f"{line}\n")
+                else:
+                    line = line.rstrip()
+                    renamed_fasta.write(f"{line}\n")
+    
+         
+          
+        if parsedArgs.simulation_type == "RNA": 
+            with open(f"{parsedArgs.annotations[i]}","r+") as original_gff, open(f"{parsedArgs.chr_rename_gff[i]}", "w") as renamed_gff:
+                for line in original_gff.readlines():
+                    if not line.startswith("#"):
+                        line=line.rstrip().split("\t")
+                        line[0] = parsedArgs.speciesPrefix[i] + "_" + line[0]
+                        line = "\t".join(line)
+                        renamed_gff.write(f"{line}\n")
+                    else:
+                        renamed_gff.write(f"{line}\n")
+            
+    
+    parsedArgs.genomes = parsedArgs.chr_rename_fasta
+    if parsedArgs.simulation_type == "RNA":
+        parsedArgs.annotations = parsedArgs.chr_rename_gff
+    #print("NEW GENOMES",parsedArgs.genomes)            
+     
 def concatAnnotations(parsedArgs):
     logger = getLogger()
     if parsedArgs.simulation_type == "RNA" :
