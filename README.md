@@ -50,14 +50,14 @@ SimulationType:
 ```
 Crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
-```
-usage: crossmap.py RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
+```usage: crossmap.py RNA [-h] [-gn name [name ...]] [-t int] [-e float] [-d int]
                        [-s int]
                        (-N int [int ...] | -C float/int [float/int ...])
                        [-rlay {SE,PE,both}] [-rlen int] [-r float] [-R float]
-                       [-X float] [-S int] [-AMB float] [-hapl] [-o PATH]
-                       [-gb] [-max_mismatch_per_len float] [-max_mismatch int]
-                       -a gtf [gtf ...] [-star_tmp PATH]
+                       [-X float] [-S int] [-AMB float] [-hapl] [-o PATH] -g
+                       fasta [fasta ...] [-gb] [-max_mismatch_per_len float]
+                       [-bact_mode] [-max_mismatch int] -a gtf [gtf ...]
+                       [-star_tmp PATH]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -112,14 +112,17 @@ optional arguments:
   -o PATH, --out_dir PATH
                         Specify the output directory for crossmap output
                         files. (default: crossmap_out)
-  -gb, --groupBarChart  Use a grouped bar chart in the output report instead
-                        of individual bar chart. (default: False)
-
-Required Arguments:
   -g fasta [fasta ...], --genomes fasta [fasta ...]
                         Specify the genome files in fasta format. Enter genome
                         names separated by whitespace. NOTE: Keep the same
                         order of listing for gtf/gff files (default: None)
+  -gb, --groupBarChart  Use a grouped bar chart in the output report instead
+                        of individual bar chart. (default: False)
+
+Required Arguments:
+  -gn name [name ...], --genome_names name [name ...]
+                        Specify names of the genomes. The names will appear in
+                        the report file. (default: None)
 
 Mapper and annotation Arguments:
   Arguments specific to STAR Mapper
@@ -130,6 +133,10 @@ Mapper and annotation Arguments:
                         equal to this value: for 2x100b, max number of
                         mismatches is 0.04*200=8 for the paired read.
                         (default: 0.04)
+  -bact_mode, --bacterial_mode
+                        This option prohibits spliced alignments for STAR and
+                        it can be used for mapping bacterial data. (default:
+                        False)
   -max_mismatch int, --outFilterMismatchNmax int
                         From STAR manual: alignment will be output only if it
                         has no more mismatches than this value (default: 10)
@@ -143,6 +150,7 @@ Mapper and annotation Arguments:
                         This option can be used when running crossmaper from a
                         local machine in a server or cluster with SAMBA
                         connection. (default: ./)
+                        
 ```
 
 
