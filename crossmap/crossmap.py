@@ -62,9 +62,6 @@ def createArgumentParser():
     	help="Specify the genome files in fasta format. Enter genome names separated by whitespace. "
     	+ "\n NOTE: Keep the same order of listing for gtf/gff files")
     
-    requirdSharedArgument.add_argument("-gn", "--genome_names", type=str, nargs="+", metavar = "name",
-                                      help="Specify names of the genomes. The names will appear in the report file." )
-      	
     shardParser.add_argument("-t", "--threads", type=int, default = 1, metavar = "int",
     	help = "Number of cores to be used for all multicore-supporting steps")
     	
@@ -129,7 +126,9 @@ def createArgumentParser():
     ## add args.groupBarChart option
     shardParser.add_argument("-gb", "--groupBarChart",  action = "store_true", default = False,
                        help = "Use a grouped bar chart in the output report instead of individual bar chart.")
-
+    
+    shardParser.add_argument("-gn", "--genome_names", type=str, nargs="+", metavar = "name",
+                                      help="Specify names of the genomes. The names will appear in the report file." )
 
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
