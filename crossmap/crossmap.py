@@ -396,16 +396,21 @@ def crossmapMain():
     ## parse and check argument , also TODO :: may it would agood idea to prepare all parapmeters here if needed
     parsedArgs = parseArgument(parser)
     
+
+    
+    ## 1 rename Chromosomes in fasta file and gtf file
+    renameChromosomes(parsedArgs)
+    
+    ## 2 concat genomes files
+    concatGeneomes(parsedArgs)
+    
+    ## 3 
     simulateData(parsedArgs)
     
-    concatGeneomes(parsedArgs)
-
-    
-    
-    
+    ## 4 
     mapping(parsedArgs)
 
-    ## saving files and report are handled inside 
+    ## 5 saving files and report are handled inside 
     finalResult = getReadCounters(parsedArgs)
 
     return

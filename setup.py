@@ -18,7 +18,7 @@ VERSION = None
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    # 'requests', 'maya', 'records',
+     'jinja2'
 ]
 
 # What packages are optional?
