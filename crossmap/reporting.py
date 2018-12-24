@@ -23,9 +23,13 @@ headTemplate = Template('''
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <style type="text/css">
 .tg  {border-collapse:collapse;border-spacing:0;border-color:#aabcfe;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:5px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#669;background-color:#e8edff;}
 .tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#aabcfe;color:#039;background-color:#b9c9fe;}
-.tg .tg-hmp3{background-color:#D2E4FC;text-align:left;vertical-align:top}
+.tg .tg-hmp3 {
+    background-color:#D2E4FC;
+    text-align:center;
+    vertical-align:bottom;
+}
 .tg .tg-baqh{text-align:center;vertical-align:top}
 .tg .tg-mb3i{background-color:#D2E4FC;text-align:right;vertical-align:top}
 .tg .tg-lqy6{text-align:right;vertical-align:top}
@@ -37,7 +41,9 @@ headTemplate = Template('''
 .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
 
 
-
+.border-right {
+border-right: solid 1px #039 !important;
+}
 
 .tg-hmp3 a {
     cursor: pointer;
@@ -60,8 +66,8 @@ border-top: 4px double #03233f;
 }
 
 #content {
-width: 70%;
-margin-left: 15%;
+width: 75%;
+margin-left: 12.5%;
 /*padding-top: 10px;
 */background-color: #ffffff;
 }
@@ -165,20 +171,22 @@ contentTemplate = Template(
 		<table class="tg">
         <caption>Correct and Incorrect mapping statistics</caption>
 		  <tr>
-		    <th class="tg-c3ow" rowspan="2">Genome</th>
-		    <th class="tg-c3ow" colspan="2">Correct</th>
-		    <th class="tg-c3ow" colspan="3">InCorrect</th>
+		    <th class="tg-c3ow" rowspan="3">Genome</th>
+		    <th class="tg-c3ow" colspan="2" > <a data-toggle="tooltip" title="Reads mapped to the correct genome regardless of contigs">Correct</a></th>
+		    <th class="tg-c3ow" colspan="3"><a data-toggle="tooltip" title="Reads mapped to wrong genomes">InCorrect</a></th>
 		  </tr>
 		  <tr>
 		    
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Correct Uniquely Mapped Reads">Unique</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Correct Multi Mapped Reads">Multi</a></td>
-		    <!-- <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Incorrect Unique Mapped Reads. Reads mapped to the wrong contig">Unique</a></td> -->
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Reads originated for source species, but uniquely mapped to other species">Unique Cross</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads mapped to the source species and other species">Multi Source/Other</a></td>
-		    <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads that did not map to the source species but mapped to other species">Multi Only/Other</a></td>
+		    <td class="tg-hmp3"  rowspan="2" ><a  data-toggle="tooltip"  title="Correct Uniquely Mapped Reads">Unique</a></td>
+		    <td class="tg-hmp3 border-right"  rowspan="2" ><a  data-toggle="tooltip"  title="Correct Multi Mapped Reads">Multi</a></td>
+		    <!-- <td class="tg-hmp3" rowspan="2" ><a  data-toggle="tooltip"  title="Incorrect Unique Mapped Reads. Reads mapped to the wrong contig">Unique</a></td> -->
+		    <td class="tg-hmp3" rowspan="2"><a  data-toggle="tooltip"  title="Reads originated for source species, but uniquely mapped to other species">Unique Cross</a></td>
+            <td class="tg-hmp3" colspan="2"><a  data-toggle="tooltip"  title="Incorrect Multi Mapped Reads" >Multi</a></td>
+
 		  </tr>
-          
+          <tr>
+           <td class="tg-hmp3"><a  data-toggle="tooltip"  title="Multi Mapped Reads mapped to the source species and other species">Source and Other</a></td>
+		    <td class="tg-hmp3" ><a  data-toggle="tooltip"  title="Multi Mapped Reads that did not map to the source species but mapped to other species">Only Other</a></td></tr>
           {% for sp,spId in counters.speciesIds.items() %}
            {% set rowStyle = 'tg-baqh-odd' %} 
            {% set rowHeadStyle = 'tg-0pky' %}
@@ -190,14 +198,14 @@ contentTemplate = Template(
 		     <th scope='row' class="{{rowHeadStyle}}">{{sp}}<br></th>
              {%if showPercent%}
              <td class="{{rowStyle}}">{{ ( 100*((counters.unique[spId][1]+counters.unique[spId][0])/counters.getTotalReads()))|round(2)}}%</td>
-             <td class="{{rowStyle}}">{{( 100*(counters.multiReads[spId][0]/counters.getTotalReads()))|round(2)}}%</td>  
+             <td class="border-right {{rowStyle}}">{{( 100*(counters.multiReads[spId][0]/counters.getTotalReads()))|round(2)}}%</td>  
              <!-- <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][1]/counters.getTotalReads()))|round(2)}}%</td> -->
              <td class="{{rowStyle}}">{{( 100*( counters.unique[spId][2]/counters.getTotalReads() ))|round(2)}}%</td>
              <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][1]/counters.getTotalReads()))|round(2)}}%</td> 
              <td class="{{rowStyle}}">{{( 100*( counters.multiReads[spId][2]/counters.getTotalReads()))|round(2)}}%</td>
              {%else%}
              <td class="{{rowStyle}}">{{(counters.unique[spId][0]+counters.unique[spId][1])}}</td>
-             <td class="{{rowStyle}}">{{counters.multiReads[spId][0]}}</td>  
+             <td class="border-right {{rowStyle}}">{{counters.multiReads[spId][0]}}</td>  
              <!-- <td class="{{rowStyle}}">{{counters.unique[spId][1]}}</td> -->
              <td class="{{rowStyle}}">{{counters.unique[spId][2]}}</td>
              <td class="{{rowStyle}}">{{counters.multiReads[spId][1]}}</td> 
@@ -211,6 +219,7 @@ contentTemplate = Template(
     
     <br>
     <div class='cross-table divtable'>
+    {%set nSp = (counters.speciesIds|length) %}
     	<table class="tg">
         <caption>Breakdown of Crossmapping by organisms</caption>
 
@@ -225,7 +234,11 @@ contentTemplate = Template(
 		 
 		    {% for repI in range(0,3) %}
                 {% for sp in counters.speciesIds %}
-                    <td class="tg-hmp3">{{sp}}</td>
+                    {% set clmStyle= 'clm' %}
+                    {% if loop.index ==  (counters.speciesIds|length) %}
+                         {% set clmStyle= 'border-right' %}
+                    {% endif %}
+                    <td class="tg-hmp3 {{clmStyle}}">{{sp}}</td>
                 {% endfor %}
             {% endfor %}
 		  </tr>
@@ -239,9 +252,9 @@ contentTemplate = Template(
            <tr>
 		     <th scope='row' class="{{rowHeadStyle}}">{{sp}}<br></th>
                  {% for tar_sp in counters.speciesIds %}
-                     {% set clmStyle= 'clm' %}
-                     {% if loop.index ==  1 %}
-                         {% set clmStyle= 'clm-first' %}
+                     {% set clmStyle = 'clm' %}
+                     {% if loop.index ==  (counters.speciesIds|length) %}
+                         {% set clmStyle= 'border-right' %}
                      {% endif %}
                   <td class="{{rowStyle}} {{clmStyle}}">
                   {%if sp==tar_sp%}
@@ -255,8 +268,8 @@ contentTemplate = Template(
                  {%endfor%}
                  {% for tar_sp in counters.speciesIds %}
                      {% set clmStyle= 'clm' %}
-                     {% if loop.index ==  1 %}
-                         {% set clmStyle= 'clm-first' %}
+                     {% if loop.index ==  (counters.speciesIds|length) %}
+                         {% set clmStyle= 'border-right' %}
                      {% endif %}
                   <td class="{{rowStyle}} {{clmStyle}}">
                   {%if sp==tar_sp%}
@@ -270,8 +283,8 @@ contentTemplate = Template(
                  {%endfor%}
                  {% for tar_sp in counters.speciesIds %}
                      {% set clmStyle= 'clm' %}
-                     {% if loop.index == 1 %}
-                         {% set clmStyle= 'clm-first' %}
+                     {% if loop.index == (counters.speciesIds|length) %}
+                         {% set clmStyle= 'border-right' %}
                      {% endif %}
                   <td class="{{rowStyle}} {{clmStyle}}">
                   {%if sp==tar_sp%}
@@ -375,7 +388,7 @@ drilldownTemplate = Template(
         {% for lay,counters in count_pLays.items()  %}
             {% for sp,id in counters.speciesIds.items() %}
             {                    
-                "name" : "{{sp}}", 
+                "name" : "{{sp}} {{readLen}} {{lay}}", 
                 "id" : "{{sp}}_{{readLen}}_{{lay}}",
                 "data" : 
                     [
@@ -518,14 +531,14 @@ Highcharts.chart('container1', {
 ''')
 
 barchart2DivtableTemplate = Template('''
-<table>
+<table style="table-layout: fixed;width: 100%">
   
 
 
 {% for readLen,count_pLays in counterRes.items()  %}
 <tr>
     {% for lay,counters in count_pLays.items()  %}
-    <td> <div id="{{lay}}_{{readLen}}" class="divchart"> </div> </td>
+    <td> <div id="{{lay}}_{{readLen}}" class="divchart" style="width:100%"> </div> </td>
     {%endfor%}
 <tr>
 {%endfor%}
@@ -626,6 +639,20 @@ reportTemplete = Template('''
 		<hr style="width: 100%">
 	</div>
     
+    
+    
+    <div class="total-summary " style="width:100%;">
+		<div id="container1" style="width:90%; margin-left:5%;"></div>
+
+		<div id="barchartcontainer" style="width:90%; margin-left:5%;">
+        {% if not args.groupBarChart %}
+        {% include barchart2DivtableTemplate %}
+        {%endif%}
+		</div>
+
+   </div>
+   <hr class='hrsep'>
+    
     <div   id="content-count" class='content-body'>
     {% set showPercent= False %}
     {% include contentTemplate %}
@@ -637,23 +664,18 @@ reportTemplete = Template('''
     </div>
 
 
-    <div class="total-summary " style="width:100%;">
-		<div id="container1" style="width:90%; margin-left:5%;"></div>
 
-		<div id="barchartcontainer" style="width:90%; margin-left:5%;">
-        {% if not args.groupBarChart %}
-        {% include barchart2DivtableTemplate %}
-        {%endif%}
-		</div>
-
-   </div>
 <div>
 
 <script type="text/javascript">
 $(document).ready(function(){
     
     $('[data-toggle="tooltip"]').tooltip();   
-
+    Highcharts.setOptions({
+        lang: {
+            drillUpText: '<< Back'
+        }
+    });
      $('#toggle-percent').change(function() {
       
       if ( $(this).prop('checked')) {
