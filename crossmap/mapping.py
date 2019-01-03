@@ -193,7 +193,7 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     
     tmpSamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}.sam"
     finalBamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}_sorted.bam"
-    cmd_bwa_mapping = f"bwa mem -t {parsedArgs.threads} -A {parsedArgs.match_score} -B {parsedArgs.mismatch_penalty} {parsedArgs.out_dir}/BWA_index/concat_BWA -a {reads}" 
+    cmd_bwa_mapping = f"bwa mem -a -t {parsedArgs.threads} -A {parsedArgs.match_score} -B {parsedArgs.mismatch_penalty} {parsedArgs.out_dir}/BWA_index/concat_BWA {reads}" 
     #f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -
     res = crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
                                  tmpSamFile,

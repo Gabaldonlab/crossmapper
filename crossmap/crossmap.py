@@ -164,9 +164,9 @@ def createArgumentParser():
     	+ "NOTE: Keep the same order of listing as for genome files")
     
 
-    rnaSharedGroup.add_argument("-star_tmp", "--star_temp_dir", default = "./",  type=str, metavar="PATH",
+    rnaSharedGroup.add_argument("-star_tmp", "--star_temp_dir", default = "./TMPs",  type=str, metavar="PATH",
     	help = "Specify a full path to a local temprorary directory, where all intermediate files of STAR will be written. "
-    	+ " This option can be used when running crossmaper from a local machine in a server or cluster with SAMBA connection.")
+    	+ " This option can be used when running Crossmaper from a local machine in a server or cluster with SAMBA connection.")
 
     
     

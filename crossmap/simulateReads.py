@@ -18,7 +18,7 @@ def renameChromosomes(parsedArgs):
                 if line.startswith(">"):
                     line=line.rstrip()
                     line=line.replace(">", f">{parsedArgs.speciesPrefix[i]}_")
-                    print(line)
+                    #print(line)
                     renamed_fasta.write(f"{line}\n")
                 else:
                     line = line.rstrip()

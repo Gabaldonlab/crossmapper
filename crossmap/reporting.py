@@ -144,17 +144,17 @@ contentTemplate = Template(
 		    <th class="tg-0pky"><br>Percent</th>
 		  </tr>
 		  <tr>
-		    <th scope='row' class="tg-phtq">Unique Mapped Reads<br></th>
+		    <th scope='row' class="tg-phtq">Uniquely Mapped Reads<br></th>
 		    <td class="tg-phtq">{{counters.getTotalUniqueMapped()}}</td>
 		    <td class="tg-phtq">{{counters.getTotalUniqueMapped(percent=True)}}%</td>
 		  </tr>
 		  <tr>
-		    <th scope='row' class="tg-0pky">Multi Mapped Reads<br></th>
+		    <th scope='row' class="tg-0pky">Multimapped Reads<br></th>
 		    <td class="tg-0pky">{{counters.getTotalMultiMapped()}}</td>
 		    <td class="tg-0pky">{{counters.getTotalMultiMapped(percent=True)}}%</td>
 		  </tr>
 		  <tr>
-		    <th scope='row' class="tg-phtq">UnMapped Mapped Reads<br></th>
+		    <th scope='row' class="tg-phtq">Unmapped Reads<br></th>
 		    <td class="tg-phtq">{{counters.getTotalUnmapped()}}</td>
 		    <td class="tg-phtq">{{counters.getTotalUnmapped(percent=True)}}%</td>
 		  </tr>
@@ -173,7 +173,7 @@ contentTemplate = Template(
 		  <tr>
 		    <th class="tg-c3ow" rowspan="3">Genome</th>
 		    <th class="tg-c3ow" colspan="2" > <a data-toggle="tooltip" title="Reads mapped to the correct genome regardless of contigs">Correct</a></th>
-		    <th class="tg-c3ow" colspan="3"><a data-toggle="tooltip" title="Reads mapped to wrong genomes">InCorrect</a></th>
+		    <th class="tg-c3ow" colspan="3"><a data-toggle="tooltip" title="Reads mapped to wrong genomes">Incorrect</a></th>
 		  </tr>
 		  <tr>
 		    
@@ -320,7 +320,7 @@ Highcharts.chart('barchartcontainer', {
         text: 'Details of crossmapped reads per species'
     },
     subtitle: {
-        text: 'Click the columns to view details of cross mapped count. Click read lengths at the bottom to add/remove barplots'
+        text: 'Click the columns to view details of crossmapped counts. Click read lengths at the bottom to add/remove barplots'
     },
     xAxis: {
         type: 'category'
