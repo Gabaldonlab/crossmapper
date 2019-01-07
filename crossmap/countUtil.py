@@ -427,7 +427,8 @@ def checkNHTag(bamFile):
     allReads = {}
     for record in bamFile.fetch(until_eof=True):
         if record.is_unmapped :
-            allReads[record.qname] = 0
+            ## TODO :: do not store unmapped reads
+            # allReads[record.qname] = 0
             continue
 
         
@@ -437,7 +438,10 @@ def checkNHTag(bamFile):
             if record.is_paired and record.is_read1 :
                 allReads[record.qname]+=1
         else:
-            pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+            if record.is_paired :
+                pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+            else:
+                pairName =  record.qname
             if not pairName in allReads :
                 allReads[pairName] = 0
             allReads[pairName]+=1
@@ -475,7 +479,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         if record.is_unmapped:
             allCounter.unmapped[orgReadSpId] +=1
             continue
-        allCounter.total[orgReadSpId] +=1
+        
         # read = WGSIMRead(qName=record.qname)
         mappingSpId = seqToOrg[record.reference_name]
         
@@ -498,12 +502,16 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
             if record.is_proper_pair:
                 nhTagValue = nhTag[record.qname]
             else:
-                pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+                if record.is_paired :
+                    pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+                else:
+                    pairName =  record.qname
                 nhTagValue = nhTag[pairName]
         else:
             nhTagValue = record.get_tag("NH")
         if nhTagValue == 1 :
             allCounter.unique[orgReadSpId][counterIndex]+=1
+            allCounter.total[orgReadSpId] +=1
             if orgReadSpId != mappingSpId: 
                 allCounter.crossSpUnique[orgReadSpId][mappingSpId]+=1
                 allCounter.crossSpTotal[orgReadSpId][mappingSpId]+=1
@@ -528,9 +536,9 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         ## Primary Allignment
         if record.flag & 0x900 == 0 :
             allCounter.mPrimary[orgReadSpId][counterIndex]+=1
+            allCounter.total[orgReadSpId] +=1
         else:
             allCounter.mSecondary[orgReadSpId][counterIndex]+=1
-            allCounter.total[orgReadSpId] -=1
         reads[pe_readId].append(record)
         multiReadsClass[pe_readId].append(counterIndex)
         multiReadsMappedTpSp[pe_readId].append(mappingSpId)
@@ -549,8 +557,8 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
             if  selectedClass <= 1  : #reads MultiMapto Only to One correct Sp
                 if selectedClass ==  1:
                     allCounter.worngMultiReadsPerSp[orgSp]+=1
-                else:
-                    allCounter.multiReads[orgSp][0]+=1
+                #else:
+                allCounter.multiReads[orgSp][0]+=1
             else:
                 spSet = set(multiReadsMappedTpSp[read])
                 if len(spSet ) == 1 :
