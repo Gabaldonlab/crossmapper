@@ -425,26 +425,28 @@ def checkNHTag(bamFile):
     #print("No")
     bamFile.reset()
     allReads = {}
-    for record in bamFile.fetch(until_eof=True):
+    for record in bamFile.fetch(until_eof=False): ## bam file must be indexed
         if record.is_unmapped :
             ## TODO :: do not store unmapped reads
             # allReads[record.qname] = 0
             continue
 
-        
-        if record.is_proper_pair :
-            if not record.qname in allReads :
-                allReads[record.qname] = 0
-            if record.is_paired and record.is_read1 :
-                allReads[record.qname]+=1
-        else:
-            if record.is_paired :
-                pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+    ## only if multi Mapped start adding it
+    ## TODO :: what about is_supplementary and is_duplicate , How we should consider those reads
+        if record.is_secondary :
+            if record.is_proper_pair :
+                if not record.qname in allReads :
+                    allReads[record.qname] = 1 ## start from one as we ignore the primary mapped read
+                if record.is_paired and record.is_read1 :
+                    allReads[record.qname] += 1
             else:
-                pairName =  record.qname
-            if not pairName in allReads :
-                allReads[pairName] = 0
-            allReads[pairName]+=1
+                if record.is_paired :
+                    pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+                else:
+                    pairName =  record.qname
+                if not pairName in allReads :
+                    allReads[pairName] = 1 ## start from one as we ignore the primary mapped read
+                allReads[pairName]+=1
     bamFile.reset()
     return allReads
 def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None , nhTag = None):
@@ -479,7 +481,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
         if record.is_unmapped:
             allCounter.unmapped[orgReadSpId] +=1
             continue
-        
+        ## TODO :: what about is_supplementary and is_duplicate , How we should consider those reads
         # read = WGSIMRead(qName=record.qname)
         mappingSpId = seqToOrg[record.reference_name]
         
@@ -499,14 +501,18 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
                 counterIndex = 2 ## map to the wrong sp
         nhTagValue = 0
         if nhTag!= None :
-            if record.is_proper_pair:
-                nhTagValue = nhTag[record.qname]
-            else:
+            ## change to reflect update in NHCount
+            qnameTolookAt = record.qname
+            if not record.is_proper_pair: ## may be we should change the order 
                 if record.is_paired :
-                    pairName =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
+                    qnameTolookAt =  record.qname+"_1" if record.is_read1 else   record.qname+"_2"
                 else:
-                    pairName =  record.qname
-                nhTagValue = nhTag[pairName]
+                    qnameTolookAt =  record.qname
+                #nhTagValue = nhTag[pairName]
+            if  qnameTolookAt in nhTag  : ## if not in nhTag then it is a unique map
+                nhTagValue = nhTag[qnameTolookAt]
+            else:
+                nhTagValue = 1
         else:
             nhTagValue = record.get_tag("NH")
         if nhTagValue == 1 :
@@ -585,6 +591,18 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
                     #if mappedToSp != orgSp :
                     allCounter.crossSpMulti[orgSp][mappedToSp]+=1
                     allCounter.crossSpTotal[orgSp][mappedToSp]+=1
+                    
+                    
+    ## clear after
+    del multiReadsClass
+    del multiReadsMappedTpSp
+    del multiReadsOrgSp
+    del bamRecords
+    del records 
+    ## remove reads object we do not need it for now
+    ## TODO :: if we need to report the problamatic reads we should use Reads object
+    del reads
+    reads = None
     return allCounter,reads,
 #%%
     
@@ -655,6 +673,8 @@ def getReadCounters(args):
             ## chech if bamFile has NH tag or not , if not calc it in advance and pass it to the count method
             NHTags = checkNHTag(bamFile)
             allCounter,reads = countReads(bamFile, speciesIds , seqsIndexToSeq , seqToOrg , transcriptMap = transcriptMap , nhTag = NHTags)
+            del NHTags
+            bamFile.close()
             counters[rlen][layout] = allCounter
             
             outputFile.write(f"Summary Counter for lenghth {rlen} and ({layout}) layout : {inBamFileName}\n")
