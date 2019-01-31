@@ -29,11 +29,11 @@ testCases = [
         "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -N 1000 1000 -o testcase1 -rlen 25,50", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 1000 1000 -o testcase1 -rlen 25,50", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -N 1000 4000 -o testcase2DNA -rlen 25,50", ## 
-        "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase2/CDUBL.gff -N 1000 4000 -o testcase2RNA -rlen 25,50", ## 
+        "crossmap.py RNA -rlay both -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase2/CDUBL.gff -N 1000000 1000000 -o /data/bio/projects/simulation/test/testcase2RNA -rlen 50,150", ## 
         "crossmap.py RNA -rlay both -g ./testFiles/testcase2/C_alb_A.fa ./testFiles/testcase2/CDUBL.fasta -a ./testFiles/testcase2/C_alb_A.gff ./testFiles/testcase2/CDUBL.gff -C 2 2  -o /data/bio/projects/simulation/test/testcase3RNA -rlen 25,50", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase3/C_alb_A_chr1.fasta ./testFiles/testcase3/CPAR_chr1.fasta ./testFiles/testcase3/dubl.fasta  -C 2 2 2 -o /data/bio/projects/simulation/test/testcase4DNA -rlen 50,100", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase3/C_alb_A_chr1.fasta ./testFiles/testcase3/CPAR_chr1.fasta ./testFiles/testcase3/dubl.fasta  -N 100000 100000 100000 -o /data/bio/projects/simulation/test/testcase5DNA -rlen 50,100", ## 
-        "crossmap.py DNA -rlay both -g ./testFiles/testcase4/C_alb_A_chr1.fasta ./testFiles/testcase4/CPAR_chr1.fasta ./testFiles/testcase4/dubl.fasta  -N 100000 100000 100000 -o /data/bio/projects/simulation/test/testcase6DNA -rlen 50,100,125", ## 
+        "crossmap.py DNA -rlay both -g ./testFiles/testcase4/C_alb_A_chr1.fasta ./testFiles/testcase4/CPAR_chr1.fasta ./testFiles/testcase4/dubl.fasta  -N 100000 100000 100000 -o /data/bio/projects/simulation/test/testcase6DNA -rlen 50,125", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -N 1000000 1000000 1000000 -o /data/bio/projects/simulation/test/testcase7DNA -rlen 50,100,125", ## 
         "crossmap.py DNA -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -N 3000000 1000000 500000  -o /data/bio/projects/simulation/test/testcase8DNA -rlen 50,125", ## 
         "crossmap.py DNA  -gb -rlay both -g ./testFiles/testcase5/C_alb_A_chr1.fasta ./testFiles/testcase5/CPAR_chr1.fasta ./testFiles/testcase5/dubl.fasta  -C 3 1 1  -o /data/bio/projects/simulation/test/testcase9DNA -rlen 125", ## 
@@ -61,7 +61,7 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(22)
+    sys.argv =  getArgv(7)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     #print(parsedArgs)
@@ -116,19 +116,19 @@ testSimulation(args)
 testMapping(args)
 res = testCountingStep(args)
 #%%
-importlib.reload(crossmap)
+# importlib.reload(crossmap)
 #args = testCreateArgumentParser()
 #res = testCountingStep(args)
 # args.groupBarChart = False
-crossmap.reporting.createHTMLReport(res,args)
+# crossmap.reporting.createHTMLReport(res,args)
 ## write result
 
 
 
 
 #%%
-importlib.reload(crossmap)
-res = testCountingStep(args)
+# importlib.reload(crossmap)
+# res = testCountingStep(args)
 
 
 #exit(0)
