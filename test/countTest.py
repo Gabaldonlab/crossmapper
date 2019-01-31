@@ -44,7 +44,7 @@ testCases = [
         "crossmap.py RNA -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -gb -N 100000 100000 -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -o ./renaming_test -rlen 50,75 -star_tmp /home/ghovhannisyan/TMP22 -t 10", ## check renaming
         "crossmap.py DNA -gn 1 2 -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 100000 100000 -o ./renaming_test_DNA -rlen 50,75 -t 10", ## check renaming
         "crossmap.py RNA -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -gb -N 10000 10000 -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -o ./renaming_test -rlen 50,75 -star_tmp /home/ghovhannisyan/TMP22 -t 10", ## check renaming
-        "crossmap.py DNA -r 0.01 -gb -rlay both -gn human mouse fly nematode -g ./testFiles/test_homo_mus_ceano_dros/homo.fasta ./testFiles/test_homo_mus_ceano_dros/mus.fasta ./testFiles/test_homo_mus_ceano_dros/dros.fasta ./testFiles/test_homo_mus_ceano_dros/caeno.fasta -N 2500000 2500000 2500000 2500000 -o /home/ghovhannisyan/users/tg/hhovhannisyan/crossmaping_tool/master_script/test/4_species_fixed_new_names -rlen 50,75,100,125,150 -t 8",
+        "crossmap.py DNA -r 0.01 -gb -rlay both -gn human mouse fly nematode -g ./testFiles/test_homo_mus_ceano_dros/homo.fasta ./testFiles/test_homo_mus_ceano_dros/mus.fasta ./testFiles/test_homo_mus_ceano_dros/dros.fasta ./testFiles/test_homo_mus_ceano_dros/caeno.fasta -N 2500000 2500000 2500000 2500000 -o /home/ghovhannisyan/users/tg/hhovhannisyan/crossmaping_tool/master_script/test/4_species_fixed_new_names_15Dec -rlen 50,75,100,125,150 -t 11"         
         ]
 
 
