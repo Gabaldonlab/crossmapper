@@ -61,8 +61,8 @@ def parseGTFrecord(record, selectedFeatures = None):
     
     attsToken = tokens[8]
     recordDict.update(getAtts(attsToken))
-    if selectedFeatures != None :
-        return dict((k, recordDict[k]) for k in selectedFeatures)
+    if selectedFeatures != None   :
+        return dict((k, recordDict[k]  if k in recordDict else None ) for k in selectedFeatures)
     return recordDict
     
 
@@ -75,6 +75,8 @@ def mapTranscriptToSequence(inGTFFiles , seqsIndex = None):
         for line in inFile:
             line = line.strip()
             recordDict = parseGTFrecord(line, ['seqName','transcript_id'])
+            if recordDict['transcript_id'] is None :
+                continue
             if seqsIndex != None :
                 transcriptMap[ recordDict['transcript_id'] ] = seqsIndex[recordDict['seqName']]
             else:
