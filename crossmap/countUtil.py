@@ -74,7 +74,7 @@ def mapTranscriptToSequence(inGTFFiles , seqsIndex = None):
         
         inFile = open(oneGTFFile,'r')
         for line in inFile:
-            if line.startswith("#"):
+            if line.startswith("#") or line.strip() == "":
                 continue
             line = line.strip()
             recordDict = parseGTFrecord(line, ['seqName','transcript_id'])
