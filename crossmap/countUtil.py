@@ -49,6 +49,7 @@ def getAtts(attToken):
 
 
 def parseGTFrecord(record, selectedFeatures = None):
+
     tokens = record.split("\t")
     ## placeholder :: TODO parse everything here if needed
     ## TODO :: check GTF record if it is OK
@@ -73,6 +74,8 @@ def mapTranscriptToSequence(inGTFFiles , seqsIndex = None):
         
         inFile = open(oneGTFFile,'r')
         for line in inFile:
+            if line.startswith("#"):
+                continue
             line = line.strip()
             recordDict = parseGTFrecord(line, ['seqName','transcript_id'])
             if recordDict['transcript_id'] is None :
@@ -91,6 +94,8 @@ def mapTranscriptToSequenceGFF(inGFFFiles):
         
         inFile = open(oneGTFFile,'r')
         for line in inFile:
+            if line.startswith("#"):
+                continue
             line = line.strip()
             recordDict = parseGTFrecord(line, ['seqName','ID'])
             transcriptMap[ recordDict['ID'] ] = recordDict['seqName']
