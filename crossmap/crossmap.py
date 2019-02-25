@@ -19,7 +19,7 @@ from crossmap.countUtil import getReadCounters
 _Main_Prog_Name = "crossmapper" 
 _Main_Prog_Desc = """
   --
-  crossmapper Software
+  Crossmapper Software
 """
 
 soft_version = "0.1"
