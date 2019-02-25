@@ -50,7 +50,8 @@ SimulationType:
 ```
 Crossmapper has two running options: DNA and RNA. By running, for example, `crossmapper RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
-```usage: crossmapper RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
+```
+usage: crossmapper RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
                        [-s int]
                        (-N int [int ...] | -C float/int [float/int ...])
                        [-rlay {SE,PE,both}] [-rlen int] [-r float] [-R float]
