@@ -2,5 +2,5 @@ __pycache__
 crossmap.egg-info
 build
 dist
-test/mydir
+test
 .DS_Store
