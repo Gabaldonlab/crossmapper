@@ -10,7 +10,7 @@ Based on in-silico read simulation and back-mapping to the original genomes of s
 
 Crossmapper is developed by:
 
-Hrant Hovhannisyan (Toni Gabaldón group, Centre for Genomic Regulation, Barcelona, Spain, contact email: grant.hovhannisyan@gmail.com) and
+Hrant Hovhannisyan (Comparative Genomics group, Centre for Genomic Regulation, Barcelona, Spain, contact email: grant.hovhannisyan@gmail.com) and
 
 Ahmed Hafez (Biotechvana, Valencia, Spain, contact email: ah.hafez@gmail.com ). 
 
