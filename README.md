@@ -33,11 +33,11 @@ The examplified procedure of Crossmapper installation and optional specific envi
 
 ## Usage and options
 
-The basic usage arguments of Crossmapper can be found by typing `crossmap.py -h` in the command line:
+The basic usage arguments of Crossmapper can be found by typing `crossmapper -h` in the command line:
 ```
-usage: crossmap.py [-h] [-v] {DNA,RNA} ...
+usage: crossmapper [-h] [-v] {DNA,RNA} ...
 
--- crossmap.py Software
+-- crossmapper Software
 
 optional arguments:
   -h, --help     show this help message and exit
@@ -48,9 +48,9 @@ SimulationType:
     DNA          Simulate DNA data
     RNA          Simulate RNA data
 ```
-Crossmapper has two running options: DNA and RNA. By running, for example, `crossmap.py RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
+Crossmapper has two running options: DNA and RNA. By running, for example, `crossmapper RNA -h`, the user can see the parameters for RNA mode. Optional arguments are the same for DNA mode, but on the bottom of the help page the user can find the arguments specific only for RNA mode.
 
-```usage: crossmap.py RNA [-h] [-gn name [name ...]] [-t int] [-e float] [-d int]
+```usage: crossmapper RNA [-h] [-gn name [name ...]] [-t int] [-e float] [-d int]
                        [-s int]
                        (-N int [int ...] | -C float/int [float/int ...])
                        [-rlay {SE,PE,both}] [-rlen int] [-r float] [-R float]
