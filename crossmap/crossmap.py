@@ -16,10 +16,10 @@ from crossmap.countUtil import getReadCounters
 
 ## temp allocation
 
-_Main_Prog_Name = "crossmap.py" 
+_Main_Prog_Name = "crossmapper" 
 _Main_Prog_Desc = """
   --
-  crossmap.py Software
+  crossmapper Software
 """
 
 soft_version = "0.1"
