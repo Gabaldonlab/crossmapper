@@ -127,6 +127,9 @@ def createArgumentParser():
     shardParser.add_argument("-gb", "--groupBarChart",  action = "store_true", default = False,
                        help = "Use a grouped bar chart in the output report instead of individual bar chart.")
     
+    shardParser.add_argument("-rc", "--reportCrossmapped",  action = "store_true", default = False,
+                       help = "Report all cross mapped reads into csv file.")
+    
     shardParser.add_argument("-gn", "--genome_names", type=str, nargs="+", metavar = "name",
                                       help="Specify names of the genomes. The names will appear in the report file." )
 
@@ -301,7 +304,8 @@ def parseArgument(argumentParser):
     parsedArgs.logPrefix = "crossmap.log"
     parsedArgs.logFile = os.path.join(parsedArgs.out_dir, parsedArgs.logPrefix)
     parsedArgs.verbose = VerboseLevel.All
-    
+    ## option to report crossmapp reads info files
+    # parsedArgs.reportCrossmapped = True
     
     
     if parsedArgs.genome_names is not None:

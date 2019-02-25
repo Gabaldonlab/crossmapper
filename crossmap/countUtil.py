@@ -456,7 +456,24 @@ def checkNHTag(bamFile):
                 allReads[pairName]+=1
     bamFile.reset()
     return allReads
-def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None , nhTag = None):
+
+
+def reportToFile(record,read,orgReadSpId,mappingSpId,speciesIds,reportReadFiles, rlen , layout):
+    idToSpName = {}
+    for spName in speciesIds:
+        idToSpName[speciesIds[spName]] =spName
+    reportFile = reportReadFiles[ idToSpName[orgReadSpId]  ]
+    orgSeqName = read.orgSeqName
+    if orgSeqName.startswith(idToSpName[orgReadSpId]+"_"):
+        orgSeqName = orgSeqName[len(idToSpName[orgReadSpId]+"_"):]
+    referenceMapName = record.reference_name
+    if referenceMapName.startswith(idToSpName[mappingSpId]+"_"):
+        referenceMapName = referenceMapName[len(idToSpName[mappingSpId]+"_"):]
+    
+    print(f"{orgSeqName}\t{read.start}\t{read.end}\t{idToSpName[mappingSpId]}\t{referenceMapName}\t{record.reference_start}\t{record.reference_start}\t{record.cigarstring}\t{rlen}\t{layout}" , file=reportFile)
+    return
+
+def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , rlen , layout , transcriptMap = None , nhTag = None, reportReadFiles = None):
     nSpecies = len(speciesIds)
     #uniqueCounters = [[0] * 3 for i in range(nSpecies)]
     #unmappedCounters = [0] * len(nSpecies)
@@ -529,6 +546,12 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , transcriptMap = None
                 allCounter.crossSpUnique[orgReadSpId][mappingSpId]+=1
                 allCounter.crossSpTotal[orgReadSpId][mappingSpId]+=1
             continue
+
+        ## if it is a crossmapped reads then report it into the file
+        if counterIndex == 2 and reportReadFiles != None :
+            reportToFile(record,read,orgReadSpId,mappingSpId,speciesIds,reportReadFiles, rlen , layout)
+
+
         #read = record.qname
         
         ## consider left and right
@@ -668,6 +691,18 @@ def getReadCounters(args):
      
     
     counters = {}
+    reportCorssmappedReadFiles = {} 
+    if args.reportCrossmapped :
+        ## create file here and store them in dic
+        crossmapReadsDirName = args.out_dir + "/corssmap_reads"
+        if os.path.isdir(crossmapReadsDirName) != True:
+            os.makedirs( crossmapReadsDirName)
+        for spName in args.speciesPrefix:
+            outfilename = crossmapReadsDirName+ "/" + spName
+            reportReadFile = open(outfilename,"w+")
+            reportCorssmappedReadFiles[spName] = reportReadFile
+    
+    ## new code here
     
     
     outputFile = open(os.path.join(args.out_dir,"report.txt"),"w")
@@ -679,7 +714,7 @@ def getReadCounters(args):
             bamFile = pysam.AlignmentFile(inBamFileName,"rb")
             ## chech if bamFile has NH tag or not , if not calc it in advance and pass it to the count method
             NHTags = checkNHTag(bamFile)
-            allCounter,reads = countReads(bamFile, speciesIds , seqsIndexToSeq , seqToOrg , transcriptMap = transcriptMap , nhTag = NHTags)
+            allCounter,reads = countReads(bamFile, speciesIds , seqsIndexToSeq , seqToOrg , rlen = rlen , layout =layout , transcriptMap = transcriptMap , nhTag = NHTags , reportReadFiles = reportCorssmappedReadFiles   )
             del NHTags
             bamFile.close()
             counters[rlen][layout] = allCounter
@@ -687,8 +722,12 @@ def getReadCounters(args):
             outputFile.write(f"Summary Counter for lenghth {rlen} and ({layout}) layout : {inBamFileName}\n")
             allCounter.summary(outputFile)
             outputFile.write("*"*50 + "\n\n")
-    outputFile.close()
     
+    outputFile.close()
+    if args.reportCrossmapped :
+        ## close files
+        for spName in args.speciesPrefix:
+            reportCorssmappedReadFiles[spName].close()
     createHTMLReport(counters,args)
     
     return counters
