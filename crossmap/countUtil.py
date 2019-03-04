@@ -539,6 +539,12 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , rlen , layout , tran
                 nhTagValue = 1
         else:
             nhTagValue = record.get_tag("NH")
+            
+        ## if it is a crossmapped reads then report it into the file
+        if counterIndex == 2 and reportReadFiles != None :
+            reportToFile(record,read,orgReadSpId,mappingSpId,speciesIds,reportReadFiles, rlen , layout)           
+        
+        
         if nhTagValue == 1 :
             allCounter.unique[orgReadSpId][counterIndex]+=1
             allCounter.total[orgReadSpId] +=1
@@ -547,9 +553,7 @@ def countReads(bamFile, speciesIds , seqsIndex , seqToOrg , rlen , layout , tran
                 allCounter.crossSpTotal[orgReadSpId][mappingSpId]+=1
             continue
 
-        ## if it is a crossmapped reads then report it into the file
-        if counterIndex == 2 and reportReadFiles != None :
-            reportToFile(record,read,orgReadSpId,mappingSpId,speciesIds,reportReadFiles, rlen , layout)
+
 
 
         #read = record.qname
@@ -691,10 +695,11 @@ def getReadCounters(args):
      
     
     counters = {}
-    reportCorssmappedReadFiles = {} 
+    reportCorssmappedReadFiles = None
     if args.reportCrossmapped :
+        reportCorssmappedReadFiles = {}
         ## create file here and store them in dic
-        crossmapReadsDirName = args.out_dir + "/corssmap_reads"
+        crossmapReadsDirName = args.out_dir + "/crossmapped_reads"
         if os.path.isdir(crossmapReadsDirName) != True:
             os.makedirs( crossmapReadsDirName)
         for spName in args.speciesPrefix:

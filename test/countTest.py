@@ -22,6 +22,7 @@ importlib.reload(crossmap)
 
 #%% 
 testCases = [
+        "crossmap.py RNA -gb -rc -g  /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa /data/bio/projects/simulation/input/test_11/Sbay.ultrascaf_AND_unplaced.fasta -a /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.93.gtf /data/bio/projects/simulation/input/test_11/Sbay_rebuilt.gtf -N 1000 1000 -gn SC SU -rlen 50 -rlay PE  -o /data/bio/projects/simulation/test/testcase11RNA -t 10",
         "crossmap.py RNA -h",
         "crossmap.py RNA -g ./human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres",
         "crossmap.py DNA -g ./testFiles/C_alb_A_chr1.fasta ./testFiles/CPAR_chr1.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o mydir -rlen 50,100", ## fixed coverage -- ~ same size,
@@ -62,7 +63,7 @@ def getArgv(i):
 #%% just test parser creatation
 def testCreateArgumentParser():
     import crossmap.crossmap
-    sys.argv =  getArgv(13)
+    sys.argv =  getArgv(0)
     parser = crossmap.crossmap.createArgumentParser()
     parsedArgs = crossmap.crossmap.parseArgument(parser)
     #print(parsedArgs)
