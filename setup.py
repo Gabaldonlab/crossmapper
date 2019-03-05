@@ -8,9 +8,9 @@ from setuptools import find_packages, setup, Command
 
 
 
-NAME = 'crossmap'
-DESCRIPTION = 'Crossmap.'
-URL = 'https://github.com/GrantHov/crossmap'
+NAME = 'crossmapper'
+DESCRIPTION = 'Crossmapper.'
+URL = 'https://github.com/Gabaldonlab/crossmapper'
 EMAIL = 'grant.hovhannisyan@crg.eu '
 AUTHOR = 'Grant'
 REQUIRES_PYTHON = '>=3.6.0'
