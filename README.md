@@ -1,4 +1,9 @@
+[![Anaconda-Server Badge](https://anaconda.org/gabaldonlab/crossmapper/badges/version.svg)](https://anaconda.org/gabaldonlab/crossmapper) 
+[![Anaconda-Server Badge](https://anaconda.org/gabaldonlab/crossmapper/badges/platforms.svg)](https://anaconda.org/gabaldonlab/crossmapper)
+
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
+
+
 
 ## General descripiton of Crossmapper
 
@@ -25,7 +30,9 @@ We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, 
 
 If anaconda or miniconda package managers are installed, simply run:
 
-`conda install -c bioconda crossmapper`
+```bash
+conda install -c gabaldonlab -c bioconda crossmapper
+```
 
 to install crossmapper and all its dependencies.
 
