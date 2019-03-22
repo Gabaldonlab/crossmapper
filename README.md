@@ -167,7 +167,7 @@ Mapper and annotation Arguments:
 
 ## Step-by-Step tutorial
 
-We have created a [Step-by-Step tutorial](https://github.com/Gabaldonlab/crossmapper/wiki/Welcome-to-the-Crossmapper-usage-tutorial!)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
+We have created a [Step-by-Step tutorial](https://github.com/Gabaldonlab/crossmapper/wiki/Crossmapper-Tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
 
 
 ## Contact and reporting
