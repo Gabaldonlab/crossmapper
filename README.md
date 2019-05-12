@@ -169,6 +169,10 @@ Mapper and annotation Arguments:
 
 We have created a [Step-by-Step tutorial](https://github.com/Gabaldonlab/crossmapper/wiki/Crossmapper-Tutorial)  with detailed description of options and workflow steps performed by Crossmapper. We guide the user from the initial software installation and setup untill the interpretations of the obtained results. 
 
+## Precomputed values
+
+To save time for users, we have precomputed the cross-mapping values for some widely sequences species, namelly H. sapiense combined with M. musculus, A. thaliana, D. melanogaster, S. cerevisiae and S. typhimurium. We will expand these list of precomputed values in future.
+
 
 ## Contact and reporting
 
