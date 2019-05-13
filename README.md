@@ -171,7 +171,7 @@ We have created a [Step-by-Step tutorial](https://github.com/Gabaldonlab/crossma
 
 ## Precomputed values
 
-To save time for users, we have precomputed the cross-mapping values for some widely sequences species, namelly human combined with each of the following species: *[M. musculus](https://www.dropbox.com/s/18ne29pr3l7xcjt/report_human_mouse.html?dl=0), [A. thaliana](https://www.dropbox.com/s/4yy02qhnlv9z5xz/report_human_arabidopsis.html?dl=0), [D. melanogaster](https://www.dropbox.com/s/b0h4agubz4r3b48/report_human_fly.html?dl=0), [C. elegans](https://www.dropbox.com/s/d6bzsepljo0cxlr/report_nematode.html?dl=0), [S. cerevisiae](https://www.dropbox.com/s/bnsryeg7rgbv4ll/report_human_yeast.html?dl=0)* and *[S. typhimurium](https://www.dropbox.com/s/30kmknnhkf4ullk/report_human_salmonella.html?dl=0)*. We will expand these list of precomputed values in future.
+To save time for users, we have precomputed the cross-mapping values for some widely sequences species, namelly human combined with each of the following species: *[M. musculus](https://www.dropbox.com/s/18ne29pr3l7xcjt/report_human_mouse.html?dl=0), [A. thaliana](https://www.dropbox.com/s/4yy02qhnlv9z5xz/report_human_arabidopsis.html?dl=0), [D. melanogaster](https://www.dropbox.com/s/b0h4agubz4r3b48/report_human_fly.html?dl=0), [C. elegans](https://www.dropbox.com/s/d6bzsepljo0cxlr/report_nematode.html?dl=0), [S. cerevisiae](https://www.dropbox.com/s/bnsryeg7rgbv4ll/report_human_yeast.html?dl=0)* and *[S. typhimurium](https://www.dropbox.com/s/30kmknnhkf4ullk/report_human_salmonella.html?dl=0)* (please download the files to view correctly). We will expand these list of precomputed values in future.
 
 
 ## Contact and reporting
