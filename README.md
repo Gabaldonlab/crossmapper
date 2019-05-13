@@ -171,7 +171,7 @@ We have created a [Step-by-Step tutorial](https://github.com/Gabaldonlab/crossma
 
 ## Precomputed values
 
-To save time for users, we have precomputed the cross-mapping values for some widely sequences species, namelly human combined with each of the following species: *M. musculus, A. thaliana, D. melanogaster, S. cerevisiae* and *S. typhimurium*. We will expand these list of precomputed values in future.
+To save time for users, we have precomputed the cross-mapping values for some widely sequences species, namelly human combined with each of the following species: *M. musculus, A. thaliana, D. melanogaster, C. elegans, S. cerevisiae* and *S. typhimurium*. We will expand these list of precomputed values in future.
 
 
 ## Contact and reporting
