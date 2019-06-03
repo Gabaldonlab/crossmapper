@@ -1,0 +1,12 @@
+### Indexing a fasta file
+
+$HISAT2_HOME/hisat2-build fasta.fa  index_name
+
+### Mapping SE reads and generating unsorted sam file
+
+$HISAT2_HOME/hisat2 -f -x index_name -U reads_1.fq -S example1.sam
+
+### Mapping SE reads and generating unsorted sam file
+
+$HISAT2_HOME/hisat2 -f -x index_name -1 reads_1.fq -2 reads_2.fq -S eg2.sam
+
