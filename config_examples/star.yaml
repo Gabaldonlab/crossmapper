@@ -16,10 +16,14 @@ output: {out:basename}_Aligned.out.bam
 ## list of available var
 # {out_dir} : output dir this will be the whole path {base_dir}/{outputdir_name}_output    [-o option of crossmaper {base_dir} ] + outputdir option in the template {outputdir_name} + prefix "_output"
 # {ref_dir} : reference index dir this will {base_dir}/{outputdir_name}_index [-o option of crossmaper] + outputdir option in the template + postfix "_index"
+# {ref_prefix} :: prefex name to the genome index
 # {1} {2} : fastq files
 # {ref_fasta} : reference fasta file
 # {out} : output bam/sam file , this whould be file name with full path {base_dir}/{outputdir_name}_output/[internal pattern with readlen and layout e.g concat_50_PE  ].{output_type}
 ## using :basename qualifier with {out:basename} with exclude path and extendtion return only [internal pattern with readlen and layout e.g concat_50_PE  ]   
+# {layout} : PE or SE
+# {read_len} : read len 
+# {gtf} : gtf file
 template:
 # index template
   index : STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11  
