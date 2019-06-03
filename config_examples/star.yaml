@@ -1,0 +1,27 @@
+# mapper type DNA/RNA
+# Could it possible to have DNA and RNA together ??
+type: RNA
+## dep for auto install if it is not installed
+dep: bioconda/STAR
+# output folder name, related to the outpur dir given in the main crossmaper command
+outputdir_name : STAR
+# output type sam or bam
+# output of the mapper template command
+output_type : sam
+# output is sorted  yes/no
+# so we do not run samtools sort
+sorted : no
+## [optional] override the expeted out files name , this does not change {out} value !!
+output: {out:basename}_Aligned.out.bam
+## list of available var
+# {out_dir} : output dir this will be the whole path {base_dir}/{outputdir_name}_output    [-o option of crossmaper {base_dir} ] + outputdir option in the template {outputdir_name} + prefix "_output"
+# {ref_dir} : reference index dir this will {base_dir}/{outputdir_name}_index [-o option of crossmaper] + outputdir option in the template + postfix "_index"
+# {1} {2} : fastq files
+# {ref_fasta} : reference fasta file
+# {out} : output bam/sam file , this whould be file name with full path {base_dir}/{outputdir_name}_output/[internal pattern with readlen and layout e.g concat_50_PE  ].{output_type}
+## using :basename qualifier with {out:basename} with exclude path and extendtion return only [internal pattern with readlen and layout e.g concat_50_PE  ]   
+template:
+# index template
+  index : STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11  
+  both : 
+   - STAR --runThreadN 10 --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM Unsorted --outFileNamePrefix {out_dir}/{out:basename}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir ./TMPs
