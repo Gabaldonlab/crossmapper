@@ -2,7 +2,7 @@
 # Could it possible to have DNA and RNA together ??
 type: DNA
 ## dep for auto install if it is not installed
-dep: biocona/bwa
+dep: bioconda/bwa
 # output folder name, related to the outpur dir given in the main crossmaper command
 outputdir : bwa
 # output type sam or bam
