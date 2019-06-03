@@ -1,0 +1,13 @@
+### Indexing fasta file
+$BT2_HOME/bowtie2-build fasta.fa index_name
+
+### Run mapping for SE data to generate unsorted sam file
+
+$BT2_HOME/bowtie2 -x index_name -U reads_1.fq -S example1.sam
+
+### Run mapping for PE data to generate unsorted sam file
+
+$BT2_HOME/bowtie2 -x index_name -1 reads_1.fq -2 reads_2.fq -S example2.sam
+
+
+
