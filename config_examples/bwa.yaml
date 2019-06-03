@@ -1,0 +1,26 @@
+# mapper type DNA/RNA
+# Could it possible to have DNA and RNA together ??
+type: DNA
+## dep for auto install if it is not installed
+dep: biocona/bwa
+# output folder name, related to the outpur dir given in the main crossmaper command
+outputdir : bwa
+# output type sam or bam
+# output of the mapper template command
+outputType : sam
+## [optional]
+output: {out:basename}_post.bam
+template:
+# index template
+  index : bwa index -p {ref_fasta} 
+  se : 
+   - bwa mem {ref_index} {1} > {out}
+  pe : 
+  ## using {out:basename}.sam is the same as {out} in this case
+  ## this is just for demo only
+   - bwa mem {1} {2} > {out:basename}.sam
+   # it is possible to have multi command as well
+   - bwa bla bla bla
+
+## [optional] post cmd template if needed
+  post : samtools sort -o {out:basename}_post.bam {out}
