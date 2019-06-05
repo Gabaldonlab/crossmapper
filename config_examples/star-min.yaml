@@ -1,0 +1,12 @@
+# mapper type DNA/RNA
+type: RNA
+## dep for auto install if it is not installed
+dep: bioconda/STAR
+# output folder default is mapping, output type default is sam , and not sorted
+## [optional] override the expeted out files name , this does not change {out} value !!
+output: {out:basename}_Aligned.out.bam
+template:
+# index template
+  index : STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11  
+  both : 
+    - STAR --runThreadN 10 --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM Unsorted --outFileNamePrefix {out_dir}/{out:basename}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir ./TMPs
