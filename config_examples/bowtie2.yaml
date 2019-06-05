@@ -6,5 +6,5 @@ dep: bioconda/bowtie2
 template:
 # index template
   index : bowtie2-build {ref_fasta} {ref_index}
-  SE : bowtie2 -x {ref_index} -U {1} -S {out}
-  PE : bowtie2 -x {ref_index} -1 {1} -2 {2} -S {out}
+  se : bowtie2 -x {ref_index} -U {1} -S {out}
+  pe : bowtie2 -x {ref_index} -1 {1} -2 {2} -S {out}
