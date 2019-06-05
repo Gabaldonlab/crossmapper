@@ -1,0 +1,10 @@
+# mapper type DNA/RNA
+type: RNA
+## dep for auto install if it is not installed
+dep: bioconda/hisat2
+# output folder default is mapping, output type default is sam , and not sorted
+template:
+# index template
+  index : hisat2-build {ref_fasta} {ref_index}
+  se : hisat2 -f -x {ref_index} -U {1} -S {out}
+  pe : hisat2 -f -x {ref_index} -1 {1} -2 {2} -S {out}
