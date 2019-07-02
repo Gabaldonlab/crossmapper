@@ -6,12 +6,14 @@ import sys
 import argparse
 import subprocess 
 import math
-
+import yaml
 from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
 from crossmap.simulateReads import simulateData, renameChromosomes
 from crossmap.mapping import concatGeneomes
 from crossmap.mapping import mapping
 from crossmap.countUtil import getReadCounters
+from crossmap.mapper import STARMapper,BWAMapper,TemplateMapper
+
 
 
 ## temp allocation
@@ -27,7 +29,7 @@ soft_version = "0.1"
 
 standard_rlen = [50, 75, 100, 125, 150, 300]
 
-__DEBUG__ = False
+__DEBUG__ = True
 ###############################################################################
 
 
@@ -118,6 +120,7 @@ def createArgumentParser():
     
     shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str, metavar = "PATH",
                        help = "Specify the output directory for crossmap output files.")
+    
 
 
     ## TODO ::
@@ -132,6 +135,12 @@ def createArgumentParser():
     
     shardParser.add_argument("-gn", "--genome_names", type=str, nargs="+", metavar = "name",
                                       help="Specify names of the genomes. The names will appear in the report file." )
+
+
+    shardParser.add_argument("--mapper-template", "--mapper-template", default = None, type = str, metavar = "PATH",
+                       help = "--mapper-template")
+
+
 
     parser_DNA = subparsers.add_parser("DNA",help = "Simulate DNA data",formatter_class=argparse.ArgumentDefaultsHelpFormatter , parents=[shardParser] )
     
@@ -334,6 +343,45 @@ def parseArgument(argumentParser):
     setupLogger(parsedArgs)
 
     getLogger().info("Starting the program with  \"" + cmdLine + "\"")
+
+
+
+    if parsedArgs.mapper_template is None:
+        if parsedArgs.simulation_type == "RNA":
+            parsedArgs.mapper = STARMapper(parsedArgs)
+        else:
+            parsedArgs.mapper = BWAMapper(parsedArgs)
+    else:
+        if os.path.dirname(parsedArgs.mapper_template) == "":
+            # if no path look at the current dir if not look to config folder of the module
+            if not os.path.exists(parsedArgs.mapper_template):
+                mappersConfigFolder =  os.path.abspath(os.path.dirname(os.path.realpath(__file__) ) +"/mappers_config/" ) 
+                mapperTemplatePath = os.path.join(mappersConfigFolder,parsedArgs.mapper_template)
+                if not os.path.exists(mapperTemplatePath):
+                    ## see if we have an ext
+                    if os.path.splitext(parsedArgs.mapper_template)[1] == "":
+                        ## add yaml ext and try again
+                        mapperTemplatePath = os.path.join(mappersConfigFolder,parsedArgs.mapper_template + ".yaml")
+                        if not os.path.exists(mapperTemplatePath):
+                            sys.exit(f"Can not Find the mapper template {parsedArgs.mapper_template} provided\{mappersConfigFolder} .")
+                        else:
+                            parsedArgs.mapper_template = mapperTemplatePath
+                else:
+                    parsedArgs.mapper_template = mapperTemplatePath
+                
+        with open(parsedArgs.mapper_template, 'r') as inputTemplate:
+            try:
+                configTemplate = yaml.safe_load(inputTemplate)
+                parsedArgs.mapper = TemplateMapper(configTemplate,parsedArgs)
+                getLogger().info(f"Custom Mapper Tempalte {parsedArgs.mapper.mapperName} Will be used.")
+                parsedArgs.mapper.checkDep()
+            except yaml.YAMLError as exc:
+                 sys.exit("Can not Parse config Tempalte,  {0}".format( exc))
+            except Exception as ex :
+                getLogger().error("Error Can not use Custom Mapper,  {0}".format( ex))            #raise ex
+                sys.exit("Error Can not use Custom Mapper.")
+
+
 
     return parsedArgs
 
