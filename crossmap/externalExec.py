@@ -74,13 +74,16 @@ def execute(cmd, softName="extr_cmd" , stdOutFile = None  , stdErrFile = None , 
             return ExecRes(cmd,process,softName, stdOutFile , stdErrFile) 
         except FileNotFoundError as no_file:
 
-            logger.error("Error in execute CMD : NO SUCH FILE OR DIRECTORY", exc_info=True)
+            logger.error("Error in execute CMD : NO SUCH FILE OR DIRECTORY. " + str(no_file), exc_info=True)
+            raise Exception("Can not execute CMD, " + str(no_file) )
         except PermissionError as perm_denied:
-            logger.error("PERMISSION DENIED", exc_info=True)
+            logger.error("PERMISSION DENIED, " + str(perm_denied), exc_info=True)
+            raise Exception("Error in execute CMD, " + str(perm_denied) )
 
         except Exception as ex:
-            logger.error("Error in execute CMD", exc_info=True)            #raise ex
-            
+            logger.error("Error in execute CMD: " + str(ex), exc_info=True)            #raise ex
+            raise Exception("Error in execute CMD, " + str(ex) )
+
             
         return ExecRes(cmd,None,softName, stdOutFile , stdErrFile) 
 
