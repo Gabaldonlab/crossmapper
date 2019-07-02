@@ -4,30 +4,41 @@ type: RNA
 ## dep for auto install if it is not installed
 dep: bioconda/STAR
 # output folder name, related to the outpur dir given in the main crossmaper command
-outputdir_name : STAR
+## Change this to mapper_name
+mapper_name : STAR
 # output type sam or bam
 # output of the mapper template command
-output_type : sam
+## default is bam
+output_type : bam
 # output is sorted  yes/no
 # so we do not run samtools sort
-sorted : no
-## [optional] override the expeted out files name , this does not change {out} value !!
-output: {out:basename}_Aligned.out.bam
+# default is no
+sorted : yes
+## [optional] override the expeted out files name , this does not change {outputfile} value !!
+# outputfile_pattern: "{outputfile_prefix}_Aligned.out.bam"
+# outputfile_pattern: "{outputfile_prefix}.{output_type}"
+outputfile_pattern: "{outputfile_prefix}_Aligned.sortedByCoord.out.bam"
 ## list of available var
 # {base_dir} : -o option of crossmaper 
-# {out_dir} : output dir this will be the whole path {base_dir}/{outputdir_name}_output    [-o option of crossmaper {base_dir} ] + outputdir option in the template {outputdir_name} + prefix "_output"
+# {output_dir} : output dir this will be the whole path {base_dir}/{outputdir_name}_output    [-o option of crossmaper {base_dir} ] + outputdir option in the template {outputdir_name} + prefix "_output"
 # {ref_dir} : reference index dir this will {base_dir}/{outputdir_name}_index [-o option of crossmaper] + outputdir option in the template + postfix "_index"
 # {ref_prefix} :: prefex name to the genome index
 # {ref_index} : {ref_dir}/{ref_prefix} 
 # {1} {2} : fastq files
 # {ref_fasta} : reference fasta file
-# {out} : output bam/sam file , this whould be file name with full path {base_dir}/{outputdir_name}_output/[internal pattern with readlen and layout e.g concat_50_PE  ].{output_type}
+# {out} : output bam/sam file , this whould be file name with full path {base_dir}/{outputdir_name}_output/{outputfile_prefix}.{output_type}
+# {output_aligned_file}
+# [internal pattern with readlen and layout e.g concat_50_PE  ]
+# {outputfile_prefix} : 
+# {output_type}
 ## using :basename qualifier with {out:basename} with exclude path and extendtion return only [internal pattern with readlen and layout e.g concat_50_PE  ]   
 # {layout} : PE or SE
 # {read_len} : read len 
 # {gtf} : gtf file
+# {genome_len} : concatenated geneome length calculated from ref_fasta
 template:
 # index template
-  index : STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11  
-  both : 
-   - STAR --runThreadN 10 --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM Unsorted --outFileNamePrefix {out_dir}/{out:basename}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir ./TMPs
+  index : "STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11"
+  both :
+   - "rm -rf ./TMPs" 
+   - "STAR --runThreadN 10 --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM SortedByCoordinate --outFileNamePrefix {output_dir}/{outputfile_prefix}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir ./TMPs"
