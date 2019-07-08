@@ -27,7 +27,7 @@ importlib.reload(crossmap)
 
 
 #%% just test parser creatation
-testCaseIndex = 6
+testCaseIndex = 3
 testCases = [
         "crossmap.py RNA -h",
         ## 1
