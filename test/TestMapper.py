@@ -45,7 +45,27 @@ testCases = [
 
         ## 6 - test HISAT2 template
         "crossmap.py RNA -gb -rc  --mapper-template /home/ahmed/git/crossmapper/config_examples/hisat2.yaml -g  /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa /data/bio/projects/simulation/input/test_11/Sbay.ultrascaf_AND_unplaced.fasta -a /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.93.gtf /data/bio/projects/simulation/input/test_11/Sbay_rebuilt.gtf -N 100000 100000 -gn SC SU -rlen 50,100 -rlay both  -o /data/bio/projects/simulation/test/testcase_HISAT2_RNA -t 10",
+        
+        ## 7  - test STAR template
+        
+        "crossmap.py RNA -gb -rc --mapper-template /home/ghovhannisyan/users/tg/hhovhannisyan/crossmap_gabaldon_lab/crossmapper/config_examples/star.yaml -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -N 100000 100000 -rlen 50,100 -gn calb cpar -rlay both -o ./calb_cpar_star",
+        
+        
+        ## 8 -  test BWA template
+        
+        "crossmap.py DNA -gb -rc --mapper-template /home/ghovhannisyan/users/tg/hhovhannisyan/crossmap_gabaldon_lab/crossmapper/config_examples/bwa.yaml -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 100000 100000 -rlen 50,100 -gn calb cpar -rlay both -o ./calb_cpar_bwa",
+      
+        ## 9 - test HISAT2 template
+        
+        "crossmap.py RNA -gb -rc --mapper-template /home/ghovhannisyan/users/tg/hhovhannisyan/crossmap_gabaldon_lab/crossmapper/config_examples/hisat2.yaml -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -a ./testFiles/testcase1/C_alb_A_chr1.gff ./testFiles/testcase1/CPAR_chr1.gff -N 100000 100000 -rlen 50,100 -gn calb cpar -rlay both -o ./calb_cpar_hisat2",
+      
+        ## 10 -test Bowtie
+        
+        "crossmap.py DNA -gb -rc --mapper-template /home/ghovhannisyan/users/tg/hhovhannisyan/crossmap_gabaldon_lab/crossmapper/config_examples/bowtie2.yaml -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 100000 100000 -rlen 50,100 -gn calb cpar -rlay both -o ./calb_cpar_bowtie2",
 
+        ## 11 -test NGM
+        
+        "crossmap.py DNA -gb -rc --mapper-template /home/ghovhannisyan/users/tg/hhovhannisyan/crossmap_gabaldon_lab/crossmapper/config_examples/ngm.yaml -g ./testFiles/testcase1/C_alb_A_chr1.fasta ./testFiles/testcase1/CPAR_chr1.fasta -N 100000 100000 -rlen 50,100 -gn calb cpar -rlay both -o ./calb_cpar_ngm"
 
         ]
 
@@ -71,7 +91,7 @@ def testCreateArgumentParser(caseIndex = 0):
 
 
 def testRunCrossmap():
-    sys.argv =  getArgv(1)
+    sys.argv =  getArgv(0)
     #print(sys.argv)
     crossmap.crossmapMain()
 

@@ -64,8 +64,9 @@ usage: crossmapper RNA [-h] -g fasta [fasta ...] [-t int] [-e float] [-d int]
                        [-rlay {SE,PE,both}] [-rlen int] [-r float] [-R float]
                        [-X float] [-S int] [-AMB float] [-hapl] [-o PATH]
                        [-gb] [-rc] [-gn name [name ...]]
-                       [-max_mismatch_per_len float] [-bact_mode]
-                       [-max_mismatch int] -a gtf [gtf ...] [-star_tmp PATH]
+                       [--mapper-template PATH] [-max_mismatch_per_len float]
+                       [-bact_mode] [-max_mismatch int] -a gtf [gtf ...]
+                       [-star_tmp PATH]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -128,6 +129,8 @@ optional arguments:
   -gn name [name ...], --genome_names name [name ...]
                         Specify names of the genomes. The names will appear in
                         the report file. (default: None)
+  --mapper-template PATH, --mapper-template PATH
+                        --mapper-template (default: None)
 
 Required Arguments:
   -g fasta [fasta ...], --genomes fasta [fasta ...]
