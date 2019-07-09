@@ -61,7 +61,7 @@ setup(
     package_data={'crossmapper': ['mappers_config/*']},
 
     entry_points={ ## we might not need this :: we could use conda bin ??
-         'console_scripts': ['crossmapper=crossmap:crossmap.crossmapMain'],
+         'console_scripts': ['crossmapper=crossmapper:crossmapper.crossmapMain'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,
