@@ -177,7 +177,7 @@ def createArgumentParser():
     
 
     rnaSharedGroup.add_argument("-star_tmp", "--star_temp_dir", default = "./TMPs",  type=str, metavar="PATH",
-    	help = "Specify a full path to a local temprorary directory, where all intermediate files of STAR will be written. "
+    	help = "Specify a full path to a local temporary directory, where all intermediate files of STAR will be written. "
     	+ " This option can be used when running Crossmaper from a local machine in a server or cluster with SAMBA connection.")
 
     
@@ -344,7 +344,9 @@ def parseArgument(argumentParser):
 
     getLogger().info("Starting the program with  \"" + cmdLine + "\"")
 
-
+    ## FIXE :: change this option to be global
+    if parsedArgs.simulation_type == "DNA":
+        parsedArgs.star_temp_dir = "./TMPs"
 
     if parsedArgs.mapper_template is None:
         if parsedArgs.simulation_type == "RNA":

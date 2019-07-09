@@ -63,6 +63,12 @@ _var_layout = "layout"
 # {read_len} : read len 
 _var_read_len  = "read_len"
 _var_genome_len = "genome_len"
+
+_var_n_threads = "n_threads"
+_var_tmp_dir = "tmp_dir"
+
+
+
 _var_qualifier_basename = "basename"
 
 
@@ -110,10 +116,10 @@ class Env():
     def eval(self,varKey,qualifier = None):
         varValue = self.getEnvVarValue(varKey)
         if qualifier is None :
-            return varValue
+            return str(varValue)
         else:
             if qualifier in self.qualifiers :
-                return self.qualifiers[qualifier](varKey,varValue,self)
+                return str(self.qualifiers[qualifier](varKey,varValue,self))
             else :
                 raise Exception("Unknown qualifier ({0}) used in the template. Please refer to the manual for list of available qualifier.".format(qualifier))
 
@@ -127,7 +133,8 @@ def checkMisssing(templateDict,key):
 class CMDToken:
     
     def __init__(self,term):
-        self.term =  term
+        ## try to see if it work file
+        self.term =  str(term)
         return
 
     def eval(self,env = None):
@@ -154,6 +161,7 @@ VAR_SCANNER = re.compile(r'''
 
 class VarToken(CMDToken):
     def __init__(self,term):
+        term = str(term)
         super().__init__(term)
         if ":" in term:
             tokens = term.split(":")
@@ -178,7 +186,7 @@ class VarToken(CMDToken):
 class CVarToken(CMDToken):
     def __init__(self,term):
         super().__init__(term)
-        self.varTemplate = term
+        self.varTemplate = str(term)
         
         self.varTemplateTokens = []
         
@@ -241,7 +249,7 @@ class CMDTemplate:
 #            self.templateBase = self.templateBase = tokens[0].strip() 
         
         self.templateTokens = []
-        
+        # print(self.template)
         for match in re.finditer(TEMPLATE_SCANNER, self.template):
             whitespaces,literalToken,variableToken,redir,errors =  match.groups()
             # print([whitespaces,literalToken,variableToken,redir,errors])
@@ -306,10 +314,10 @@ class CMDTemplateList:
         
     def setEnv(self,env):
         self.env = env
-    def execCmdList(self):
+    def execCmdList(self, cmdDir = None):
         for cmdTemplate in self.cmdTempaltes:
             cmdTemplate.setEnv(self.env)
-            cmdTemplate.execCmd()
+            cmdTemplate.execCmd(cmdDir)
 
 #%% #################################################
 class MapperBase:
@@ -641,6 +649,10 @@ class TemplateMapper(MapperBase):
         # setup shared env variables
         self.sharedEnv = Env(self.parsedArgs)
         
+        
+        self.sharedEnv.setEnvVar(_var_tmp_dir,self.parsedArgs.star_temp_dir)
+        self.sharedEnv.setEnvVar(_var_n_threads,self.parsedArgs.threads)
+        
         # self.sharedEnvVar[_var_base_dir] = self.parsedArgs.out_dir
         self.sharedEnv.setEnvVar(_var_base_dir,self.parsedArgs.out_dir)
         
@@ -686,8 +698,8 @@ class TemplateMapper(MapperBase):
     
     def onRunBuildIndex(self,genomeLen,indexFolder):
         
-        indexCmdTemplate = CMDTemplate(self.indexTemplate,env = self.sharedEnv,  cmdName = self.indexFolder )        
-        indexCmdTemplate.execCmd(cmdDir = self.indexFolder)
+        indexCmdTemplate = CMDTemplateList(self.indexTemplate,env = self.sharedEnv,  cmdName = self.indexFolder )        
+        indexCmdTemplate.execCmdList(cmdDir = self.indexFolder)
         
                 
     def doMap(self,fastqFiles,rlen,read_layout):
@@ -701,15 +713,15 @@ class TemplateMapper(MapperBase):
             # Single end case
             self.sharedEnv.setEnvVar(_var_outputfile_prefix,f"concat_{rlen}_SE")
             self.sharedEnv.setEnvVar(_var_layout,"SE")
-            se_mapping = fastqFiles[0]
-            print(se_mapping,rlen,"SE")
+            # se_mapping = fastqFiles[0]
+            # print(se_mapping,rlen,"SE")
             self.seCmdTemplate.execCmdList()
         if read_layout == 'PE' :
             self.sharedEnv.setEnvVar(_var_outputfile_prefix,f"concat_{rlen}_PE")
             self.sharedEnv.setEnvVar(_var_fastq2,fastqFiles[1])
             self.sharedEnv.setEnvVar(_var_layout,"PE")
-            pe_mapping = " ".join(fastqFiles)
-            print(pe_mapping,rlen,"PE")
+            #pe_mapping = " ".join(fastqFiles)
+            # print(pe_mapping,rlen,"PE")
             self.peCmdTemplate.execCmdList()
         return self.sharedEnv.getEnvVarValue(_var_outputfile)
 
