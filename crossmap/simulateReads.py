@@ -1,11 +1,11 @@
 
-from crossmap.helpers import getBaseName, getLogger
+from crossmapper.helpers import getBaseName, getLogger
 import os
 import sys
 from Bio import SeqIO
 import subprocess
-import crossmap
-import crossmap.externalExec
+import crossmapper
+import crossmapper.externalExec
 import random
 
 
@@ -58,7 +58,7 @@ def concatAnnotations(parsedArgs):
         gtf_concat = ' '.join(gtf_list)
         
     #    cmd_gtf_concat = f"cat {gtf_concat} > {parsedArgs.out_dir}/concat.gtf"
-        res = crossmap.externalExec.execute(f"cat {gtf_concat}",
+        res = crossmapper.externalExec.execute(f"cat {gtf_concat}",
                                       "cat",
                                       f"{parsedArgs.out_dir}/concat.gtf",
                                       None,
@@ -84,7 +84,7 @@ def extractTranscriptome(parsedArgs):
             f"{parsedArgs.annotations[i]}"
             
             #print(cmd_gffread_extract)
-            res = crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
+            res = crossmapper.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
             if not res.resCheck():
                 sys.exit("Execution fail")
             #gffread -w transcriptome_name -g parsedArgs.genomes[i] parsedArgs.annotations[i]
@@ -102,7 +102,7 @@ def extractTranscriptome(parsedArgs):
             f"-T -o {parsedArgs.out_dir}/{gtf_name}"
             #print(cmd_gffread_convert)
             
-            res = crossmap.externalExec.execute(cmd_gffread_convert,"gffreadConvert" , outDir = f"{parsedArgs.out_dir}")
+            res = crossmapper.externalExec.execute(cmd_gffread_convert,"gffreadConvert" , outDir = f"{parsedArgs.out_dir}")
             if not res.resCheck(stdoutRemove=True,stdErrRemove = True):
                 sys.exit("Execution fail")
             #gffread parsedArgs.annotations[i] -T -o gtf_name
@@ -119,7 +119,7 @@ def extractTranscriptome(parsedArgs):
             f"{parsedArgs.out_dir}/{gtf_name}"
             
             #print(cmd_gffread_extract)
-            res = crossmap.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
+            res = crossmapper.externalExec.execute(cmd_gffread_extract,"gffreadExtract" , outDir = f"{parsedArgs.out_dir}")
             if not res.resCheck(stdoutRemove=True,stdErrRemove = True):
                 sys.exit("Execution fail")
             # extract the transcript
@@ -164,7 +164,7 @@ f"-S {random_seed} " \
 f"-A {parsedArgs.discard_ambig} " \
 f"{fasta_name} {parsedArgs.simDir}/{fasta_basename}_{read_len}_read1.fastq {parsedArgs.simDir}/{fasta_basename}_{read_len}_read2.fastq "
     
-    crossmap.externalExec.execute(cmd_wgsim,"cmd_wgsim", outDir = f"{parsedArgs.simDir}", overwrite = False)
+    crossmapper.externalExec.execute(cmd_wgsim,"cmd_wgsim", outDir = f"{parsedArgs.simDir}", overwrite = False)
     return cmd_wgsim
 
 
@@ -219,7 +219,7 @@ def concateFastqFiles(parsedArgs, rlen):
             
     genome_concat1=' '.join(genome_list_r1)
         #cmd_read1_concat = f"cat {genome_concat1} > {parsedArgs.out_dir}/concat_{rlen}_read1.fastq"
-    res = crossmap.externalExec.execute(f"cat {genome_concat1}",
+    res = crossmapper.externalExec.execute(f"cat {genome_concat1}",
                                       "cat", 
                                       f"{parsedArgs.simDir}/concat_{rlen}_read1.fastq",
                                       None,
@@ -232,7 +232,7 @@ def concateFastqFiles(parsedArgs, rlen):
         
         # cmd_read2_concat = f"cat {genome_concat2} > {parsedArgs.simDir}/concat_{rlen}_read2.fastq"
     if parsedArgs.read_layout != "SE":
-        res = crossmap.externalExec.execute(f"cat {genome_concat2}",
+        res = crossmapper.externalExec.execute(f"cat {genome_concat2}",
                                           "cat",
                                           f"{parsedArgs.simDir}/concat_{rlen}_read2.fastq",
                                           None,

@@ -5,7 +5,7 @@ Created on Tue Dec  4 09:24:15 2018
 """
 from jinja2 import Template
 import os
-from crossmap.helpers import getLogger
+from crossmapper.helpers import getLogger
 
 
 #######################################    report Templates

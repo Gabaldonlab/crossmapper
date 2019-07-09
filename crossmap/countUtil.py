@@ -1,8 +1,8 @@
 import pysam
 import sys
 import os
-from crossmap.helpers import getLogger
-from crossmap.reporting import createHTMLReport
+from crossmapper.helpers import getLogger
+from crossmapper.reporting import createHTMLReport
 
  
 #%%

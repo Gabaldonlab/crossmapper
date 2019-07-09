@@ -7,12 +7,12 @@ import argparse
 import subprocess 
 import math
 import yaml
-from crossmap.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
-from crossmap.simulateReads import simulateData, renameChromosomes
-from crossmap.mapping import concatGeneomes
-from crossmap.mapping import mapping
-from crossmap.countUtil import getReadCounters
-from crossmap.mapper import STARMapper,BWAMapper,TemplateMapper
+from crossmapper.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
+from crossmapper.simulateReads import simulateData, renameChromosomes
+from crossmapper.mapping import concatGeneomes
+from crossmapper.mapping import mapping
+from crossmapper.countUtil import getReadCounters
+from crossmapper.mapper import STARMapper,BWAMapper,TemplateMapper
 
 
 

@@ -8,8 +8,8 @@ Created on Mon Jun 10 10:14:13 2019
 
 from enum import Enum
 import re
-from crossmap.helpers import getBaseName, getLogger
-import crossmap.externalExec
+from crossmapper.helpers import getBaseName, getLogger
+import crossmapper.externalExec
 from Bio import SeqIO
 import math
 import os 
@@ -286,12 +286,12 @@ class CMDTemplate:
             cmdTemplateStr += term.eval(self.env)
             
         if self.stdoutRedir is None :
-            res = crossmap.externalExec.execute(cmdTemplateStr, f"{cmdName}" , outDir = f"{cmdDir}", overwrite = False)
+            res = crossmapper.externalExec.execute(cmdTemplateStr, f"{cmdName}" , outDir = f"{cmdDir}", overwrite = False)
             if not res.resCheck(clean = False):
                 raise ExecException(f"Failed to excute command {cmdTemplateStr},\nSee log file {res.stdErrFile}")
         else:
             redirectFile = self.stdoutRedir.eval(self.env)
-            res = crossmap.externalExec.execute(cmdTemplateStr, f"{cmdName}", redirectFile,None,  outDir = f"{cmdDir}")
+            res = crossmapper.externalExec.execute(cmdTemplateStr, f"{cmdName}", redirectFile,None,  outDir = f"{cmdDir}")
             if not res.resCheck():
                 raise ExecException(f"Failed to excute command {cmdTemplateStr},\nSee log file {res.stdErrFile}")
                 
@@ -423,7 +423,7 @@ class MapperBase:
 ##########################  Must be implemented in subclasess
 
     def sortBam(self,inFile,outFile,runDir,deleteInFile = True):
-        res = crossmap.externalExec.execute(f"samtools sort -@{self.parsedArgs.threads} -o {outFile} {inFile}",
+        res = crossmapper.externalExec.execute(f"samtools sort -@{self.parsedArgs.threads} -o {outFile} {inFile}",
                                         "samtools" ,
                                         outDir = f"{runDir}")
         if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
@@ -442,7 +442,7 @@ class MapperBase:
     def indexBam(self,inBamFile, runDir):
         cmd_samtools_index = f"samtools index {inBamFile}"
         # print(cmd_samtools_index)
-        res = crossmap.externalExec.execute(cmd_samtools_index,"samtools_index" , outDir = f"{runDir}")
+        res = crossmapper.externalExec.execute(cmd_samtools_index,"samtools_index" , outDir = f"{runDir}")
     
         if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
             raise ExecException("samtools index Execution Failed")
@@ -466,7 +466,7 @@ class STARMapper(MapperBase):
         f"--genomeFastaFiles {self.parsedArgs.genomeConcatFasta} " \
         f"--genomeSAindexNbases {SA_index_size}"
     
-        res = crossmap.externalExec.execute(cmd_star_index,"STAR_index" , outDir = f"{self.parsedArgs.out_dir}" )
+        res = crossmapper.externalExec.execute(cmd_star_index,"STAR_index" , outDir = f"{self.parsedArgs.out_dir}" )
         if not res.resCheck( stdoutRemove = True ):
             raise ExecException("STAR Index Execution Failed")
             #sys.exit("Execution Failed")
@@ -495,7 +495,7 @@ class STARMapper(MapperBase):
             f"--outTmpDir {self.parsedArgs.star_temp_dir}"
         
         # print(cmd_star_mapping)
-        res = crossmap.externalExec.execute(cmd_star_mapping,"STAR_mapping" , outDir = f"{star_dir}", overwrite = False)
+        res = crossmapper.externalExec.execute(cmd_star_mapping,"STAR_mapping" , outDir = f"{star_dir}", overwrite = False)
         if not res.resCheck(clean = False):
             raise ExecException("STAR Execution Failed.")
             # sys.exit("Execution Failed")
@@ -518,7 +518,7 @@ class BWAMapper(MapperBase):
         f"{self.parsedArgs.genomeConcatFasta}"
 
         # print(cmd_bwa_index)
-        res = crossmap.externalExec.execute(cmd_bwa_index,"BWA_index", outDir = f"{self.parsedArgs.out_dir}")
+        res = crossmapper.externalExec.execute(cmd_bwa_index,"BWA_index", outDir = f"{self.parsedArgs.out_dir}")
         if not res.resCheck( stdoutRemove = True ):
             raise ExecException("bwa index Execution Failed.")
             # sys.exit("Execution Failed")
@@ -533,7 +533,7 @@ class BWAMapper(MapperBase):
         
         cmd_bwa_mapping = f"bwa mem -a -t {self.parsedArgs.threads} -A {self.parsedArgs.match_score} -B {self.parsedArgs.mismatch_penalty} {self.parsedArgs.out_dir}/BWA_index/concat_BWA {reads}" 
         #f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -
-        res = crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
+        res = crossmapper.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
                                      tmpSamFile,
                                      None,
                                      outDir = f"{bwa_dir}")

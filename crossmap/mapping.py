@@ -2,8 +2,8 @@ import os
 import sys
 import math
 from Bio import SeqIO
-from crossmap.helpers import getBaseName, getLogger
-import crossmap
+from crossmapper.helpers import getBaseName, getLogger
+import crossmapper
 
 
 
@@ -17,7 +17,7 @@ def concatGeneomes(parsedArgs):
     parsedArgs.genomeConcatFasta = f"{parsedArgs.out_dir}/concat.fasta"
 
 #    cmd_genome_concat = f"cat {genome_concat} > {parsedArgs.out_dir}/concat.fasta"
-    res = crossmap.externalExec.execute(f"cat {genome_concat}",
+    res = crossmapper.externalExec.execute(f"cat {genome_concat}",
                                   "cat",
                                   f"{parsedArgs.genomeConcatFasta}",
                                   None,
@@ -58,7 +58,7 @@ def starIndex(parsedArgs):
     f"--genomeFastaFiles {parsedArgs.genomeConcatFasta} " \
     f"--genomeSAindexNbases {SA_index_size}"
     
-    res = crossmap.externalExec.execute(cmd_star_index,"STAR_index" , outDir = f"{parsedArgs.out_dir}" )
+    res = crossmapper.externalExec.execute(cmd_star_index,"STAR_index" , outDir = f"{parsedArgs.out_dir}" )
     if not res.resCheck( stdoutRemove = True ):
         sys.exit("Execution Failed")
     logger.info("Genome index for STAR is generated.")
@@ -90,7 +90,7 @@ def bwaIndex(parsedArgs):
     f"{parsedArgs.genomeConcatFasta}"
 
     # print(cmd_bwa_index)
-    res = crossmap.externalExec.execute(cmd_bwa_index,"BWA_index", outDir = f"{parsedArgs.out_dir}")
+    res = crossmapper.externalExec.execute(cmd_bwa_index,"BWA_index", outDir = f"{parsedArgs.out_dir}")
     if not res.resCheck( stdoutRemove = True ):
         sys.exit("Execution Failed")
     logger.info("Genome index for BWA is generated.")
@@ -129,7 +129,7 @@ f"--alignIntronMax {intron_len_max} " \
 f"--outTmpDir {parsedArgs.star_temp_dir}"
 
     # print(cmd_star_mapping)
-    res = crossmap.externalExec.execute(cmd_star_mapping,"STAR_mapping" , outDir = f"{star_dir}", overwrite = False)
+    res = crossmapper.externalExec.execute(cmd_star_mapping,"STAR_mapping" , outDir = f"{star_dir}", overwrite = False)
     if not res.resCheck(clean = False):
         sys.exit("Execution Failed")
     
@@ -143,7 +143,7 @@ f"-@{parsedArgs.threads} " \
 f"-o {finalBamFile} {tmpBamFile}"
 
     # print(cmd_samtools_sort)
-    res  = crossmap.externalExec.execute(cmd_samtools_sort,"samtools_sort" , outDir = f"{star_dir}")
+    res  = crossmapper.externalExec.execute(cmd_samtools_sort,"samtools_sort" , outDir = f"{star_dir}")
     if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
         sys.exit("Execution Failed")
     
@@ -159,7 +159,7 @@ f"-o {finalBamFile} {tmpBamFile}"
     logger.info("Starting bam indexing.")
     cmd_samtools_index = f"samtools index {finalBamFile}"
     # print(cmd_samtools_index)
-    res = crossmap.externalExec.execute(cmd_samtools_index,"samtools_index" , outDir = f"{star_dir}")
+    res = crossmapper.externalExec.execute(cmd_samtools_index,"samtools_index" , outDir = f"{star_dir}")
     
     
     
@@ -195,14 +195,14 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     finalBamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}_sorted.bam"
     cmd_bwa_mapping = f"bwa mem -a -t {parsedArgs.threads} -A {parsedArgs.match_score} -B {parsedArgs.mismatch_penalty} {parsedArgs.out_dir}/BWA_index/concat_BWA {reads}" 
     #f"samtools sort @{parsedArgs.threads} -o concat_{rlen}_{read_layout}_sorted.bam -
-    res = crossmap.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
+    res = crossmapper.externalExec.execute(cmd_bwa_mapping,"BWA_mapping" , 
                                  tmpSamFile,
                                  None,
                                  outDir = f"{bwa_dir}")
     if not res.resCheck():
         sys.exit("Execution Failed")
     ## TODO :: samtools view -bS
-    res = crossmap.externalExec.execute(f"samtools sort -@{parsedArgs.threads} -o {finalBamFile} {tmpSamFile}",
+    res = crossmapper.externalExec.execute(f"samtools sort -@{parsedArgs.threads} -o {finalBamFile} {tmpSamFile}",
                                         "samtools" ,
                                         outDir = f"{bwa_dir}")
     if not res.resCheck(stdoutRemove=True,stdErrRemove=True):
@@ -219,7 +219,7 @@ def bwaMapping(parsedArgs,reads,rlen,read_layout):
     logger.info("Starting Bam indexing.")
     cmd_samtools_index = f"samtools index {finalBamFile}"
     #print(cmd_samtools_index)
-    res = crossmap.externalExec.execute(cmd_samtools_index,
+    res = crossmapper.externalExec.execute(cmd_samtools_index,
                                         "samtools_index",
                                         outDir = f"{bwa_dir}")
     if not res.resCheck(stdoutRemove=True,stdErrRemove=True):

@@ -4,7 +4,7 @@
 import os
 import sys
 import subprocess
-from crossmap.helpers import getLogger 
+from crossmapper.helpers import getLogger 
 
 
 class ExecRes(object):

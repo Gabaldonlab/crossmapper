@@ -16,14 +16,14 @@ crossmapMuduleDir = os.path.abspath(os.path.dirname(os.path.realpath(__file__) )
 ## crossmapMuduleDir = "/home/ahmed/git/crossmap"
 sys.path.append(crossmapMuduleDir)
 
-import crossmap 
-import crossmap.mapping
+import crossmapper 
+import crossmapper.mapping
 
 
 #%%
 ## to reload module with new changes
 import importlib
-importlib.reload(crossmap)
+importlib.reload(crossmapper)
 
 
 #%% just test parser creatation
@@ -81,10 +81,10 @@ def getArgv(i):
     return args
 
 def testCreateArgumentParser(caseIndex = 0):
-    import crossmap.crossmap
+    import crossmapper.crossmapper
     sys.argv =  getArgv(caseIndex)
-    parser = crossmap.crossmap.createArgumentParser()
-    parsedArgs = crossmap.crossmap.parseArgument(parser)
+    parser = crossmapper.crossmapper.createArgumentParser()
+    parsedArgs = crossmapper.crossmapper.parseArgument(parser)
     #print(parsedArgs)
     return parsedArgs
 
@@ -93,46 +93,46 @@ def testCreateArgumentParser(caseIndex = 0):
 def testRunCrossmap():
     sys.argv =  getArgv(0)
     #print(sys.argv)
-    crossmap.crossmapMain()
+    crossmapper.crossmapMain()
 
 def testSimulation(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Simulation Test")
-    crossmap.mapping.concatGeneomes(parsedArgs)
-    crossmap.simulateReads.simulateData(parsedArgs)
-    crossmap.crossmap.printOutputFileInfo(parsedArgs,'wgsim')
+    crossmapper.mapping.concatGeneomes(parsedArgs)
+    crossmapper.simulateReads.simulateData(parsedArgs)
+    crossmapper.crossmapper.printOutputFileInfo(parsedArgs,'wgsim')
     logger.info("Simulation Test END")
 
 
 def testMapping(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Mapping Test")
-    crossmap.mapping.mapping(parsedArgs)
-    crossmap.crossmap.printOutputFileInfo(parsedArgs,'mapping')
+    crossmapper.mapping.mapping(parsedArgs)
+    crossmapper.crossmapper.printOutputFileInfo(parsedArgs,'mapping')
     logger.info("Mapping Test END")    
 
 def testMapper(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Mapping Test")
     parsedArgs.mapper.run()
-    crossmap.crossmap.printOutputFileInfo(parsedArgs,'mapping')
+    crossmapper.crossmapper.printOutputFileInfo(parsedArgs,'mapping')
     logger.info("Mapping Test END")  
 
 
 def testCountingStep(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Counting Test")
 
-    res = crossmap.countUtil.getReadCounters(parsedArgs)
+    res = crossmapper.countUtil.getReadCounters(parsedArgs)
     logger.info("Counting Test END")    
     return res
 #testCreateArgumentParser()
 #testRunCrossmap()
 
 def renameChromosomes(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting renameChromosomes Test")
-    res = crossmap.simulateReads.renameChromosomes(parsedArgs)
+    res = crossmapper.simulateReads.renameChromosomes(parsedArgs)
     logger.info("renameChromosomes Test END")    
     return res
 
