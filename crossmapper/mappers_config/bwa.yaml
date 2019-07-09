@@ -1,0 +1,20 @@
+# mapper type DNA/RNA
+# Could it possible to have DNA and RNA together ??
+type: DNA
+## dep for auto install if it is not installed
+dep: bioconda/bwa
+# output folder name, related to the outpur dir given in the main crossmaper command
+mapper_name : bwa
+# output type sam or bam
+# output of the mapper template command
+output_type : sam
+## [optional]
+template:
+# index template
+  index : "bwa index -p {ref_index} {ref_fasta}"
+  se : 
+   - "bwa mem {ref_index} {1} > {outputfile}"
+  pe : 
+  ## using {out:basename}.sam is the same as {out} in this case
+  ## this is just for demo only
+   - "bwa mem {ref_index} {1} {2} > {outputfile}"
