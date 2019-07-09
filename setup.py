@@ -58,6 +58,8 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=find_packages(exclude=('tests',)),
+    package_data={'crossmapper': ['mappers_config/*']},
+
     entry_points={ ## we might not need this :: we could use conda bin ??
          'console_scripts': ['crossmapper=crossmap:crossmap.crossmapMain'],
     },

@@ -365,7 +365,7 @@ def parseArgument(argumentParser):
                         ## add yaml ext and try again
                         mapperTemplatePath = os.path.join(mappersConfigFolder,parsedArgs.mapper_template + ".yaml")
                         if not os.path.exists(mapperTemplatePath):
-                            sys.exit(f"Can not Find the mapper template {parsedArgs.mapper_template} provided\{mappersConfigFolder} .")
+                            sys.exit(f"Can not Find the mapper template {parsedArgs.mapper_template}.")
                         else:
                             parsedArgs.mapper_template = mapperTemplatePath
                 else:
@@ -461,8 +461,8 @@ def crossmapMain():
     simulateData(parsedArgs)
     
     ## 4 
-    mapping(parsedArgs)
-
+    ## mapping(parsedArgs)
+    parsedArgs.mapper.run()
     ## 5 saving files and report are handled inside 
     finalResult = getReadCounters(parsedArgs)
 
