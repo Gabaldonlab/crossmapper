@@ -38,7 +38,8 @@ outputfile_pattern: "{outputfile_prefix}_Aligned.sortedByCoord.out.bam"
 # {genome_len} : concatenated geneome length calculated from ref_fasta
 template:
 # index template
-  index : "STAR --runMode genomeGenerate --runThreadN 10 --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11"
+  index :
+    - "STAR --runMode genomeGenerate --runThreadN {n_threads} --genomeDir {ref_dir} --genomeFastaFiles {ref_fasta} --genomeSAindexNbases 11"
   both :
-   - "rm -rf /home/ghovhannisyan/TMP2/TMP85736" 
-   - "STAR --runThreadN 10 --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM SortedByCoordinate  --limitBAMsortRAM 4000000000 --outFileNamePrefix {output_dir}/{outputfile_prefix}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir /home/ghovhannisyan/TMP2/TMP85736"
+   - "rm -rf {tmp_dir}"
+   - "STAR --runThreadN {n_threads} --genomeDir {ref_dir} --sjdbGTFfile {gtf} --sjdbOverhang 49 --readFilesIn {1} {2} --readFilesCommand cat --outSAMtype BAM SortedByCoordinate  --limitBAMsortRAM 4000000000 --outFileNamePrefix {output_dir}/{outputfile_prefix}_ --outFilterMismatchNmax 10 --outFilterMultimapNmax 10000 --outFilterMismatchNoverReadLmax 0.04 --alignIntronMax 0 --outTmpDir {tmp_dir}"

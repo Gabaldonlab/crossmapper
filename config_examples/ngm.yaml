@@ -13,7 +13,7 @@ template:
 # index template
   index : "ngm -r {ref_fasta}"
   se:
-  - "ngm -q {1} -r {ref_fasta} -o {outputfile} -t 5"
+  - "ngm -q {1} -r {ref_fasta} -o {outputfile} -t {n_threads}"
   pe:
-  - "ngm -r {ref_fasta} -1 {1} -2 {2} -o {outputfile} -t 5"
+  - "ngm -r {ref_fasta} -1 {1} -2 {2} -o {outputfile} -t {n_threads}"
   
