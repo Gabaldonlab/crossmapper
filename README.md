@@ -1,4 +1,3 @@
-[![Anaconda-Server Badge](https://anaconda.org/gabaldonlab/crossmapper/badges/version.svg)](https://anaconda.org/gabaldonlab/crossmapper) 
 [![Anaconda-Server Badge](https://anaconda.org/gabaldonlab/crossmapper/badges/platforms.svg)](https://anaconda.org/gabaldonlab/crossmapper)
 
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
