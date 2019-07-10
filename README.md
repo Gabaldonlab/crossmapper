@@ -179,4 +179,4 @@ To save time for users, we have precomputed the cross-mapping values for some wi
 
 ## Contact and reporting
 
-The users of Crossmapper can report bugs/issues in our [Github Issues section](https://github.com/Gabaldonlab/crossmapper/issues), or alternativelly can ask questions, report bugs and suggest new features for Crossmapper in our [google group](https://groups.google.com/forum/#!forum/crossmapper-users).
+For any issus with Crossmapper usage, please first refer to our [Troubleshooting page](https://github.com/Gabaldonlab/crossmapper/wiki/Troubleshooting). If issues still persist, the users  can report bugs/issues in our [Github Issues section](https://github.com/Gabaldonlab/crossmapper/issues), or alternativelly can ask questions, report bugs and suggest new features for Crossmapper in our [google group](https://groups.google.com/forum/#!forum/crossmapper-users).
