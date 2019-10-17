@@ -1,0 +1,36 @@
+package:
+  name: crossmapper
+  version: "1.1.0"
+
+source:
+  git_rev: master
+  git_url: https://github.com/Gabaldonlab/crossmapper.git
+
+build:
+  number : 1
+
+requirements:
+  build:
+    - python
+    - setuptools
+  run:
+    - python
+    - bwa
+    - star
+    - wgsim
+    - pysam
+    - gffread
+    - biopython
+    - jinja2
+    - pigz
+    - pyyaml
+
+test:
+  imports:
+    - crossmapper
+
+about:
+  home: https://github.com/Gabaldonlab/crossmapper
+  license: GPL-3.0
+  license_file: LICENSE
+  summary: CROSSMAPPER estimating cross-mapping rates and optimizing experimental design in multi-species sequencing studies
