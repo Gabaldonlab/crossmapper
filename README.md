@@ -2,8 +2,9 @@
 [![Anaconda-Server Badge](https://anaconda.org/gabaldonlab/crossmapper/badges/platforms.svg)](https://anaconda.org/gabaldonlab/crossmapper)
 
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
-
-
+<p align="center">
+  <img width="260" height="160" src="https://i.ibb.co/y43H8jZ/logo.png">
+</p>
 
 
 ## General descripiton of Crossmapper
