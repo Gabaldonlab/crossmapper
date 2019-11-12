@@ -3,7 +3,6 @@
 
 ![alt text](https://image.ibb.co/bs7fAV/logos.png)
 
-(https://i.ibb.co/m84M31B/logo.png)
 
 
 
