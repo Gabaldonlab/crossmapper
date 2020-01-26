@@ -10,10 +10,10 @@ import yaml
 from crossmapper.helpers import getBaseName, setupLogger, getLogger , VerboseLevel
 from crossmapper.simulateReads import simulateData, renameChromosomes
 from crossmapper.mapping import concatGeneomes
-from crossmapper.mapping import mapping
+#from crossmapper.mapping import mapping
 from crossmapper.countUtil import getReadCounters
 from crossmapper.mapper import STARMapper,BWAMapper,TemplateMapper
-
+from crossmapper.__version__ import __version__
 
 
 ## temp allocation
@@ -24,12 +24,12 @@ _Main_Prog_Desc = """
   Crossmapper Software
 """
 
-soft_version = "0.1"
+soft_version =  __version__
 
 
 standard_rlen = [50, 75, 100, 125, 150, 300]
 
-__DEBUG__ = False
+__DEBUG__ = True
 ###############################################################################
 
 
