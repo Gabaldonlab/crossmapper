@@ -1,13 +1,13 @@
 package:
   name: crossmapper
-  version: "1.1.0"
+  version: "1.1.1"
 
 source:
   git_rev: master
   git_url: https://github.com/Gabaldonlab/crossmapper.git
 
 build:
-  number : 1
+  number : 0
 
 requirements:
   build:
@@ -19,6 +19,7 @@ requirements:
     - star
     - wgsim
     - pysam
+    - samtools
     - gffread
     - biopython
     - jinja2
