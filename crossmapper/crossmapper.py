@@ -29,7 +29,7 @@ soft_version =  __version__
 
 standard_rlen = [50, 75, 100, 125, 150, 300]
 
-__DEBUG__ = True
+__DEBUG__ = False
 ###############################################################################
 
 
@@ -121,6 +121,8 @@ def createArgumentParser():
     shardParser.add_argument("-o", "--out_dir", default = "crossmap_out", type = str, metavar = "PATH",
                        help = "Specify the output directory for crossmap output files.")
     
+    shardParser.add_argument("--verbose", "--verbose", type = str, choices=["All","None","Debug"], default = "All",
+        help = "Verbose mode.")
 
 
     ## TODO ::
@@ -312,6 +314,8 @@ def parseArgument(argumentParser):
     parsedArgs.isDebug = __DEBUG__
     parsedArgs.logPrefix = "crossmap.log"
     parsedArgs.logFile = os.path.join(parsedArgs.out_dir, parsedArgs.logPrefix)
+    if parsedArgs.verbose == "Debug" :
+        parsedArgs.isDebug = True
     parsedArgs.verbose = VerboseLevel.All
     ## option to report crossmapp reads info files
     # parsedArgs.reportCrossmapped = True
