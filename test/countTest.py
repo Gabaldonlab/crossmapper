@@ -10,18 +10,20 @@ crossmapMuduleDir = os.path.abspath(os.path.dirname(os.path.realpath(__file__) )
 ## crossmapMuduleDir = "/home/ahmed/git/crossmap"
 sys.path.append(crossmapMuduleDir)
 
-import crossmap 
-import crossmap.mapping
+import crossmapper 
+import crossmapper.mapping
 
 
 #%%
 ## to reload module with new changes
 import importlib
-importlib.reload(crossmap)
+importlib.reload(crossmapper)
 
 
 #%% 
 testCases = [
+        "crossmapper --version "
+        "crossmapper DNA -g /data/bio/projects/simulation/input/bug/C_glabrata_CBS138_current_chromosomes.fasta /data/bio/projects/simulation/input/bug/C_parapsilosis_CDC317_current_chromosomes.fasta -t 8 -C 5 5 -rlay both -rlen 50 -gb -rc -gn CGLAB CPAR -o /data/bio/projects/simulation/test",
         "crossmap.py RNA -gb -rc -g  /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.dna.toplevel.fa /data/bio/projects/simulation/input/test_11/Sbay.ultrascaf_AND_unplaced.fasta -a /data/bio/projects/simulation/input/test_11/Saccharomyces_cerevisiae.R64-1-1.93.gtf /data/bio/projects/simulation/input/test_11/Sbay_rebuilt.gtf -N 1000 1000 -gn SC SU -rlen 50 -rlay PE  -o /data/bio/projects/simulation/test/testcase11RNA -t 10",
         "crossmap.py RNA -h",
         "crossmap.py RNA -g ./human.fasta ../mouse.fasta -a ../human.gff ../mouse.gtf -C 20 20 -o myres",
@@ -62,10 +64,10 @@ def getArgv(i):
 
 #%% just test parser creatation
 def testCreateArgumentParser():
-    import crossmap.crossmap
+    import crossmapper.crossmapper
     sys.argv =  getArgv(0)
-    parser = crossmap.crossmap.createArgumentParser()
-    parsedArgs = crossmap.crossmap.parseArgument(parser)
+    parser = crossmapper.crossmapper.createArgumentParser()
+    parsedArgs = crossmapper.crossmapper.parseArgument(parser)
     #print(parsedArgs)
     return parsedArgs
 
@@ -74,38 +76,38 @@ def testCreateArgumentParser():
 def testRunCrossmap():
     sys.argv =  getArgv(1)
     #print(sys.argv)
-    crossmap.crossmapMain()
+    crossmapper.crossmapMain()
 
 def testSimulation(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Simulation Test")
-    crossmap.mapping.concatGeneomes(parsedArgs)
-    crossmap.simulateReads.simulateData(parsedArgs)
-    crossmap.crossmap.printOutputFileInfo(parsedArgs,'wgsim')
+    crossmapper.mapping.concatGeneomes(parsedArgs)
+    crossmapper.simulateReads.simulateData(parsedArgs)
+    crossmapper.crossmapper.printOutputFileInfo(parsedArgs,'wgsim')
     logger.info("Simulation Test END")
 
 
 def testMapping(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Mapping Test")
-    crossmap.mapping.mapping(parsedArgs)
-    crossmap.crossmap.printOutputFileInfo(parsedArgs,'mapping')
+    crossmapper.mapping.mapping(parsedArgs)
+    crossmapper.crossmapper.printOutputFileInfo(parsedArgs,'mapping')
     logger.info("Mapping Test END")    
 
 def testCountingStep(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting Counting Test")
 
-    res = crossmap.countUtil.getReadCounters(parsedArgs)
+    res = crossmapper.countUtil.getReadCounters(parsedArgs)
     logger.info("Counting Test END")    
     return res
 #testCreateArgumentParser()
 #testRunCrossmap()
 
 def renameChromosomes(parsedArgs):
-    logger = crossmap.helpers.getLogger()
+    logger = crossmapper.helpers.getLogger()
     logger.info("Starting renameChromosomes Test")
-    res = crossmap.simulateReads.renameChromosomes(parsedArgs)
+    res = crossmapper.simulateReads.renameChromosomes(parsedArgs)
     logger.info("renameChromosomes Test END")    
     return res
 
