@@ -472,7 +472,11 @@ class STARMapper(MapperBase):
             #sys.exit("Execution Failed")
 
     def doMap(self,fastqFiles, rlen, read_layout):
-        reads =   " ".join(fastqFiles).strip()
+        #reads =   " ".join(fastqFiles).strip()
+        if read_layout == "PE" :
+            reads =   " ".join(fastqFiles).strip()
+        else:
+            reads =   fastqFiles[0]
         overhang = rlen - 1
         star_dir = self.mappingDir
         if self.parsedArgs.bacterial_mode is True:
@@ -526,7 +530,10 @@ class BWAMapper(MapperBase):
     pass
 
     def doMap(self,fastqFiles,rlen,read_layout):
-        reads =   " ".join(fastqFiles).strip()
+        if read_layout == "PE" :
+            reads =   " ".join(fastqFiles).strip()
+        else:
+            reads =   fastqFiles[0]
         bwa_dir = self.mappingDir 
         
         tmpSamFile = f"{bwa_dir}/concat_{rlen}_{read_layout}.sam"
