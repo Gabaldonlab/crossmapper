@@ -24,6 +24,8 @@ Both are part of [EU funded Innovative Training Network OPATHY - From Omics to P
 ### Licensing
 Crossmapper is distribued under the [GNU GENERAL PUBLIC LICENSE v3](https://github.com/GrantHov/crossmap/blob/master/LICENSE).
 
+### Publication
+Crossmapper is published in the [Bioinformatics journal](https://academic.oup.com/bioinformatics/article/36/3/925/5544929).
 
 ## Installation and setup
 We have implemented the Crossmapper in Python 3.6 as an Anaconda package. Thus, the Crossmapper installation is as easy as any other Anaconda package, without a need to solve any dependency issues. 
