@@ -13,7 +13,7 @@ import random
 
 def renameChromosomes(parsedArgs):
     for i in range(0,len(parsedArgs.genomes)):
-        with open(f"{parsedArgs.genomes[i]}", "r+") as original_fasta, open(f"{parsedArgs.chr_rename_fasta[i]}", "w") as renamed_fasta:
+        with open(f"{parsedArgs.genomes[i]}", "r") as original_fasta, open(f"{parsedArgs.chr_rename_fasta[i]}", "w") as renamed_fasta:
             for line in original_fasta.readlines():
                 if line.startswith(">"):
                     line=line.rstrip()
@@ -27,7 +27,7 @@ def renameChromosomes(parsedArgs):
          
           
         if parsedArgs.simulation_type == "RNA": 
-            with open(f"{parsedArgs.annotations[i]}","r+") as original_gff, open(f"{parsedArgs.chr_rename_gff[i]}", "w") as renamed_gff:
+            with open(f"{parsedArgs.annotations[i]}","r") as original_gff, open(f"{parsedArgs.chr_rename_gff[i]}", "w") as renamed_gff:
                 for line in original_gff.readlines():
                     if not line.startswith("#"):
                         line=line.rstrip().split("\t")
